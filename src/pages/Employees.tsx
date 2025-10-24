@@ -58,7 +58,7 @@ const Employees = () => {
           </TabsList>
 
           <TabsContent value="active" className="mt-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
               {activeEmployees.map((employee) => (
                 <EmployeeCard
                   key={employee.id}
@@ -79,7 +79,7 @@ const Employees = () => {
           </TabsContent>
 
           <TabsContent value="deactivated" className="mt-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
               {deactivatedEmployees.length > 0 ? (
                 deactivatedEmployees.map((employee) => (
                   <DeactivatedEmployeeCard
