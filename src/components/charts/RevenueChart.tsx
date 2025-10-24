@@ -1,5 +1,7 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const data = [
   { month: "Jan", revenue: 4200 },
@@ -11,10 +13,24 @@ const data = [
 ];
 
 export const RevenueChart = () => {
+  const [selectedYear, setSelectedYear] = useState("2024");
+
   return (
     <Card className="border-0 shadow-md">
       <CardHeader>
-        <CardTitle>Monthly Revenue</CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle>Monthly Revenue</CardTitle>
+          <Select value={selectedYear} onValueChange={setSelectedYear}>
+            <SelectTrigger className="w-32">
+              <SelectValue placeholder="Select year" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="2024">This Year</SelectItem>
+              <SelectItem value="2023">2023</SelectItem>
+              <SelectItem value="2022">2022</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={300}>

@@ -1,4 +1,4 @@
-import { Bell, Search } from "lucide-react";
+import { Bell, Search, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SidebarTrigger } from "@/components/ui/sidebar";
@@ -42,8 +42,8 @@ export const AppHeader = ({ searchPlaceholder = "Search...", onSearchChange }: A
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                <div className="h-10 w-10 rounded-full gradient-primary flex items-center justify-center text-white font-semibold text-sm shadow-md">
-                  JD
+                <div className="h-10 w-10 rounded-full gradient-primary flex items-center justify-center text-white shadow-md">
+                  <User className="h-5 w-5" />
                 </div>
               </Button>
             </DropdownMenuTrigger>
