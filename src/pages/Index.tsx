@@ -121,7 +121,7 @@ const Index = () => {
                 <div key={job.id} className="flex items-center justify-between p-4 bg-gradient-to-r from-card to-muted/20 rounded-lg border border-border hover:shadow-lg transition-all group">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <p className="font-semibold text-foreground">Order ID: {job.id}</p>
+                      <p className="font-semibold text-foreground">Job ID: {job.id}</p>
                       <Badge className="text-xs capitalize bg-primary/10 text-primary border border-primary/20">
                         {job.type}
                       </Badge>
@@ -165,7 +165,7 @@ const Index = () => {
                         <Calendar className="h-5 w-5 text-accent" />
                       </div>
                       <div>
-                        <p className="font-semibold text-foreground">Order ID: {job.id}</p>
+                        <p className="font-semibold text-foreground">Job ID: {job.id}</p>
                         <p className="text-xs text-muted-foreground">Customer: {job.customerName}</p>
                       </div>
                     </div>
