@@ -54,7 +54,7 @@ const Index = () => {
           </div>
           <Button onClick={() => setJobModalOpen(true)} size="lg" className="gap-2 shadow-lg">
             <FileText className="h-5 w-5" />
-            New Job
+            Manage Job
           </Button>
         </div>
 
