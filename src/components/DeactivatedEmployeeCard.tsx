@@ -8,6 +8,7 @@ interface DeactivatedEmployeeCardProps {
   name: string;
   email: string;
   phone: string;
+  role: string;
   avatar?: string;
   onActivate?: () => void;
 }
@@ -17,6 +18,7 @@ export const DeactivatedEmployeeCard = ({
   name,
   email,
   phone,
+  role,
   avatar,
   onActivate,
 }: DeactivatedEmployeeCardProps) => {
@@ -41,6 +43,7 @@ export const DeactivatedEmployeeCard = ({
             <div>
               <p className="text-xs text-muted-foreground font-medium">ID: {id}</p>
               <h3 className="font-semibold text-lg text-foreground">{name}</h3>
+              <p className="text-sm text-muted-foreground">{role}</p>
             </div>
 
             <div className="space-y-2">

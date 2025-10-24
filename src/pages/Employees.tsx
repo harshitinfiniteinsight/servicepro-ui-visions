@@ -88,6 +88,7 @@ const Employees = () => {
                     name={employee.name}
                     email={employee.email}
                     phone={employee.phone}
+                    role={employee.role}
                     avatar={employee.avatar}
                     onActivate={() => handleActivate(employee.id, employee.name)}
                   />
