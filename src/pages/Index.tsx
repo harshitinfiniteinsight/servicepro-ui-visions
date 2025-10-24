@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { mockJobs } from "@/data/mockData";
+import { format } from "date-fns";
 
 const Index = () => {
   const [jobModalOpen, setJobModalOpen] = useState(false);
@@ -101,7 +102,7 @@ const Index = () => {
           <Card className="border-0 shadow-md">
             <CardHeader>
               <div className="flex items-center justify-between mb-4">
-                <CardTitle>Today's job</CardTitle>
+                <CardTitle>Today's job - {format(new Date(), "EEEE, MMMM d, yyyy")}</CardTitle>
                 <div className="flex items-center gap-2">
                   <div className="flex items-center border rounded-lg p-1 gap-1">
                     <Button
