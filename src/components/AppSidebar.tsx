@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { Home, Users, Briefcase, FileText, FileCheck, ClipboardList, UserCheck, Settings, BarChart3 } from "lucide-react";
+import { Home, Users, Briefcase, FileText, FileCheck, ClipboardList, UserCheck, Settings, BarChart3, Package } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -21,6 +21,7 @@ const navigationItems = [
   { title: "Estimates", url: "/estimates", icon: FileCheck },
   { title: "Agreements", url: "/agreements", icon: ClipboardList },
   { title: "Employees", url: "/employees", icon: UserCheck },
+  { title: "Inventory", url: "/inventory", icon: Package },
 ];
 
 const secondaryItems = [
