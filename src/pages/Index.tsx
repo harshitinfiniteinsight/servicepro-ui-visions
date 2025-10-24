@@ -7,8 +7,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Calendar, FileText, Users, DollarSign, Search, Bell } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { mockCustomers, mockJobs, mockInvoices } from "@/data/mockData";
 
 const Index = () => {
+  const activeJobs = mockJobs.filter(job => job.status !== "Completed").length;
+  const todaysRevenue = mockJobs
+    .filter(job => job.status === "In Progress")
+    .reduce((sum, job) => sum + job.amount, 0);
+  const scheduledJobs = mockJobs.filter(job => job.status === "Scheduled").length;
+  const totalCustomers = mockCustomers.length;
+
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-muted/30">
       <Navigation />
@@ -56,27 +64,27 @@ const Index = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <StatCard
               title="Active Jobs"
-              value={12}
+              value={activeJobs}
               icon={FileText}
               trend={{ value: "+12%", positive: true }}
               color="primary"
             />
             <StatCard
               title="Today's Revenue"
-              value="$3,450"
+              value={`$${todaysRevenue}`}
               icon={DollarSign}
               trend={{ value: "+8%", positive: true }}
               color="success"
             />
             <StatCard
               title="Scheduled"
-              value={8}
+              value={scheduledJobs}
               icon={Calendar}
               color="accent"
             />
             <StatCard
               title="Customers"
-              value={124}
+              value={totalCustomers}
               icon={Users}
               trend={{ value: "+3", positive: true }}
               color="warning"
@@ -94,18 +102,14 @@ const Index = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {[
-                  { id: "J-001", customer: "Sarah Johnson", status: "In Progress", amount: "$450" },
-                  { id: "J-002", customer: "Mike Williams", status: "Scheduled", amount: "$320" },
-                  { id: "J-003", customer: "Emma Davis", status: "Completed", amount: "$680" },
-                ].map((job) => (
+                {mockJobs.map((job) => (
                   <div key={job.id} className="flex items-center justify-between p-4 bg-muted/50 rounded-lg hover:bg-muted transition-colors">
                     <div>
                       <p className="font-semibold text-foreground">{job.id}</p>
-                      <p className="text-sm text-muted-foreground">{job.customer}</p>
+                      <p className="text-sm text-muted-foreground">{job.customerName}</p>
                     </div>
                     <div className="text-right">
-                      <p className="font-semibold text-primary">{job.amount}</p>
+                      <p className="font-semibold text-primary">${job.amount}</p>
                       <span className={`text-xs px-2 py-1 rounded-full ${
                         job.status === "Completed" ? "bg-success/10 text-success" :
                         job.status === "In Progress" ? "bg-warning/10 text-warning" :
@@ -129,14 +133,9 @@ const Index = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  <CustomerCard
-                    id="C-001"
-                    name="Sarah Johnson"
-                    email="sarah.j@email.com"
-                    phone="+1 (555) 123-4567"
-                    address="123 Main St, Boston, MA"
-                    gender="F"
-                  />
+                  {mockCustomers.slice(0, 1).map((customer) => (
+                    <CustomerCard key={customer.id} {...customer} />
+                  ))}
                 </div>
               </CardContent>
             </Card>

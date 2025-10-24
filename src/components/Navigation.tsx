@@ -1,15 +1,15 @@
-import { Home, Users, DollarSign, Package, Calendar, BarChart3, Settings } from "lucide-react";
+import { Home, Users, Briefcase, FileText, FileCheck, ClipboardList, UserCheck } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
 const navItems = [
-  { icon: Home, label: "Job Board", path: "/" },
-  { icon: Users, label: "CRM", path: "/crm" },
-  { icon: DollarSign, label: "Sales", path: "/sales" },
-  { icon: Package, label: "Inventory", path: "/inventory" },
-  { icon: Calendar, label: "Employee", path: "/employee" },
-  { icon: BarChart3, label: "Reports", path: "/reports" },
-  { icon: Settings, label: "Settings", path: "/settings" },
+  { icon: Home, label: "Dashboard", path: "/" },
+  { icon: Users, label: "Customers", path: "/customers" },
+  { icon: Briefcase, label: "Jobs", path: "/jobs" },
+  { icon: FileText, label: "Invoices", path: "/invoices" },
+  { icon: FileCheck, label: "Estimates", path: "/estimates" },
+  { icon: ClipboardList, label: "Agreements", path: "/agreements" },
+  { icon: UserCheck, label: "Employees", path: "/employees" },
 ];
 
 export const Navigation = () => {
