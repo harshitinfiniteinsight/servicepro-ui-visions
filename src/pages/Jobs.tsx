@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Logo } from "@/components/Logo";
-import { Navigation } from "@/components/Navigation";
+import { AppHeader } from "@/components/AppHeader";
+import { JobFormModal } from "@/components/modals/JobFormModal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -10,6 +10,7 @@ import { mockJobs } from "@/data/mockData";
 
 const Jobs = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [modalOpen, setModalOpen] = useState(false);
 
   const filteredJobs = mockJobs.filter((job) =>
     job.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -44,44 +45,16 @@ const Jobs = () => {
   };
 
   return (
-    <div className="flex flex-col md:flex-row min-h-screen bg-muted/30">
-      <Navigation />
-      
-      <div className="flex-1 pb-20 md:pb-6">
-        <header className="sticky top-0 z-30 bg-card border-b border-border backdrop-blur-sm bg-card/95">
-          <div className="px-4 md:px-8 py-4">
-            <div className="flex items-center justify-between mb-4">
-              <Logo size="sm" />
-              <div className="flex items-center gap-3">
-                <Button variant="ghost" size="icon" className="relative">
-                  <Bell className="h-5 w-5" />
-                  <span className="absolute top-1 right-1 h-2 w-2 bg-destructive rounded-full"></span>
-                </Button>
-                <div className="h-10 w-10 rounded-full gradient-primary flex items-center justify-center text-white font-semibold text-sm shadow-md">
-                  JD
-                </div>
-              </div>
-            </div>
-            
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-              <Input 
-                placeholder="Search jobs..." 
-                className="pl-11 h-12 bg-background border-border"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-          </div>
-        </header>
+    <div className="flex-1">
+      <AppHeader searchPlaceholder="Search jobs..." onSearchChange={setSearchQuery} />
 
-        <main className="px-4 md:px-8 py-6 space-y-6 animate-fade-in">
+      <main className="px-6 py-6 space-y-6 animate-fade-in">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-foreground">Jobs</h1>
               <p className="text-muted-foreground">Track and manage all service jobs</p>
             </div>
-            <Button className="gap-2">
+            <Button onClick={() => setModalOpen(true)} className="gap-2">
               <Plus className="h-5 w-5" />
               New Job
             </Button>
@@ -135,8 +108,9 @@ const Jobs = () => {
               </Card>
             ))}
           </div>
+
+          <JobFormModal open={modalOpen} onOpenChange={setModalOpen} mode="create" />
         </main>
-      </div>
     </div>
   );
 };
