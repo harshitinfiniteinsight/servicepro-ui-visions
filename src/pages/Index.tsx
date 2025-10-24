@@ -1,8 +1,8 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { StatCard } from "@/components/StatCard";
 import { AppHeader } from "@/components/AppHeader";
 import { RevenueChart } from "@/components/charts/RevenueChart";
-import { JobFormModal } from "@/components/modals/JobFormModal";
 import { CustomerFormModal } from "@/components/modals/CustomerFormModal";
 import { InvoiceFormModal } from "@/components/modals/InvoiceFormModal";
 import { Button } from "@/components/ui/button";
@@ -14,7 +14,7 @@ import { mockJobs } from "@/data/mockData";
 import { format } from "date-fns";
 
 const Index = () => {
-  const [jobModalOpen, setJobModalOpen] = useState(false);
+  const navigate = useNavigate();
   const [customerModalOpen, setCustomerModalOpen] = useState(false);
   const [invoiceModalOpen, setInvoiceModalOpen] = useState(false);
   const [jobTypeFilter, setJobTypeFilter] = useState("all");
@@ -55,7 +55,7 @@ const Index = () => {
               Here's what's happening with your business today
             </p>
           </div>
-          <Button onClick={() => setJobModalOpen(true)} size="lg" className="gap-2 shadow-lg">
+          <Button onClick={() => navigate("/jobs")} size="lg" className="gap-2 shadow-lg">
             <FileText className="h-5 w-5" />
             Manage Job
           </Button>
@@ -339,7 +339,6 @@ const Index = () => {
           </Card>
         </div>
 
-        <JobFormModal open={jobModalOpen} onOpenChange={setJobModalOpen} mode="create" />
         <CustomerFormModal open={customerModalOpen} onOpenChange={setCustomerModalOpen} mode="create" />
         <InvoiceFormModal open={invoiceModalOpen} onOpenChange={setInvoiceModalOpen} mode="create" />
       </main>
