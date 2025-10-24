@@ -23,7 +23,7 @@ const mainItems = [
   { title: "Customers", url: "/customers", icon: Users },
   { title: "Jobs", url: "/jobs", icon: Briefcase },
   { title: "Employees", url: "/employees", icon: UserCheck },
-  { title: "Inventory", url: "/inventory", icon: Package },
+  { title: "Inventory/Services", url: "/inventory", icon: Package },
 ];
 
 const appointmentItems = [
