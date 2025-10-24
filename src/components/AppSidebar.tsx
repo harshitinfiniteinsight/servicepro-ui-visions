@@ -56,9 +56,39 @@ const navigationItems = [
       { title: "Set Minimum Deposit Percentage", url: "/sales/deposit-settings" },
     ]
   },
-  { title: "Employee", url: "/employees", icon: UserCheck },
-  { title: "Reports", url: "/reports", icon: BarChart3 },
-  { title: "Settings", url: "/settings", icon: Settings },
+  { 
+    title: "Employee", 
+    icon: UserCheck,
+    subItems: [
+      { title: "Employee List", url: "/employees/list" },
+      { title: "Employee Tracking", url: "/employees/tracking" },
+      { title: "Schedule", url: "/employees/schedule" },
+      { title: "Manage Appointment", url: "/employees/appointments" },
+    ]
+  },
+  { 
+    title: "Reports", 
+    icon: BarChart3,
+    subItems: [
+      { title: "Invoice Reports", url: "/reports/invoices" },
+      { title: "Estimate Report", url: "/reports/estimates" },
+      { title: "Monthly Report Alert", url: "/reports/monthly-alerts" },
+    ]
+  },
+  { 
+    title: "Settings", 
+    icon: Settings,
+    subItems: [
+      { title: "Profile", url: "/settings/profile" },
+      { title: "Change Password", url: "/settings/password" },
+      { title: "Permission Settings", url: "/settings/permissions" },
+      { title: "Terms & Conditions", url: "/settings/terms" },
+      { title: "Cancellation & Return Policy", url: "/settings/cancellation" },
+      { title: "Change App Language", url: "/settings/language" },
+      { title: "Help", url: "/settings/help" },
+      { title: "Logout", url: "/settings/logout" },
+    ]
+  },
 ];
 
 export function AppSidebar() {
