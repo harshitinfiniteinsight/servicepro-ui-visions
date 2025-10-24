@@ -107,18 +107,18 @@ const Index = () => {
                     <Button
                       variant={todayJobsView === "list" ? "default" : "ghost"}
                       size="sm"
-                      className="h-8 px-3"
+                      className="h-8 w-8 p-0"
                       onClick={() => setTodayJobsView("list")}
                     >
-                      List
+                      <List className="h-4 w-4" />
                     </Button>
                     <Button
                       variant={todayJobsView === "calendar" ? "default" : "ghost"}
                       size="sm"
-                      className="h-8 px-3"
+                      className="h-8 w-8 p-0"
                       onClick={() => setTodayJobsView("calendar")}
                     >
-                      Calendar
+                      <Calendar className="h-4 w-4" />
                     </Button>
                   </div>
                   <Button variant="ghost" size="sm">View All</Button>
