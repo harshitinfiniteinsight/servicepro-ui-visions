@@ -41,13 +41,13 @@ export const AppHeader = ({ searchPlaceholder = "Search...", onSearchChange }: A
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                <div className="h-10 w-10 rounded-full gradient-primary flex items-center justify-center text-white shadow-md">
-                  <User className="h-5 w-5" />
+              <Button variant="ghost" size="icon" className="relative h-10 w-10 rounded-full p-0 overflow-hidden">
+                <div className="h-full w-full rounded-full gradient-primary flex items-center justify-center shadow-md">
+                  <User className="h-5 w-5 text-white" />
                 </div>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56 bg-card">
+            <DropdownMenuContent align="end" className="w-56 bg-card z-50">
               <DropdownMenuLabel>John Doe</DropdownMenuLabel>
               <DropdownMenuLabel className="font-normal text-muted-foreground">
                 john@servicepro911.com
