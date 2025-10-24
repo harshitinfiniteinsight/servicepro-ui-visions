@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { Home, Users, Briefcase, FileText, FileCheck, ClipboardList, UserCheck, Settings, BarChart3, Package, ChevronDown, DollarSign } from "lucide-react";
+import { Home, Users, Briefcase, FileText, FileCheck, ClipboardList, UserCheck, Settings, BarChart3, Package, ChevronDown, DollarSign, Calendar } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -26,6 +26,11 @@ const mainItems = [
   { title: "Inventory", url: "/inventory", icon: Package },
 ];
 
+const appointmentItems = [
+  { title: "Manage Appointment", url: "/appointments/manage", icon: Calendar },
+  { title: "Add Appointment", url: "/appointments/add", icon: Calendar },
+];
+
 const salesItems = [
   { title: "Invoices", url: "/invoices", icon: FileText },
   { title: "Estimates", url: "/estimates", icon: FileCheck },
@@ -41,6 +46,7 @@ export function AppSidebar() {
   const { open } = useSidebar();
   const location = useLocation();
   const [salesOpen, setSalesOpen] = useState(true);
+  const [appointmentsOpen, setAppointmentsOpen] = useState(true);
 
   const getNavClass = (path: string) => {
     const isActive = location.pathname === path;
@@ -50,6 +56,7 @@ export function AppSidebar() {
   };
 
   const isSalesActive = salesItems.some(item => location.pathname === item.url);
+  const isAppointmentsActive = appointmentItems.some(item => location.pathname === item.url);
 
   return (
     <Sidebar className="border-r border-border">
@@ -72,6 +79,33 @@ export function AppSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
+
+              {/* Appointments Collapsible Group */}
+              <Collapsible open={appointmentsOpen} onOpenChange={setAppointmentsOpen} className="group/collapsible">
+                <SidebarMenuItem>
+                  <CollapsibleTrigger asChild>
+                    <SidebarMenuButton className={isAppointmentsActive ? "bg-primary/10 text-primary" : ""}>
+                      <Calendar className="h-5 w-5" />
+                      <span>Appointments</span>
+                      <ChevronDown className="ml-auto h-4 w-4 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-180" />
+                    </SidebarMenuButton>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <SidebarMenuSub>
+                      {appointmentItems.map((item) => (
+                        <SidebarMenuSubItem key={item.title}>
+                          <SidebarMenuSubButton asChild>
+                            <NavLink to={item.url} className={getNavClass(item.url)}>
+                              <item.icon className="h-4 w-4" />
+                              <span>{item.title}</span>
+                            </NavLink>
+                          </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                      ))}
+                    </SidebarMenuSub>
+                  </CollapsibleContent>
+                </SidebarMenuItem>
+              </Collapsible>
 
               {/* Sales Collapsible Group */}
               <Collapsible open={salesOpen} onOpenChange={setSalesOpen} className="group/collapsible">

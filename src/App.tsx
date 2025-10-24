@@ -13,6 +13,8 @@ import Estimates from "./pages/Estimates";
 import Agreements from "./pages/Agreements";
 import Employees from "./pages/Employees";
 import Inventory from "./pages/Inventory";
+import ManageAppointments from "./pages/ManageAppointments";
+import AddAppointment from "./pages/AddAppointment";
 import Reports from "./pages/Reports";
 import NotFound from "./pages/NotFound";
 
@@ -32,6 +34,8 @@ const App = () => (
                 <Route path="/" element={<Index />} />
                 <Route path="/customers" element={<Customers />} />
                 <Route path="/jobs" element={<Jobs />} />
+                <Route path="/appointments/manage" element={<ManageAppointments />} />
+                <Route path="/appointments/add" element={<AddAppointment />} />
                 <Route path="/invoices" element={<Invoices />} />
                 <Route path="/estimates" element={<Estimates />} />
                 <Route path="/agreements" element={<Agreements />} />
