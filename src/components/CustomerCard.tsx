@@ -53,10 +53,14 @@ export const CustomerCard = ({ id, name, email, phone, address, avatar, gender }
                 <MoreVertical className="h-5 w-5" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48 bg-card">
+            <DropdownMenuContent align="end" className="w-52 bg-card">
+              <DropdownMenuItem className="cursor-pointer">Customer Details</DropdownMenuItem>
               <DropdownMenuItem className="cursor-pointer">Edit Customer</DropdownMenuItem>
               <DropdownMenuItem className="cursor-pointer">Create Invoice</DropdownMenuItem>
               <DropdownMenuItem className="cursor-pointer">Create Estimate</DropdownMenuItem>
+              <DropdownMenuItem className="cursor-pointer">Create Agreement</DropdownMenuItem>
+              <DropdownMenuItem className="cursor-pointer">Add Note</DropdownMenuItem>
+              <DropdownMenuItem className="cursor-pointer">Set up Appointment</DropdownMenuItem>
               <DropdownMenuItem className="cursor-pointer text-destructive">
                 Deactivate
               </DropdownMenuItem>
