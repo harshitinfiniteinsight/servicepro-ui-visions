@@ -169,40 +169,63 @@ const Index = () => {
                   </div>
                 ))
               ) : (
-                <div className="grid grid-cols-7 gap-2">
-                  {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
-                    <div key={day} className="text-center text-xs font-semibold text-muted-foreground p-2">
-                      {day}
-                    </div>
-                  ))}
-                  {Array.from({ length: 35 }, (_, i) => {
-                    const date = new Date();
-                    date.setDate(date.getDate() - date.getDay() + i);
-                    const dayJobs = filteredRecentJobs.filter(job => {
+                <div className="space-y-2 max-h-[500px] overflow-y-auto">
+                  {Array.from({ length: 24 }, (_, hour) => {
+                    const hourJobs = filteredRecentJobs.filter(job => {
                       const jobDate = new Date(job.scheduledDate);
-                      return jobDate.toDateString() === date.toDateString();
+                      const today = new Date();
+                      return jobDate.toDateString() === today.toDateString() && 
+                             jobDate.getHours() === hour;
                     });
-                    const isToday = date.toDateString() === new Date().toDateString();
+                    const currentHour = new Date().getHours();
+                    const isCurrentHour = hour === currentHour;
                     
                     return (
                       <div
-                        key={i}
-                        className={`min-h-20 p-2 rounded-lg border ${
-                          isToday ? "border-primary bg-primary/5" : "border-border bg-card"
+                        key={hour}
+                        className={`flex gap-3 p-3 rounded-lg border ${
+                          isCurrentHour ? "border-primary bg-primary/5" : "border-border bg-card"
                         } hover:shadow-md transition-all`}
                       >
-                        <div className={`text-xs font-semibold mb-1 ${isToday ? "text-primary" : "text-muted-foreground"}`}>
-                          {date.getDate()}
+                        <div className={`w-20 flex-shrink-0 font-semibold ${isCurrentHour ? "text-primary" : "text-muted-foreground"}`}>
+                          {hour.toString().padStart(2, '0')}:00
                         </div>
-                        {dayJobs.slice(0, 2).map((job) => (
-                          <div key={job.id} className="text-xs p-1 mb-1 bg-primary/10 rounded border border-primary/20">
-                            <div className="font-semibold truncate">Job ID: {job.id}</div>
-                            <div className="text-muted-foreground truncate">{job.customerName}</div>
-                          </div>
-                        ))}
-                        {dayJobs.length > 2 && (
-                          <div className="text-xs text-muted-foreground">+{dayJobs.length - 2}</div>
-                        )}
+                        <div className="flex-1 space-y-2">
+                          {hourJobs.length > 0 ? (
+                            hourJobs.map((job) => (
+                              <div key={job.id} className="p-3 bg-primary/10 rounded-lg border border-primary/20 hover:shadow-lg transition-all">
+                                <div className="flex items-center justify-between">
+                                  <div className="flex-1">
+                                    <div className="flex items-center gap-2 mb-1">
+                                      <p className="font-semibold text-foreground">Job ID: {job.id}</p>
+                                      <Badge className="text-xs capitalize bg-primary/10 text-primary border border-primary/20">
+                                        {job.type}
+                                      </Badge>
+                                    </div>
+                                    <p className="text-sm text-muted-foreground">Customer: {job.customerName}</p>
+                                    <p className="text-xs text-muted-foreground">Employee: {job.assignedTo}</p>
+                                  </div>
+                                  <div className="flex items-center gap-3">
+                                    <div className="text-right">
+                                      <p className="font-semibold text-primary">${job.amount}</p>
+                                      <Badge className={
+                                        job.status === "Completed" ? "bg-success/10 text-success border border-success/20" :
+                                        "bg-warning/10 text-warning border border-warning/20"
+                                      }>
+                                        {job.status === "Completed" ? "Paid" : "Open"}
+                                      </Badge>
+                                    </div>
+                                    <Button variant="ghost" size="icon" className="hover:bg-primary/10 transition-colors">
+                                      <Eye className="h-4 w-4" />
+                                    </Button>
+                                  </div>
+                                </div>
+                              </div>
+                            ))
+                          ) : (
+                            <div className="text-sm text-muted-foreground italic">No jobs scheduled</div>
+                          )}
+                        </div>
                       </div>
                     );
                   })}
