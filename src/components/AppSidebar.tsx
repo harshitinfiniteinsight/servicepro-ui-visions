@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { Home, Users, Briefcase, FileText, FileCheck, ClipboardList, UserCheck, Settings, BarChart3 } from "lucide-react";
+import { Home, Users, Package, DollarSign, UserCheck, BarChart3, Settings } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -15,15 +15,10 @@ import { Logo } from "@/components/Logo";
 
 const navigationItems = [
   { title: "Dashboard", url: "/", icon: Home },
-  { title: "Customers", url: "/customers", icon: Users },
-  { title: "Jobs", url: "/jobs", icon: Briefcase },
-  { title: "Invoices", url: "/invoices", icon: FileText },
-  { title: "Estimates", url: "/estimates", icon: FileCheck },
-  { title: "Agreements", url: "/agreements", icon: ClipboardList },
-  { title: "Employees", url: "/employees", icon: UserCheck },
-];
-
-const secondaryItems = [
+  { title: "CRM", url: "/crm", icon: Users },
+  { title: "Inventory", url: "/inventory", icon: Package },
+  { title: "Sales", url: "/sales", icon: DollarSign },
+  { title: "Employee", url: "/employees", icon: UserCheck },
   { title: "Reports", url: "/reports", icon: BarChart3 },
   { title: "Settings", url: "/settings", icon: Settings },
 ];
@@ -54,24 +49,6 @@ export function AppSidebar() {
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <NavLink to={item.url} end className={getNavClass(item.url)}>
-                      <item.icon className="h-5 w-5" />
-                      <span>{item.title}</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarGroup>
-          <SidebarGroupLabel>System</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {secondaryItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink to={item.url} className={getNavClass(item.url)}>
                       <item.icon className="h-5 w-5" />
                       <span>{item.title}</span>
                     </NavLink>

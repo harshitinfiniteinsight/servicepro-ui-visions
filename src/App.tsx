@@ -6,13 +6,12 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import Index from "./pages/Index";
-import Customers from "./pages/Customers";
-import Jobs from "./pages/Jobs";
-import Invoices from "./pages/Invoices";
-import Estimates from "./pages/Estimates";
-import Agreements from "./pages/Agreements";
+import CRM from "./pages/CRM";
+import Inventory from "./pages/Inventory";
+import Sales from "./pages/Sales";
 import Employees from "./pages/Employees";
 import Reports from "./pages/Reports";
+import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -29,13 +28,12 @@ const App = () => (
             <div className="flex-1">
               <Routes>
                 <Route path="/" element={<Index />} />
-                <Route path="/customers" element={<Customers />} />
-                <Route path="/jobs" element={<Jobs />} />
-                <Route path="/invoices" element={<Invoices />} />
-                <Route path="/estimates" element={<Estimates />} />
-                <Route path="/agreements" element={<Agreements />} />
+                <Route path="/crm" element={<CRM />} />
+                <Route path="/inventory" element={<Inventory />} />
+                <Route path="/sales" element={<Sales />} />
                 <Route path="/employees" element={<Employees />} />
                 <Route path="/reports" element={<Reports />} />
+                <Route path="/settings" element={<Settings />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
