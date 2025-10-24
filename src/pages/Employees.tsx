@@ -1,16 +1,16 @@
 import { useState } from "react";
-import { Logo } from "@/components/Logo";
-import { Navigation } from "@/components/Navigation";
+import { AppHeader } from "@/components/AppHeader";
+import { EmployeeFormModal } from "@/components/modals/EmployeeFormModal";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Search, Bell, Plus, Mail, Phone, Briefcase } from "lucide-react";
+import { Plus, Mail, Phone, Briefcase, Calendar, Eye } from "lucide-react";
 import { mockEmployees } from "@/data/mockData";
 
 const Employees = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [modalOpen, setModalOpen] = useState(false);
 
   const filteredEmployees = mockEmployees.filter((employee) =>
     employee.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -19,114 +19,93 @@ const Employees = () => {
   );
 
   return (
-    <div className="flex flex-col md:flex-row min-h-screen bg-muted/30">
-      <Navigation />
-      
-      <div className="flex-1 pb-20 md:pb-6">
-        <header className="sticky top-0 z-30 bg-card border-b border-border backdrop-blur-sm bg-card/95">
-          <div className="px-4 md:px-8 py-4">
-            <div className="flex items-center justify-between mb-4">
-              <Logo size="sm" />
-              <div className="flex items-center gap-3">
-                <Button variant="ghost" size="icon" className="relative">
-                  <Bell className="h-5 w-5" />
-                  <span className="absolute top-1 right-1 h-2 w-2 bg-destructive rounded-full"></span>
-                </Button>
-                <div className="h-10 w-10 rounded-full gradient-primary flex items-center justify-center text-white font-semibold text-sm shadow-md">
-                  JD
-                </div>
-              </div>
-            </div>
-            
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-              <Input 
-                placeholder="Search employees..." 
-                className="pl-11 h-12 bg-background border-border"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
+    <div className="flex-1">
+      <AppHeader searchPlaceholder="Search employees..." onSearchChange={setSearchQuery} />
+
+      <main className="px-6 py-6 space-y-6 animate-fade-in">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground">Employees</h1>
+            <p className="text-muted-foreground">Manage your team members</p>
           </div>
-        </header>
+          <Button onClick={() => setModalOpen(true)} className="gap-2">
+            <Plus className="h-5 w-5" />
+            Add Employee
+          </Button>
+        </div>
 
-        <main className="px-4 md:px-8 py-6 space-y-6 animate-fade-in">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">Employees</h1>
-              <p className="text-muted-foreground">Manage your team members</p>
-            </div>
-            <Button className="gap-2">
-              <Plus className="h-5 w-5" />
-              Add Employee
-            </Button>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filteredEmployees.map((employee) => {
+            const initials = employee.name
+              .split(" ")
+              .map((n) => n[0])
+              .join("")
+              .toUpperCase();
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredEmployees.map((employee) => {
-              const initials = employee.name
-                .split(" ")
-                .map((n) => n[0])
-                .join("")
-                .toUpperCase();
-
-              return (
-                <Card key={employee.id} className="card-hover border-0 shadow-md">
-                  <CardContent className="p-6">
-                    <div className="flex items-start gap-4 mb-4">
-                      <Avatar className="h-16 w-16 border-2 border-primary/20">
-                        <AvatarImage src={employee.avatar} alt={employee.name} />
-                        <AvatarFallback className="bg-primary/10 text-primary font-semibold text-lg">
-                          {initials}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-lg text-foreground">{employee.name}</h3>
-                        <p className="text-sm text-muted-foreground">{employee.id}</p>
-                        <Badge variant="outline" className="mt-2">{employee.role}</Badge>
-                      </div>
-                      <Badge className="bg-success/10 text-success">{employee.status}</Badge>
-                    </div>
-
-                    <div className="space-y-3 mb-4">
-                      <div className="flex items-center gap-3 text-sm">
-                        <Mail className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                        <span className="text-foreground truncate">{employee.email}</span>
-                      </div>
-                      <div className="flex items-center gap-3 text-sm">
-                        <Phone className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                        <span className="text-foreground">{employee.phone}</span>
-                      </div>
-                      <div className="flex items-center gap-3 text-sm">
-                        <Briefcase className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                        <span className="text-foreground">
-                          Hired {new Date(employee.hireDate).toLocaleDateString()}
-                        </span>
+            return (
+              <Card key={employee.id} className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                <CardContent className="p-6">
+                  <div className="flex items-start gap-4 mb-4">
+                    <Avatar className="h-16 w-16 border-2 border-primary/20 shadow-md">
+                      <AvatarImage src={employee.avatar} alt={employee.name} />
+                      <AvatarFallback className="bg-gradient-to-br from-primary to-primary/70 text-white font-semibold text-lg">
+                        {initials}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-lg text-foreground">{employee.name}</h3>
+                      <p className="text-sm text-muted-foreground">{employee.id}</p>
+                      <div className="flex gap-2 mt-2">
+                        <Badge variant="outline" className="border-primary/30 text-primary">{employee.role}</Badge>
+                        <Badge className="bg-success/10 text-success border-success/20" variant="outline">{employee.status}</Badge>
                       </div>
                     </div>
+                  </div>
 
-                    <div className="border-t pt-4">
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground">Total Jobs</span>
-                        <span className="font-bold text-primary">{employee.totalJobs}</span>
-                      </div>
+                  <div className="space-y-3 mb-4">
+                    <div className="flex items-center gap-3 text-sm bg-muted/30 p-2 rounded-lg">
+                      <Mail className="h-4 w-4 text-primary flex-shrink-0" />
+                      <span className="text-foreground truncate">{employee.email}</span>
                     </div>
+                    <div className="flex items-center gap-3 text-sm bg-muted/30 p-2 rounded-lg">
+                      <Phone className="h-4 w-4 text-primary flex-shrink-0" />
+                      <span className="text-foreground">{employee.phone}</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-sm bg-muted/30 p-2 rounded-lg">
+                      <Calendar className="h-4 w-4 text-primary flex-shrink-0" />
+                      <span className="text-foreground">
+                        Hired {new Date(employee.hireDate).toLocaleDateString()}
+                      </span>
+                    </div>
+                  </div>
 
-                    <div className="flex gap-2 mt-4">
-                      <Button variant="outline" size="sm" className="flex-1">
-                        View Schedule
-                      </Button>
-                      <Button size="sm" className="flex-1">
-                        Assign Job
-                      </Button>
+                  <div className="border-t pt-4 mb-4">
+                    <div className="flex items-center justify-between p-3 bg-primary/5 rounded-lg">
+                      <span className="text-sm text-muted-foreground flex items-center gap-2">
+                        <Briefcase className="h-4 w-4" />
+                        Total Jobs
+                      </span>
+                      <span className="font-bold text-xl text-primary">{employee.totalJobs}</span>
                     </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
-        </main>
-      </div>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" className="flex-1 gap-2">
+                      <Eye className="h-4 w-4" />
+                      View
+                    </Button>
+                    <Button size="sm" className="flex-1">
+                      Assign Job
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+
+        <EmployeeFormModal open={modalOpen} onOpenChange={setModalOpen} mode="create" />
+      </main>
     </div>
   );
 };

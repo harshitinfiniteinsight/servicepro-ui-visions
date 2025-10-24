@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { StatCard } from "@/components/StatCard";
 import { CustomerCard } from "@/components/CustomerCard";
-import { QuickActions } from "@/components/QuickActions";
 import { AppHeader } from "@/components/AppHeader";
 import { RevenueChart } from "@/components/charts/RevenueChart";
 import { JobFormModal } from "@/components/modals/JobFormModal";
@@ -30,17 +29,19 @@ const Index = () => {
       <AppHeader searchPlaceholder="Search customers, jobs, or invoices..." />
 
       <main className="px-6 py-6 space-y-6 animate-fade-in">
-        {/* Welcome Section */}
         <div className="flex items-center justify-between">
           <div className="space-y-1">
-            <h1 className="text-3xl font-bold text-foreground">
-              Welcome back, John! 👋
+            <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
+              <div className="h-10 w-10 rounded-lg gradient-primary flex items-center justify-center">
+                <TrendingUp className="h-6 w-6 text-white" />
+              </div>
+              Welcome back, John!
             </h1>
             <p className="text-muted-foreground">
               Here's what's happening with your business today
             </p>
           </div>
-          <Button onClick={() => setJobModalOpen(true)} size="lg" className="gap-2">
+          <Button onClick={() => setJobModalOpen(true)} size="lg" className="gap-2 shadow-lg">
             <FileText className="h-5 w-5" />
             New Job
           </Button>
@@ -176,8 +177,6 @@ const Index = () => {
               </CardContent>
             </Card>
           </div>
-
-        <QuickActions />
 
         <JobFormModal open={jobModalOpen} onOpenChange={setJobModalOpen} mode="create" />
         <CustomerFormModal open={customerModalOpen} onOpenChange={setCustomerModalOpen} mode="create" />
