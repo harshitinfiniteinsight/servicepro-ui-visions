@@ -145,10 +145,9 @@ const Index = () => {
                       <p className="font-semibold text-primary mb-1">${job.amount}</p>
                       <Badge className={
                         job.status === "Completed" ? "bg-success/10 text-success border border-success/20" :
-                        job.status === "In Progress" ? "bg-warning/10 text-warning border border-warning/20" :
-                        "bg-info/10 text-info border border-info/20"
+                        "bg-warning/10 text-warning border border-warning/20"
                       }>
-                        {job.status}
+                        {job.status === "Completed" ? "Paid" : "Open"}
                       </Badge>
                     </div>
                     <Button variant="ghost" size="icon" className="hover:bg-primary/10 transition-colors">
