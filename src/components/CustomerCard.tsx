@@ -83,8 +83,8 @@ export const CustomerCard = ({ id, name, email, phone, address, avatar, gender }
 
         <div className="flex gap-2">
           <Button variant="outline" size="sm" className="flex-1">
-            <Phone className="h-4 w-4" />
-            Call
+            <Mail className="h-4 w-4" />
+            Email
           </Button>
           <Button variant="outline" size="sm" className="flex-1">
             <MessageSquare className="h-4 w-4" />
