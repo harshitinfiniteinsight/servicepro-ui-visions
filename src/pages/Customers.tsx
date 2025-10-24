@@ -1,26 +1,31 @@
 import { useState } from "react";
 import { AppHeader } from "@/components/AppHeader";
 import { CustomerCard } from "@/components/CustomerCard";
+import { DeactivatedCustomerCard } from "@/components/DeactivatedCustomerCard";
 import { CustomerFormModal } from "@/components/modals/CustomerFormModal";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Plus } from "lucide-react";
 import { mockCustomers } from "@/data/mockData";
+import { toast } from "sonner";
 
 const Customers = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("active");
 
-  // Mock data - in real app, filter by active/deactivated status
   const filteredCustomers = mockCustomers.filter((customer) =>
     customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     customer.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
     customer.phone.includes(searchQuery)
   );
 
-  const activeCustomers = filteredCustomers;
-  const deactivatedCustomers = []; // Mock empty array for deactivated
+  const activeCustomers = filteredCustomers.filter(c => c.status === "active");
+  const deactivatedCustomers = filteredCustomers.filter(c => c.status === "deactivated");
+
+  const handleActivate = (customerId: string, customerName: string) => {
+    toast.success(`${customerName} has been activated`);
+  };
 
   return (
     <div className="flex-1">
@@ -56,7 +61,16 @@ const Customers = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {deactivatedCustomers.length > 0 ? (
                 deactivatedCustomers.map((customer) => (
-                  <CustomerCard key={customer.id} {...customer} isActive={false} />
+                  <DeactivatedCustomerCard 
+                    key={customer.id} 
+                    id={customer.id}
+                    name={customer.name}
+                    email={customer.email}
+                    phone={customer.phone}
+                    avatar={customer.avatar}
+                    gender={customer.gender}
+                    onActivate={() => handleActivate(customer.id, customer.name)}
+                  />
                 ))
               ) : (
                 <p className="text-muted-foreground col-span-full text-center py-8">

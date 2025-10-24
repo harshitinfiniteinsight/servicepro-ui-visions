@@ -33,6 +33,28 @@ export const mockCustomers = [
     totalJobs: 12,
     totalRevenue: 5800,
   },
+  {
+    id: "C-004",
+    name: "James Wilson",
+    email: "james.w@email.com",
+    phone: "+1 (555) 456-7890",
+    address: "321 Elm St, Boston, MA 02110",
+    gender: "M" as const,
+    status: "deactivated",
+    totalJobs: 3,
+    totalRevenue: 950,
+  },
+  {
+    id: "C-005",
+    name: "Lisa Anderson",
+    email: "lisa.a@email.com",
+    phone: "+1 (555) 567-8901",
+    address: "654 Maple Dr, Cambridge, MA 02141",
+    gender: "F" as const,
+    status: "deactivated",
+    totalJobs: 6,
+    totalRevenue: 2200,
+  },
 ];
 
 export const mockJobs = [
