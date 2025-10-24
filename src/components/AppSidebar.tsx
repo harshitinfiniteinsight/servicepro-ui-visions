@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { Home, Users, Briefcase, FileText, FileCheck, ClipboardList, UserCheck, Settings, BarChart3, Package } from "lucide-react";
+import { Home, Users, Briefcase, FileText, FileCheck, ClipboardList, UserCheck, Settings, BarChart3, Package, ChevronDown, DollarSign } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -9,19 +9,27 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubItem,
+  SidebarMenuSubButton,
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Logo } from "@/components/Logo";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { useState } from "react";
 
-const navigationItems = [
+const mainItems = [
   { title: "Dashboard", url: "/", icon: Home },
   { title: "Customers", url: "/customers", icon: Users },
   { title: "Jobs", url: "/jobs", icon: Briefcase },
+  { title: "Employees", url: "/employees", icon: UserCheck },
+  { title: "Inventory", url: "/inventory", icon: Package },
+];
+
+const salesItems = [
   { title: "Invoices", url: "/invoices", icon: FileText },
   { title: "Estimates", url: "/estimates", icon: FileCheck },
   { title: "Agreements", url: "/agreements", icon: ClipboardList },
-  { title: "Employees", url: "/employees", icon: UserCheck },
-  { title: "Inventory", url: "/inventory", icon: Package },
 ];
 
 const secondaryItems = [
@@ -32,6 +40,7 @@ const secondaryItems = [
 export function AppSidebar() {
   const { open } = useSidebar();
   const location = useLocation();
+  const [salesOpen, setSalesOpen] = useState(true);
 
   const getNavClass = (path: string) => {
     const isActive = location.pathname === path;
@@ -39,6 +48,8 @@ export function AppSidebar() {
       ? "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground"
       : "hover:bg-muted";
   };
+
+  const isSalesActive = salesItems.some(item => location.pathname === item.url);
 
   return (
     <Sidebar className="border-r border-border">
@@ -51,7 +62,7 @@ export function AppSidebar() {
           <SidebarGroupLabel>Main Menu</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {navigationItems.map((item) => (
+              {mainItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <NavLink to={item.url} end className={getNavClass(item.url)}>
@@ -61,6 +72,33 @@ export function AppSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
+
+              {/* Sales Collapsible Group */}
+              <Collapsible open={salesOpen} onOpenChange={setSalesOpen} className="group/collapsible">
+                <SidebarMenuItem>
+                  <CollapsibleTrigger asChild>
+                    <SidebarMenuButton className={isSalesActive ? "bg-primary/10 text-primary" : ""}>
+                      <DollarSign className="h-5 w-5" />
+                      <span>Sales</span>
+                      <ChevronDown className="ml-auto h-4 w-4 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-180" />
+                    </SidebarMenuButton>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <SidebarMenuSub>
+                      {salesItems.map((item) => (
+                        <SidebarMenuSubItem key={item.title}>
+                          <SidebarMenuSubButton asChild>
+                            <NavLink to={item.url} className={getNavClass(item.url)}>
+                              <item.icon className="h-4 w-4" />
+                              <span>{item.title}</span>
+                            </NavLink>
+                          </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                      ))}
+                    </SidebarMenuSub>
+                  </CollapsibleContent>
+                </SidebarMenuItem>
+              </Collapsible>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
