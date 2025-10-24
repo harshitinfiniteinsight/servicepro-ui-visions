@@ -18,7 +18,7 @@ const Index = () => {
   const [invoiceModalOpen, setInvoiceModalOpen] = useState(false);
   const [jobTypeFilter, setJobTypeFilter] = useState("all");
   const [todayJobsView, setTodayJobsView] = useState<"list" | "calendar">("list");
-  const [upcomingJobsView, setUpcomingJobsView] = useState<"week" | "month">("week");
+  const [upcomingJobsView, setUpcomingJobsView] = useState<"list" | "calendar">("list");
   const [dateFilter, setDateFilter] = useState("all");
 
   const totalJobs = mockJobs.length;
@@ -242,20 +242,20 @@ const Index = () => {
                 <div className="flex items-center gap-2">
                   <div className="flex items-center border rounded-lg p-1 gap-1">
                     <Button
-                      variant={upcomingJobsView === "week" ? "default" : "ghost"}
+                      variant={upcomingJobsView === "list" ? "default" : "ghost"}
                       size="sm"
-                      className="h-8 px-3"
-                      onClick={() => setUpcomingJobsView("week")}
+                      className="h-8 w-8 p-0"
+                      onClick={() => setUpcomingJobsView("list")}
                     >
-                      Week
+                      <List className="h-4 w-4" />
                     </Button>
                     <Button
-                      variant={upcomingJobsView === "month" ? "default" : "ghost"}
+                      variant={upcomingJobsView === "calendar" ? "default" : "ghost"}
                       size="sm"
-                      className="h-8 px-3"
-                      onClick={() => setUpcomingJobsView("month")}
+                      className="h-8 w-8 p-0"
+                      onClick={() => setUpcomingJobsView("calendar")}
                     >
-                      Month
+                      <Calendar className="h-4 w-4" />
                     </Button>
                   </div>
                   <Button variant="ghost" size="sm">View All</Button>
@@ -263,76 +263,37 @@ const Index = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {upcomingJobsView === "week" ? (
-                <div className="space-y-3">
-                  {Array.from({ length: 7 }, (_, i) => {
-                    const date = new Date();
-                    date.setDate(date.getDate() + i);
-                    const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
-                    const dayDate = date.getDate();
-                    const monthName = date.toLocaleDateString('en-US', { month: 'short' });
-                    const isToday = date.toDateString() === new Date().toDateString();
-                    
-                    const dayJobs = upcomingJobs.filter(job => {
-                      const jobDate = new Date(job.scheduledDate);
-                      return jobDate.toDateString() === date.toDateString();
-                    });
-                    
-                    return (
-                      <div
-                        key={i}
-                        className={`border rounded-lg p-4 ${
-                          isToday ? "border-accent bg-accent/5" : "border-border bg-card"
-                        }`}
-                      >
-                        <div className="flex items-center gap-3 mb-3">
-                          <div className={`flex flex-col items-center justify-center w-16 h-16 rounded-lg ${
-                            isToday ? "bg-accent text-white" : "bg-muted"
-                          }`}>
-                            <span className="text-xs font-semibold">{dayName}</span>
-                            <span className="text-2xl font-bold">{dayDate}</span>
-                            <span className="text-xs">{monthName}</span>
-                          </div>
-                          <div className="flex-1">
-                            <p className="font-semibold text-foreground">
-                              {dayJobs.length} {dayJobs.length === 1 ? 'Job' : 'Jobs'}
-                            </p>
-                            <p className="text-xs text-muted-foreground">{date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</p>
-                          </div>
+              {upcomingJobsView === "list" ? (
+                upcomingJobs.slice(0, 5).map((job) => (
+                  <div key={job.id} className="flex items-center justify-between p-4 bg-gradient-to-r from-accent/5 to-accent/10 rounded-lg border border-accent/20 hover:shadow-lg transition-all group">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="h-10 w-10 rounded-full bg-accent/20 flex items-center justify-center">
+                          <Calendar className="h-5 w-5 text-accent" />
                         </div>
-                        
-                        {dayJobs.length > 0 ? (
-                          <div className="space-y-2">
-                            {dayJobs.map((job) => (
-                              <div key={job.id} className="flex items-center justify-between p-3 bg-accent/10 rounded-lg border border-accent/20 hover:shadow-lg transition-all">
-                                <div className="flex-1">
-                                  <div className="flex items-center gap-2 mb-1">
-                                    <p className="font-semibold text-foreground text-sm">Job ID: {job.id}</p>
-                                    <Badge className="text-xs capitalize bg-primary/10 text-primary border border-primary/20">
-                                      {job.type}
-                                    </Badge>
-                                  </div>
-                                  <p className="text-xs text-muted-foreground">Customer: {job.customerName}</p>
-                                  <p className="text-xs text-muted-foreground">Employee: {job.assignedTo}</p>
-                                </div>
-                                <div className="flex items-center gap-3">
-                                  <div className="text-right">
-                                    <p className="font-semibold text-accent">${job.amount}</p>
-                                  </div>
-                                  <Button variant="ghost" size="icon" className="hover:bg-accent/10 transition-colors">
-                                    <Eye className="h-4 w-4" />
-                                  </Button>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        ) : (
-                          <div className="text-sm text-muted-foreground italic text-center py-2">No jobs scheduled</div>
-                        )}
+                        <div>
+                          <p className="font-semibold text-foreground">Job ID: {job.id}</p>
+                          <p className="text-xs text-muted-foreground">Customer: {job.customerName}</p>
+                        </div>
                       </div>
-                    );
-                  })}
-                </div>
+                      <div className="flex items-center gap-2 ml-12">
+                        <Badge variant="outline" className="text-xs">{new Date(job.scheduledDate).toLocaleDateString()}</Badge>
+                        <Badge className="text-xs capitalize bg-primary/10 text-primary border border-primary/20">
+                          {job.type}
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-muted-foreground ml-12 mt-1">Employee: {job.assignedTo}</p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="text-right">
+                        <p className="font-semibold text-accent">${job.amount}</p>
+                      </div>
+                      <Button variant="ghost" size="icon" className="hover:bg-accent/10 transition-colors">
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ))
               ) : (
                 <div className="grid grid-cols-7 gap-2">
                   {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
@@ -342,29 +303,21 @@ const Index = () => {
                   ))}
                   {Array.from({ length: 35 }, (_, i) => {
                     const date = new Date();
-                    const firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
-                    const startDay = firstDay.getDay();
-                    date.setDate(1 - startDay + i);
-                    
+                    date.setDate(date.getDate() - date.getDay() + i);
                     const dayJobs = upcomingJobs.filter(job => {
                       const jobDate = new Date(job.scheduledDate);
                       return jobDate.toDateString() === date.toDateString();
                     });
                     const isToday = date.toDateString() === new Date().toDateString();
-                    const isCurrentMonth = date.getMonth() === new Date().getMonth();
                     
                     return (
                       <div
                         key={i}
-                        className={`min-h-24 p-2 rounded-lg border ${
-                          isToday ? "border-accent bg-accent/5" : 
-                          isCurrentMonth ? "border-border bg-card" : "border-border/50 bg-muted/30"
+                        className={`min-h-20 p-2 rounded-lg border ${
+                          isToday ? "border-accent bg-accent/5" : "border-border bg-card"
                         } hover:shadow-md transition-all`}
                       >
-                        <div className={`text-xs font-semibold mb-1 ${
-                          isToday ? "text-accent" : 
-                          isCurrentMonth ? "text-foreground" : "text-muted-foreground/50"
-                        }`}>
+                        <div className={`text-xs font-semibold mb-1 ${isToday ? "text-accent" : "text-muted-foreground"}`}>
                           {date.getDate()}
                         </div>
                         {dayJobs.slice(0, 2).map((job) => (
