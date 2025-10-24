@@ -256,6 +256,28 @@ export const mockEmployees = [
     totalJobs: 89,
     avatar: "",
   },
+  {
+    id: "E-004",
+    name: "Michael Taylor",
+    email: "michael.t@servicepro911.com",
+    phone: "+1 (555) 444-5555",
+    role: "Technician",
+    status: "Deactivated" as const,
+    hireDate: "2021-08-20",
+    totalJobs: 67,
+    avatar: "",
+  },
+  {
+    id: "E-005",
+    name: "Sarah Martinez",
+    email: "sarah.m@servicepro911.com",
+    phone: "+1 (555) 555-6666",
+    role: "Technician",
+    status: "Deactivated" as const,
+    hireDate: "2022-11-05",
+    totalJobs: 42,
+    avatar: "",
+  },
 ];
 
 export const mockInventory = [
