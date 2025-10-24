@@ -99,7 +99,7 @@ const Index = () => {
           <Card className="border-0 shadow-md">
             <CardHeader>
               <div className="flex items-center justify-between mb-4">
-                <CardTitle>Recent Jobs</CardTitle>
+                <CardTitle>Today's job</CardTitle>
                 <Button variant="ghost" size="sm">View All</Button>
               </div>
               <div className="flex gap-2">
