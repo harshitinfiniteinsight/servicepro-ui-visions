@@ -151,7 +151,7 @@ const Index = () => {
                         {job.status}
                       </Badge>
                     </div>
-                    <Button variant="ghost" size="icon" className="opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Button variant="ghost" size="icon" className="hover:bg-primary/10 transition-colors">
                       <Eye className="h-4 w-4" />
                     </Button>
                   </div>
@@ -193,7 +193,7 @@ const Index = () => {
                       <p className="font-semibold text-accent">${job.amount}</p>
                       <p className="text-xs text-muted-foreground">{job.assignedTo}</p>
                     </div>
-                    <Button variant="ghost" size="icon" className="opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Button variant="ghost" size="icon" className="hover:bg-accent/10 transition-colors">
                       <Eye className="h-4 w-4" />
                     </Button>
                   </div>
