@@ -17,9 +17,10 @@ interface CustomerCardProps {
   address?: string;
   avatar?: string;
   gender?: "M" | "F";
+  isActive?: boolean;
 }
 
-export const CustomerCard = ({ id, name, email, phone, address, avatar, gender }: CustomerCardProps) => {
+export const CustomerCard = ({ id, name, email, phone, address, avatar, gender, isActive = true }: CustomerCardProps) => {
   const initials = name
     .split(" ")
     .map((n) => n[0])
@@ -54,16 +55,24 @@ export const CustomerCard = ({ id, name, email, phone, address, avatar, gender }
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-52 bg-card">
-              <DropdownMenuItem className="cursor-pointer">Customer Details</DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer">Edit Customer</DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer">Create Invoice</DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer">Create Estimate</DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer">Create Agreement</DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer">Add Note</DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer">Set up Appointment</DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer text-destructive">
-                Deactivate
-              </DropdownMenuItem>
+              {isActive ? (
+                <>
+                  <DropdownMenuItem className="cursor-pointer">Customer Details</DropdownMenuItem>
+                  <DropdownMenuItem className="cursor-pointer">Edit Customer</DropdownMenuItem>
+                  <DropdownMenuItem className="cursor-pointer">Create Invoice</DropdownMenuItem>
+                  <DropdownMenuItem className="cursor-pointer">Create Estimate</DropdownMenuItem>
+                  <DropdownMenuItem className="cursor-pointer">Create Agreement</DropdownMenuItem>
+                  <DropdownMenuItem className="cursor-pointer">Add Note</DropdownMenuItem>
+                  <DropdownMenuItem className="cursor-pointer">Set up Appointment</DropdownMenuItem>
+                  <DropdownMenuItem className="cursor-pointer text-destructive">
+                    Deactivate
+                  </DropdownMenuItem>
+                </>
+              ) : (
+                <DropdownMenuItem className="cursor-pointer text-green-600">
+                  Activate
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -85,16 +94,18 @@ export const CustomerCard = ({ id, name, email, phone, address, avatar, gender }
           )}
         </div>
 
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" className="flex-1">
-            <Mail className="h-4 w-4" />
-            Email
-          </Button>
-          <Button variant="outline" size="sm" className="flex-1">
-            <MessageSquare className="h-4 w-4" />
-            SMS
-          </Button>
-        </div>
+        {isActive && (
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" className="flex-1">
+              <Mail className="h-4 w-4" />
+              Email
+            </Button>
+            <Button variant="outline" size="sm" className="flex-1">
+              <MessageSquare className="h-4 w-4" />
+              SMS
+            </Button>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

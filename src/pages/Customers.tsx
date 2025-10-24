@@ -47,7 +47,7 @@ const Customers = () => {
           <TabsContent value="active" className="mt-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {activeCustomers.map((customer) => (
-                <CustomerCard key={customer.id} {...customer} />
+                <CustomerCard key={customer.id} {...customer} isActive={true} />
               ))}
             </div>
           </TabsContent>
@@ -56,7 +56,7 @@ const Customers = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {deactivatedCustomers.length > 0 ? (
                 deactivatedCustomers.map((customer) => (
-                  <CustomerCard key={customer.id} {...customer} />
+                  <CustomerCard key={customer.id} {...customer} isActive={false} />
                 ))
               ) : (
                 <p className="text-muted-foreground col-span-full text-center py-8">
