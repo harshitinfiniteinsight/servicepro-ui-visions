@@ -48,13 +48,13 @@ const Jobs = () => {
     <div className="flex-1">
       <AppHeader searchPlaceholder="Search jobs..." onSearchChange={setSearchQuery} />
 
-      <main className="px-6 py-6 space-y-6 animate-fade-in">
-          <div className="flex items-center justify-between">
+      <main className="px-4 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6 animate-fade-in">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-foreground">Jobs</h1>
-              <p className="text-muted-foreground">Track and manage all service jobs</p>
+              <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Jobs</h1>
+              <p className="text-sm sm:text-base text-muted-foreground">Track and manage all service jobs</p>
             </div>
-            <Button onClick={() => setModalOpen(true)} className="gap-2">
+            <Button onClick={() => setModalOpen(true)} className="gap-2 w-full sm:w-auto">
               <Plus className="h-5 w-5" />
               New Job
             </Button>
@@ -64,44 +64,44 @@ const Jobs = () => {
             {filteredJobs.map((job) => (
               <Card key={job.id} className="card-hover border-0 shadow-md">
                 <CardContent className="p-6">
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div className="space-y-3 flex-1">
-                      <div className="flex items-start justify-between gap-4">
-                        <div>
-                          <div className="flex items-center gap-3 mb-2">
-                            <h3 className="font-semibold text-lg text-foreground">{job.title}</h3>
+                  <div className="flex flex-col gap-4">
+                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                      <div className="flex-1 space-y-2">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                          <h3 className="font-semibold text-base sm:text-lg text-foreground">{job.title}</h3>
+                          <div className="flex flex-wrap items-center gap-2">
                             <Badge className={getStatusColor(job.status)}>{job.status}</Badge>
                             <Badge className={getPriorityColor(job.priority)} variant="outline">
                               {job.priority}
                             </Badge>
                           </div>
-                          <p className="text-sm text-muted-foreground mb-1">{job.id} • {job.customerName}</p>
-                          <p className="text-sm text-foreground">{job.description}</p>
                         </div>
-                        <div className="text-right">
-                          <p className="text-2xl font-bold text-primary">${job.amount}</p>
-                        </div>
+                        <p className="text-sm text-muted-foreground">{job.id} • {job.customerName}</p>
+                        <p className="text-sm text-foreground line-clamp-2">{job.description}</p>
                       </div>
-                      
-                      <div className="flex flex-wrap gap-4 text-sm">
-                        <div className="flex items-center gap-2 text-muted-foreground">
-                          <Calendar className="h-4 w-4" />
-                          <span>{new Date(job.scheduledDate).toLocaleDateString()}</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-muted-foreground">
-                          <User className="h-4 w-4" />
-                          <span>{job.assignedTo}</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-muted-foreground">
-                          <MapPin className="h-4 w-4" />
-                          <span className="line-clamp-1">{job.address}</span>
-                        </div>
+                      <div className="flex sm:flex-col items-start sm:items-end gap-2">
+                        <p className="text-xl sm:text-2xl font-bold text-primary whitespace-nowrap">${job.amount}</p>
                       </div>
                     </div>
                     
-                    <div className="flex gap-2">
-                      <Button variant="outline" size="sm">View Details</Button>
-                      <Button size="sm">Update Status</Button>
+                    <div className="flex flex-wrap gap-3 sm:gap-4 text-xs sm:text-sm">
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <Calendar className="h-4 w-4 flex-shrink-0" />
+                        <span>{new Date(job.scheduledDate).toLocaleDateString()}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <User className="h-4 w-4 flex-shrink-0" />
+                        <span>{job.assignedTo}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <MapPin className="h-4 w-4 flex-shrink-0" />
+                        <span className="line-clamp-1">{job.address}</span>
+                      </div>
+                    </div>
+                    
+                    <div className="flex flex-col sm:flex-row gap-2 pt-2 border-t">
+                      <Button variant="outline" size="sm" className="w-full sm:w-auto">View Details</Button>
+                      <Button size="sm" className="w-full sm:w-auto">Update Status</Button>
                     </div>
                   </div>
                 </CardContent>
