@@ -196,8 +196,8 @@ const Index = () => {
                         </div>
                         {dayJobs.slice(0, 2).map((job) => (
                           <div key={job.id} className="text-xs p-1 mb-1 bg-primary/10 rounded border border-primary/20">
-                            <div className="font-semibold truncate">{job.id}</div>
-                            <div className="text-muted-foreground truncate">${job.amount}</div>
+                            <div className="font-semibold truncate">Job ID: {job.id}</div>
+                            <div className="text-muted-foreground truncate">{job.customerName}</div>
                           </div>
                         ))}
                         {dayJobs.length > 2 && (
@@ -299,8 +299,8 @@ const Index = () => {
                         </div>
                         {dayJobs.slice(0, 2).map((job) => (
                           <div key={job.id} className="text-xs p-1 mb-1 bg-accent/10 rounded border border-accent/20">
-                            <div className="font-semibold truncate">{job.id}</div>
-                            <div className="text-muted-foreground truncate">${job.amount}</div>
+                            <div className="font-semibold truncate">Job ID: {job.id}</div>
+                            <div className="text-muted-foreground truncate">{job.customerName}</div>
                           </div>
                         ))}
                         {dayJobs.length > 2 && (
