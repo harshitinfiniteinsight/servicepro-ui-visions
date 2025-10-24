@@ -165,8 +165,8 @@ const Index = () => {
                         <Calendar className="h-5 w-5 text-accent" />
                       </div>
                       <div>
-                        <p className="font-semibold text-foreground">{job.title}</p>
-                        <p className="text-xs text-muted-foreground">{job.customerName}</p>
+                        <p className="font-semibold text-foreground">Order ID: {job.id}</p>
+                        <p className="text-xs text-muted-foreground">Customer: {job.customerName}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2 ml-12">
@@ -175,11 +175,11 @@ const Index = () => {
                         {job.type}
                       </Badge>
                     </div>
+                    <p className="text-xs text-muted-foreground ml-12 mt-1">Employee: {job.assignedTo}</p>
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="text-right">
                       <p className="font-semibold text-accent">${job.amount}</p>
-                      <p className="text-xs text-muted-foreground">{job.assignedTo}</p>
                     </div>
                     <Button variant="ghost" size="icon" className="hover:bg-accent/10 transition-colors">
                       <Eye className="h-4 w-4" />
