@@ -4,8 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Trash2, UserPlus, Repeat, FileText, Minus } from "lucide-react";
-import { mockCustomers, mockJobs, mockEmployees } from "@/data/mockData";
+import { Plus, Trash2, UserPlus, Repeat, FileText, Minus, Tag, X, Percent, DollarSign } from "lucide-react";
+import { mockCustomers, mockJobs, mockEmployees, mockDiscounts } from "@/data/mockData";
+import { DiscountFormModal } from "./DiscountFormModal";
 import { QuickAddCustomerModal } from "./QuickAddCustomerModal";
 import { AddItemModal } from "./AddItemModal";
 import { Switch } from "@/components/ui/switch";
@@ -28,7 +29,7 @@ export const InvoiceFormModal = ({ open, onOpenChange, invoice, mode }: InvoiceF
     jobId: invoice?.jobId || "",
     issueDate: invoice?.issueDate || new Date().toISOString().split('T')[0],
     dueDate: invoice?.dueDate || "",
-    status: invoice?.status || "Pending",
+    terms: invoice?.terms || "net 30",
     invoiceType: invoice?.invoiceType || "single",
     memo: invoice?.memo || "",
   });
@@ -39,6 +40,10 @@ export const InvoiceFormModal = ({ open, onOpenChange, invoice, mode }: InvoiceF
   const [showTerms, setShowTerms] = useState(false);
   const [termsConditions, setTermsConditions] = useState(invoice?.termsConditions || "");
   const [cancellationPolicy, setCancellationPolicy] = useState(invoice?.cancellationPolicy || "");
+  const [taxRate, setTaxRate] = useState(invoice?.taxRate || 0);
+  const [selectedDiscount, setSelectedDiscount] = useState<any>(invoice?.discount || null);
+  const [showDiscountModal, setShowDiscountModal] = useState(false);
+  const [discountError, setDiscountError] = useState("");
 
   const handleAddItem = (newItem: any) => {
     setItems([...items, newItem]);
@@ -56,7 +61,16 @@ export const InvoiceFormModal = ({ open, onOpenChange, invoice, mode }: InvoiceF
     setItems(newItems);
   };
 
-  const total = items.reduce((sum: number, item: any) => sum + item.amount, 0);
+  const subtotal = items.reduce((sum: number, item: any) => sum + item.amount, 0);
+  const taxAmount = subtotal * (taxRate / 100);
+  
+  const discountAmount = selectedDiscount 
+    ? selectedDiscount.type === "%" 
+      ? subtotal * (selectedDiscount.value / 100)
+      : selectedDiscount.value
+    : 0;
+  
+  const total = subtotal + taxAmount - discountAmount;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -175,7 +189,7 @@ export const InvoiceFormModal = ({ open, onOpenChange, invoice, mode }: InvoiceF
                 </div>
               </div>
 
-              {/* Dates and Status */}
+              {/* Dates and Terms */}
               <div className="grid grid-cols-3 gap-4">
                 <div className="grid gap-2">
                   <Label htmlFor="issueDate">Issue Date *</Label>
@@ -200,15 +214,19 @@ export const InvoiceFormModal = ({ open, onOpenChange, invoice, mode }: InvoiceF
                   />
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="status">Status</Label>
-                  <Select value={formData.status} onValueChange={(value) => setFormData({ ...formData, status: value })}>
+                  <Label htmlFor="terms">Terms *</Label>
+                  <Select value={formData.terms} onValueChange={(value) => setFormData({ ...formData, terms: value })}>
                     <SelectTrigger className="glass-effect">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent className="bg-popover backdrop-blur-xl">
-                      <SelectItem value="Pending">Pending</SelectItem>
-                      <SelectItem value="Paid">Paid</SelectItem>
-                      <SelectItem value="Overdue">Overdue</SelectItem>
+                      <SelectItem value="due on receipt">Due on Receipt</SelectItem>
+                      <SelectItem value="net 15">Net 15</SelectItem>
+                      <SelectItem value="net 30">Net 30</SelectItem>
+                      <SelectItem value="net 45">Net 45</SelectItem>
+                      <SelectItem value="net 60">Net 60</SelectItem>
+                      <SelectItem value="net 90">Net 90</SelectItem>
+                      <SelectItem value="net 120">Net 120</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -302,20 +320,107 @@ export const InvoiceFormModal = ({ open, onOpenChange, invoice, mode }: InvoiceF
                 )}
 
                 {items.length > 0 && (
-                  <div className="mt-6 pt-4 border-t">
-                    <div className="flex justify-end">
-                      <Card className="bg-gradient-to-br from-primary/10 to-accent/10 border-primary/20 min-w-[250px]">
+                  <div className="mt-6 pt-4 border-t space-y-4">
+                    {/* Discount Section */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <Tag className="h-5 w-5 text-primary" />
+                        <div>
+                          <Label className="text-base font-semibold">Order Discount</Label>
+                          <p className="text-xs text-muted-foreground">Apply discount to this invoice</p>
+                        </div>
+                      </div>
+                      <Button type="button" variant="outline" onClick={() => setShowDiscountModal(true)} className="gap-2">
+                        <Plus className="h-4 w-4" />
+                        Add Discount
+                      </Button>
+                    </div>
+
+                    {selectedDiscount && (
+                      <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-accent/5">
                         <CardContent className="p-4">
-                          <div className="space-y-2">
-                            <div className="flex justify-between text-sm">
-                              <span className="text-muted-foreground">Subtotal:</span>
-                              <span className="font-medium">${total.toFixed(2)}</span>
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              {selectedDiscount.type === "%" ? (
+                                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                                  <Percent className="h-5 w-5 text-primary" />
+                                </div>
+                              ) : (
+                                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                                  <DollarSign className="h-5 w-5 text-primary" />
+                                </div>
+                              )}
+                              <div>
+                                <p className="font-semibold">{selectedDiscount.name}</p>
+                                <p className="text-sm text-muted-foreground">
+                                  {selectedDiscount.type === "%" ? `${selectedDiscount.value}%` : `$${selectedDiscount.value}`} discount
+                                </p>
+                              </div>
                             </div>
-                            <Separator />
-                            <div className="flex justify-between">
-                              <span className="text-lg font-semibold">Total Amount:</span>
-                              <span className="text-2xl font-bold text-primary">${total.toFixed(2)}</span>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => {
+                                setSelectedDiscount(null);
+                                setDiscountError("");
+                              }}
+                              className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                            >
+                              <X className="h-5 w-5" />
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
+
+                    {discountError && (
+                      <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
+                        <p className="text-sm text-destructive">{discountError}</p>
+                      </div>
+                    )}
+
+                    {/* Order Summary */}
+                    <div className="flex justify-end">
+                      <Card className="bg-gradient-to-br from-primary/10 to-accent/10 border-primary/20 min-w-[320px]">
+                        <CardContent className="p-6 space-y-3">
+                          <div className="text-lg font-semibold mb-4">Order Summary</div>
+                          
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">Subtotal:</span>
+                            <span className="font-medium">${subtotal.toFixed(2)}</span>
+                          </div>
+                          
+                          <div className="flex justify-between items-center text-sm">
+                            <div className="flex items-center gap-2">
+                              <span className="text-muted-foreground">Tax:</span>
+                              <Input
+                                type="number"
+                                value={taxRate}
+                                onChange={(e) => setTaxRate(parseFloat(e.target.value) || 0)}
+                                min="0"
+                                max="100"
+                                step="0.1"
+                                className="h-7 w-16 text-xs"
+                                placeholder="0"
+                              />
+                              <span className="text-xs text-muted-foreground">%</span>
                             </div>
+                            <span className="font-medium">${taxAmount.toFixed(2)}</span>
+                          </div>
+                          
+                          {selectedDiscount && (
+                            <div className="flex justify-between text-sm text-green-600 dark:text-green-400">
+                              <span>Discount:</span>
+                              <span className="font-medium">-${discountAmount.toFixed(2)}</span>
+                            </div>
+                          )}
+                          
+                          <Separator />
+                          
+                          <div className="flex justify-between pt-2">
+                            <span className="text-lg font-semibold">Total:</span>
+                            <span className="text-2xl font-bold text-primary">${total.toFixed(2)}</span>
                           </div>
                         </CardContent>
                       </Card>
@@ -402,6 +507,143 @@ export const InvoiceFormModal = ({ open, onOpenChange, invoice, mode }: InvoiceF
         onOpenChange={setShowAddItemModal}
         onAddItem={handleAddItem}
       />
+
+      <Dialog open={showDiscountModal} onOpenChange={setShowDiscountModal}>
+        <DialogContent className="sm:max-w-[600px] max-h-[85vh] overflow-y-auto app-card">
+          <DialogHeader>
+            <DialogTitle className="text-gradient">Add Discount</DialogTitle>
+            <DialogDescription>
+              Select an existing discount or create a custom one
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-6 py-4">
+            {/* Add Custom Discount Section */}
+            <Card className="border-primary/20">
+              <CardContent className="pt-6 space-y-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Plus className="h-5 w-5 text-primary" />
+                  <Label className="text-base font-semibold">Add Custom Discount</Label>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="grid gap-2">
+                    <Label>Discount Value *</Label>
+                    <Input
+                      type="number"
+                      placeholder="Enter amount"
+                      className="glass-effect"
+                      id="customDiscountValue"
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label>Type *</Label>
+                    <Select defaultValue="%">
+                      <SelectTrigger className="glass-effect">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-popover backdrop-blur-xl">
+                        <SelectItem value="%">Percentage (%)</SelectItem>
+                        <SelectItem value="$">Fixed Amount ($)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                
+                <Button 
+                  type="button" 
+                  className="w-full"
+                  onClick={() => {
+                    const input = document.getElementById('customDiscountValue') as HTMLInputElement;
+                    const value = parseFloat(input?.value || "0");
+                    const select = document.querySelector('[id="customDiscountValue"]')?.closest('.grid')?.querySelector('button');
+                    const type = select?.textContent?.includes('%') ? '%' : '$';
+                    
+                    if (value > 0) {
+                      const newDiscount = {
+                        id: `CUSTOM-${Date.now()}`,
+                        name: "Custom Discount",
+                        value: value,
+                        type: type
+                      };
+                      
+                      const calculatedDiscount = type === "%" 
+                        ? subtotal * (value / 100)
+                        : value;
+                      
+                      if (calculatedDiscount > subtotal) {
+                        setDiscountError("Discount cannot be higher than the subtotal amount");
+                      } else {
+                        setSelectedDiscount(newDiscount);
+                        setDiscountError("");
+                        setShowDiscountModal(false);
+                      }
+                    }
+                  }}
+                >
+                  Add Custom Discount
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Existing Discounts */}
+            <div>
+              <Label className="text-base font-semibold mb-3 block">Select from Existing Discounts</Label>
+              <div className="grid grid-cols-2 gap-3">
+                {mockDiscounts.map((discount) => (
+                  <Card
+                    key={discount.id}
+                    className={`cursor-pointer transition-all duration-200 hover:border-primary/50 hover:shadow-md ${
+                      selectedDiscount?.id === discount.id ? 'border-primary bg-primary/5' : 'border-border/50'
+                    }`}
+                    onClick={() => {
+                      const calculatedDiscount = discount.type === "%" 
+                        ? subtotal * (discount.value / 100)
+                        : discount.value;
+                      
+                      if (calculatedDiscount > subtotal) {
+                        setDiscountError(`${discount.name} (${discount.type === "%" ? `${discount.value}%` : `$${discount.value}`}) exceeds the subtotal amount`);
+                        setSelectedDiscount(null);
+                      } else {
+                        setSelectedDiscount(discount);
+                        setDiscountError("");
+                        setShowDiscountModal(false);
+                      }
+                    }}
+                  >
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1">
+                          <p className="font-semibold text-sm mb-1">{discount.name}</p>
+                          <div className="flex items-center gap-1">
+                            {discount.type === "%" ? (
+                              <Percent className="h-3 w-3 text-primary" />
+                            ) : (
+                              <DollarSign className="h-3 w-3 text-primary" />
+                            )}
+                            <span className="text-lg font-bold text-primary">
+                              {discount.type === "%" ? `${discount.value}%` : `$${discount.value}`}
+                            </span>
+                          </div>
+                        </div>
+                        {discount.isDefault && (
+                          <Badge variant="outline" className="text-xs">Default</Badge>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => setShowDiscountModal(false)}>
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };

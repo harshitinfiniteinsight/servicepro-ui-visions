@@ -82,7 +82,6 @@ export const AddItemModal = ({ open, onOpenChange, onAddItem }: AddItemModalProp
 
   const resetModal = () => {
     setShowCustomForm(false);
-    setShowInventoryList(false);
     setSelectedInventory(null);
     setCustomPrice("");
     setCustomItem({ description: "", quantity: 1, rate: 0 });
@@ -102,27 +101,94 @@ export const AddItemModal = ({ open, onOpenChange, onAddItem }: AddItemModalProp
         <DialogHeader>
           <DialogTitle className="text-gradient">Add Item to Invoice</DialogTitle>
           <DialogDescription>
-            Add inventory items or create custom line items
+            Search inventory or create custom line items
           </DialogDescription>
         </DialogHeader>
 
-        {!showCustomForm && !showInventoryList && !selectedInventory && (
-          <div className="space-y-4 py-6">
-            <Button
-              onClick={() => setShowCustomForm(true)}
-              className="w-full h-16 text-lg gap-3"
-              variant="outline"
-            >
-              <Plus className="h-6 w-6" />
-              Add Custom Item
-            </Button>
-            <Button
-              onClick={() => setShowInventoryList(true)}
-              className="w-full h-16 text-lg gap-3"
-            >
-              <Package className="h-6 w-6" />
-              Add From Inventory
-            </Button>
+        {!showCustomForm && !selectedInventory && (
+          <div className="space-y-4 py-4">
+            {/* Action Buttons */}
+            <div className="grid grid-cols-2 gap-3">
+              <Button
+                onClick={() => setShowCustomForm(true)}
+                variant="outline"
+                className="h-14 gap-2"
+              >
+                <Plus className="h-5 w-5" />
+                Add Custom Item
+              </Button>
+              <Button
+                onClick={() => {
+                  // Navigate to inventory page would go here
+                  console.log("Navigate to add inventory");
+                }}
+                variant="outline"
+                className="h-14 gap-2"
+              >
+                <Package className="h-5 w-5" />
+                Add Inventory
+              </Button>
+            </div>
+
+            {/* Search Field */}
+            <div className="relative">
+              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <Input
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search inventory by name, SKU, or category..."
+                className="pl-9 glass-effect"
+              />
+            </div>
+            
+            {/* Info Text */}
+            <div className="bg-muted/30 p-3 rounded-lg border border-border/50">
+              <p className="text-sm text-muted-foreground text-center">
+                <span className="font-semibold">V</span> = Variable · <span className="font-semibold">F</span> = Fixed · <span className="font-semibold">U</span> = Per Unit Inventory
+              </p>
+            </div>
+
+            {/* Inventory List */}
+            <ScrollArea className="h-[300px] pr-4">
+              <div className="space-y-2">
+                {filteredInventory.length > 0 ? (
+                  filteredInventory.map((item) => (
+                    <button
+                      key={item.id}
+                      onClick={() => handleSelectInventory(item)}
+                      className="w-full p-4 text-left border rounded-xl hover:bg-muted/50 transition-all duration-200 hover:border-primary/50 hover:shadow-md group"
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <Badge variant="outline" className="font-mono text-xs">
+                              {getInventoryTypeLabel(item.type)}
+                            </Badge>
+                            <p className="font-semibold group-hover:text-primary transition-colors">{item.name}</p>
+                          </div>
+                          <p className="text-xs text-muted-foreground">{item.sku} · {item.category}</p>
+                          {item.type === "Per Unit" && item.itemUnit && (
+                            <p className="text-xs text-muted-foreground mt-1">Unit: {item.itemUnit}</p>
+                          )}
+                        </div>
+                        <div className="text-right">
+                          <p className="text-lg font-bold text-primary">${item.price.toFixed(2)}</p>
+                          {item.type !== "Variable" && item.type !== "Fixed" && item.stockQuantity > 0 && (
+                            <p className="text-xs text-muted-foreground">Stock: {item.stockQuantity}</p>
+                          )}
+                        </div>
+                      </div>
+                    </button>
+                  ))
+                ) : (
+                  <div className="text-center py-12">
+                    <Package className="h-12 w-12 mx-auto mb-3 text-muted-foreground/50" />
+                    <p className="text-muted-foreground">No inventory items found</p>
+                    <p className="text-xs text-muted-foreground mt-1">Try adjusting your search</p>
+                  </div>
+                )}
+              </div>
+            </ScrollArea>
           </div>
         )}
 
@@ -172,62 +238,6 @@ export const AddItemModal = ({ open, onOpenChange, onAddItem }: AddItemModalProp
           </div>
         )}
 
-        {showInventoryList && !selectedInventory && (
-          <div className="space-y-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search inventory..."
-                className="pl-9 glass-effect"
-              />
-            </div>
-            
-            <div className="bg-muted/30 p-3 rounded-lg border border-border/50">
-              <p className="text-sm text-muted-foreground text-center">
-                <span className="font-semibold">V</span> = Variable · <span className="font-semibold">F</span> = Fixed · <span className="font-semibold">U</span> = Per Unit
-              </p>
-            </div>
-
-            <ScrollArea className="h-[300px] pr-4">
-              <div className="space-y-2">
-                {filteredInventory.map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={() => handleSelectInventory(item)}
-                    className="w-full p-4 text-left border rounded-xl hover:bg-muted/50 transition-all duration-200 hover:border-primary/50 hover:shadow-md group"
-                  >
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <Badge variant="outline" className="font-mono text-xs">
-                            {getInventoryTypeLabel(item.type)}
-                          </Badge>
-                          <p className="font-semibold group-hover:text-primary transition-colors">{item.name}</p>
-                        </div>
-                        <p className="text-xs text-muted-foreground">{item.sku} · {item.category}</p>
-                        {item.type === "Per Unit" && item.itemUnit && (
-                          <p className="text-xs text-muted-foreground mt-1">Unit: {item.itemUnit}</p>
-                        )}
-                      </div>
-                      <div className="text-right">
-                        <p className="text-lg font-bold text-primary">${item.price.toFixed(2)}</p>
-                        {item.type !== "Variable" && item.type !== "Fixed" && item.stockQuantity > 0 && (
-                          <p className="text-xs text-muted-foreground">Stock: {item.stockQuantity}</p>
-                        )}
-                      </div>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </ScrollArea>
-
-            <Button variant="outline" onClick={() => setShowInventoryList(false)} className="w-full">
-              Back
-            </Button>
-          </div>
-        )}
 
         {selectedInventory && (
           <div className="space-y-4 py-4">
