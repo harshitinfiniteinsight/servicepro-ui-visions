@@ -5,19 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { 
-  Eye, 
-  Plus, 
-  FileText, 
-  Briefcase, 
-  Calendar,
-  DollarSign,
-  Clock,
-  TrendingUp,
-  AlertCircle,
-  CheckCircle
-} from "lucide-react";
-
+import { Eye, Plus, FileText, Briefcase, Calendar, DollarSign, Clock, TrendingUp, AlertCircle, CheckCircle } from "lucide-react";
 const Index = () => {
   const navigate = useNavigate();
   const currentUser = "Joe"; // Mock user name
@@ -25,41 +13,57 @@ const Index = () => {
   // Mock data for stats
   const estimatesData = {
     new: 3,
-    approved: { count: 2, amount: 2100 },
+    approved: {
+      count: 2,
+      amount: 2100
+    },
     changesRequested: 1,
-    draft: { count: 2, amount: 1300 },
+    draft: {
+      count: 2,
+      amount: 1300
+    }
   };
-
   const jobsData = {
     requiresInvoicing: 0,
     actionRequired: 0,
-    active: { count: 1, amount: 795 },
+    active: {
+      count: 1,
+      amount: 795
+    }
   };
-
   const invoicesData = {
     pastDue: 0,
-    awaitingPayment: { count: 2, amount: 525 },
-    draft: 0,
-  };
-
-  const appointmentsData = {
-    total: { count: 1, amount: 795.00 },
-    toGo: { count: 1, amount: 795.00 },
-    active: { count: 0, amount: 0 },
-    complete: { count: 0, amount: 0 },
-  };
-
-  const todaysAppointments = [
-    {
-      id: 1,
-      time: "0:00",
-      customer: "Sharon Mcdonald",
-      type: "Anytime",
+    awaitingPayment: {
+      count: 2,
+      amount: 525
     },
-  ];
-
-  return (
-    <div className="flex-1">
+    draft: 0
+  };
+  const appointmentsData = {
+    total: {
+      count: 1,
+      amount: 795.00
+    },
+    toGo: {
+      count: 1,
+      amount: 795.00
+    },
+    active: {
+      count: 0,
+      amount: 0
+    },
+    complete: {
+      count: 0,
+      amount: 0
+    }
+  };
+  const todaysAppointments = [{
+    id: 1,
+    time: "0:00",
+    customer: "Sharon Mcdonald",
+    type: "Anytime"
+  }];
+  return <div className="flex-1">
       <AppHeader searchPlaceholder="Search..." />
 
       <main className="px-4 sm:px-6 py-4 sm:py-6 space-y-6 animate-fade-in">
@@ -75,14 +79,8 @@ const Index = () => {
               <p className="text-sm text-muted-foreground">Welcome back to your dashboard</p>
             </div>
             <div className="flex gap-2 w-full sm:w-auto">
-              <Button variant="outline" className="gap-2 flex-1 sm:flex-initial touch-target hover:bg-primary/10 hover:border-primary border-border/50 button-scale">
-                <Eye className="h-4 w-4" />
-                <span className="hidden sm:inline">View Insights</span>
-              </Button>
-              <Button variant="default" className="gap-2 flex-1 sm:flex-initial touch-target shadow-lg hover:shadow-xl button-scale gradient-primary border-0">
-                <Plus className="h-4 w-4" />
-                <span className="hidden sm:inline">Quick Add</span>
-              </Button>
+              
+              
             </div>
           </div>
         </div>
@@ -108,7 +106,9 @@ const Index = () => {
               <div className="p-3 rounded-xl bg-gradient-to-br from-accent/10 to-accent/5 group-hover:from-accent/20 group-hover:to-accent/10 transition-all shadow-sm">
                 <Briefcase className="h-5 w-5 text-accent" />
               </div>
-              <TrendingUp className="h-4 w-4 text-success animate-float" style={{ animationDelay: '0.2s' }} />
+              <TrendingUp className="h-4 w-4 text-success animate-float" style={{
+              animationDelay: '0.2s'
+            }} />
             </div>
             <div className="space-y-1">
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Active Jobs</p>
@@ -136,7 +136,9 @@ const Index = () => {
               <div className="p-3 rounded-xl bg-gradient-to-br from-success/10 to-success/5 group-hover:from-success/20 group-hover:to-success/10 transition-all shadow-sm">
                 <Calendar className="h-5 w-5 text-success" />
               </div>
-              <CheckCircle className="h-4 w-4 text-success animate-float" style={{ animationDelay: '0.4s' }} />
+              <CheckCircle className="h-4 w-4 text-success animate-float" style={{
+              animationDelay: '0.4s'
+            }} />
             </div>
             <div className="space-y-1">
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Today's Appointments</p>
@@ -332,45 +334,32 @@ const Index = () => {
               {/* Mini Calendar */}
               <div className="p-3 bg-gradient-to-br from-muted/30 to-muted/10 rounded-xl border border-border shadow-inner">
                 <div className="grid grid-cols-7 gap-1 mb-2">
-                  {["S", "M", "T", "W", "T", "F", "S"].map((day, i) => (
-                    <div key={i} className="text-center text-xs font-semibold text-muted-foreground p-1">
+                  {["S", "M", "T", "W", "T", "F", "S"].map((day, i) => <div key={i} className="text-center text-xs font-semibold text-muted-foreground p-1">
                       {day}
-                    </div>
-                  ))}
+                    </div>)}
                 </div>
                 <div className="grid grid-cols-7 gap-1">
-                  {Array.from({ length: 35 }, (_, i) => {
-                    const date = new Date(2025, 9, 27);
-                    const firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
-                    const startDate = new Date(firstDay);
-                    startDate.setDate(startDate.getDate() - startDate.getDay());
-                    const cellDate = new Date(startDate);
-                    cellDate.setDate(cellDate.getDate() + i);
-                    const isCurrentMonth = cellDate.getMonth() === date.getMonth();
-                    const isToday = cellDate.toDateString() === date.toDateString();
-                    
-                    return (
-                      <div
-                        key={i}
-                        className={`aspect-square flex items-center justify-center text-xs rounded cursor-pointer transition-colors ${
-                          isToday 
-                            ? "bg-primary text-primary-foreground font-bold" 
-                            : isCurrentMonth 
-                            ? "hover:bg-muted text-foreground" 
-                            : "text-muted-foreground/50"
-                        }`}
-                      >
+                  {Array.from({
+                  length: 35
+                }, (_, i) => {
+                  const date = new Date(2025, 9, 27);
+                  const firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+                  const startDate = new Date(firstDay);
+                  startDate.setDate(startDate.getDate() - startDate.getDay());
+                  const cellDate = new Date(startDate);
+                  cellDate.setDate(cellDate.getDate() + i);
+                  const isCurrentMonth = cellDate.getMonth() === date.getMonth();
+                  const isToday = cellDate.toDateString() === date.toDateString();
+                  return <div key={i} className={`aspect-square flex items-center justify-center text-xs rounded cursor-pointer transition-colors ${isToday ? "bg-primary text-primary-foreground font-bold" : isCurrentMonth ? "hover:bg-muted text-foreground" : "text-muted-foreground/50"}`}>
                         {cellDate.getDate()}
-                      </div>
-                    );
-                  })}
+                      </div>;
+                })}
                 </div>
               </div>
 
               {/* Appointments List */}
               <div className="space-y-2">
-                {todaysAppointments.map((appointment) => (
-                  <div key={appointment.id} className="flex items-center gap-3 p-3 sm:p-4 bg-gradient-to-r from-primary/5 to-transparent rounded-xl border border-border/50 hover:border-primary/30 hover:shadow-md transition-all cursor-pointer group">
+                {todaysAppointments.map(appointment => <div key={appointment.id} className="flex items-center gap-3 p-3 sm:p-4 bg-gradient-to-r from-primary/5 to-transparent rounded-xl border border-border/50 hover:border-primary/30 hover:shadow-md transition-all cursor-pointer group">
                     <Avatar className="h-12 w-12 sm:h-14 sm:w-14 bg-gradient-to-br from-primary to-accent shadow-md group-hover:scale-110 transition-transform">
                       <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-primary-foreground font-bold text-lg">
                         {appointment.customer.split(" ").map(n => n[0]).join("")}
@@ -388,8 +377,7 @@ const Index = () => {
                         </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  </div>)}
               </div>
             </div>
           </div>
@@ -448,8 +436,6 @@ const Index = () => {
           </div>
         </div>
       </main>
-    </div>
-  );
+    </div>;
 };
-
 export default Index;
