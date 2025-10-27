@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { RefreshCw } from "lucide-react";
 
 interface InventoryFormModalProps {
   open: boolean;
@@ -26,15 +27,18 @@ export function InventoryFormModal({ open, onOpenChange, mode, inventory }: Inve
 
   useEffect(() => {
     if (mode === "create" && open) {
-      // Auto-generate SKU
-      const timestamp = Date.now().toString().slice(-6);
-      const randomPart = Math.random().toString(36).substring(2, 5).toUpperCase();
-      setFormData(prev => ({
-        ...prev,
-        sku: `INV-${randomPart}-${timestamp}`,
-      }));
+      generateSKU();
     }
   }, [mode, open]);
+
+  const generateSKU = () => {
+    const timestamp = Date.now().toString().slice(-6);
+    const randomPart = Math.random().toString(36).substring(2, 5).toUpperCase();
+    setFormData(prev => ({
+      ...prev,
+      sku: `INV-${randomPart}-${timestamp}`,
+    }));
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -76,17 +80,23 @@ export function InventoryFormModal({ open, onOpenChange, mode, inventory }: Inve
             </Select>
           </div>
 
-          <div>
-            <Label htmlFor="price">Price *</Label>
-            <Input
-              id="price"
-              type="number"
-              step="0.01"
-              value={formData.price}
-              onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-              required
-            />
-          </div>
+          {formData.type !== "Variable" && (
+            <div>
+              <Label htmlFor="price">Price *</Label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
+                <Input
+                  id="price"
+                  type="number"
+                  step="0.01"
+                  value={formData.price}
+                  onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                  required
+                  className="pl-7"
+                />
+              </div>
+            </div>
+          )}
 
           {formData.type === "Per Unit" && (
             <div>
@@ -103,13 +113,25 @@ export function InventoryFormModal({ open, onOpenChange, mode, inventory }: Inve
 
           <div>
             <Label htmlFor="sku">SKU *</Label>
-            <Input
-              id="sku"
-              value={formData.sku}
-              onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
-              required
-              disabled={mode === "create"}
-            />
+            <div className="flex gap-2">
+              <Input
+                id="sku"
+                value={formData.sku}
+                onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
+                required
+              />
+              {mode === "create" && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  onClick={generateSKU}
+                  title="Generate new SKU"
+                >
+                  <RefreshCw className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
           </div>
 
           <div>
