@@ -19,9 +19,28 @@ export function StockAdjustmentModal({ open, onOpenChange, item }: StockAdjustme
   const [formData, setFormData] = useState({
     adjustBy: "",
     transactionType: "Stock In",
-    adjustmentReason: "Correction",
+    adjustmentReason: "Received Inventory",
     remarks: "",
   });
+
+  const stockInReasons = [
+    "Received Inventory",
+    "Correction",
+    "Return or Restock",
+    "Mark as Damaged",
+    "Mark as Demo Units"
+  ];
+
+  const stockOutReasons = [
+    "Correction",
+    "Theft or Loss",
+    "Mark as Damaged",
+    "Mark as Demo Units"
+  ];
+
+  const getReasons = () => {
+    return formData.transactionType === "Stock In" ? stockInReasons : stockOutReasons;
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,7 +80,14 @@ export function StockAdjustmentModal({ open, onOpenChange, item }: StockAdjustme
 
           <div>
             <Label>Transaction Type *</Label>
-            <RadioGroup value={formData.transactionType} onValueChange={(value) => setFormData({ ...formData, transactionType: value })}>
+            <RadioGroup 
+              value={formData.transactionType} 
+              onValueChange={(value) => setFormData({ 
+                ...formData, 
+                transactionType: value,
+                adjustmentReason: value === "Stock In" ? "Received Inventory" : "Correction"
+              })}
+            >
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="Stock In" id="stockIn" />
                 <Label htmlFor="stockIn" className="font-normal cursor-pointer">Stock In</Label>
@@ -80,10 +106,11 @@ export function StockAdjustmentModal({ open, onOpenChange, item }: StockAdjustme
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Correction">Correction</SelectItem>
-                <SelectItem value="Theft or Loss">Theft or Loss</SelectItem>
-                <SelectItem value="Damaged">Mark as Damaged</SelectItem>
-                <SelectItem value="Tester">Mark as Tester</SelectItem>
+                {getReasons().map((reason) => (
+                  <SelectItem key={reason} value={reason}>
+                    {reason}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
