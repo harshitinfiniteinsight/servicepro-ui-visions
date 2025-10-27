@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { AppHeader } from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -52,6 +52,7 @@ import { cn } from "@/lib/utils";
 const CustomerDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
   const [dateRange, setDateRange] = useState<{ from: Date | undefined; to: Date | undefined }>({
@@ -60,6 +61,13 @@ const CustomerDetails = () => {
   });
   const [memo, setMemo] = useState("");
   const [isEditing, setIsEditing] = useState(false);
+
+  // Check if we should start in edit mode from navigation state
+  useEffect(() => {
+    if (location.state?.editMode) {
+      setIsEditing(true);
+    }
+  }, [location.state]);
   const [editedCustomer, setEditedCustomer] = useState({
     name: "",
     email: "",

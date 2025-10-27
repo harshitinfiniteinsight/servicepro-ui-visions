@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Mail, Phone, MapPin, MoreVertical, MessageSquare } from "lucide-react";
@@ -9,6 +10,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useNavigate } from "react-router-dom";
+import { SendSMSModal } from "./modals/SendSMSModal";
+import { SendEmailModal } from "./modals/SendEmailModal";
 
 interface CustomerCardProps {
   id: string;
@@ -23,6 +26,8 @@ interface CustomerCardProps {
 
 export const CustomerCard = ({ id, name, email, phone, address, avatar, gender, isActive = true }: CustomerCardProps) => {
   const navigate = useNavigate();
+  const [isSMSModalOpen, setIsSMSModalOpen] = useState(false);
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
   
   const initials = name
     .split(" ")
@@ -66,7 +71,12 @@ export const CustomerCard = ({ id, name, email, phone, address, avatar, gender, 
                   >
                     Customer Details
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="cursor-pointer">Edit Customer</DropdownMenuItem>
+                  <DropdownMenuItem 
+                    className="cursor-pointer"
+                    onClick={() => navigate(`/customers/${id}`, { state: { editMode: true } })}
+                  >
+                    Edit Customer
+                  </DropdownMenuItem>
                   <DropdownMenuItem className="cursor-pointer">Create Invoice</DropdownMenuItem>
                   <DropdownMenuItem className="cursor-pointer">Create Estimate</DropdownMenuItem>
                   <DropdownMenuItem className="cursor-pointer">Create Agreement</DropdownMenuItem>
@@ -104,17 +114,40 @@ export const CustomerCard = ({ id, name, email, phone, address, avatar, gender, 
 
         {isActive && (
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" className="flex-1">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="flex-1"
+              onClick={() => setIsEmailModalOpen(true)}
+            >
               <Mail className="h-4 w-4" />
               Email
             </Button>
-            <Button variant="outline" size="sm" className="flex-1">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="flex-1"
+              onClick={() => setIsSMSModalOpen(true)}
+            >
               <MessageSquare className="h-4 w-4" />
               SMS
             </Button>
           </div>
         )}
       </CardContent>
+
+      <SendSMSModal
+        open={isSMSModalOpen}
+        onOpenChange={setIsSMSModalOpen}
+        customerName={name}
+        phoneNumber={phone}
+      />
+
+      <SendEmailModal
+        open={isEmailModalOpen}
+        onOpenChange={setIsEmailModalOpen}
+        customerEmail={email}
+      />
     </Card>
   );
 };
