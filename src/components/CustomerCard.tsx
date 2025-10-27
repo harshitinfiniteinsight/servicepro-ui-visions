@@ -8,6 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useNavigate } from "react-router-dom";
 
 interface CustomerCardProps {
   id: string;
@@ -21,6 +22,8 @@ interface CustomerCardProps {
 }
 
 export const CustomerCard = ({ id, name, email, phone, address, avatar, gender, isActive = true }: CustomerCardProps) => {
+  const navigate = useNavigate();
+  
   const initials = name
     .split(" ")
     .map((n) => n[0])
@@ -57,7 +60,12 @@ export const CustomerCard = ({ id, name, email, phone, address, avatar, gender, 
             <DropdownMenuContent align="end" className="w-52 bg-card">
               {isActive ? (
                 <>
-                  <DropdownMenuItem className="cursor-pointer">Customer Details</DropdownMenuItem>
+                  <DropdownMenuItem 
+                    className="cursor-pointer"
+                    onClick={() => navigate(`/customers/${id}`)}
+                  >
+                    Customer Details
+                  </DropdownMenuItem>
                   <DropdownMenuItem className="cursor-pointer">Edit Customer</DropdownMenuItem>
                   <DropdownMenuItem className="cursor-pointer">Create Invoice</DropdownMenuItem>
                   <DropdownMenuItem className="cursor-pointer">Create Estimate</DropdownMenuItem>

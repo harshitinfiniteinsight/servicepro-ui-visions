@@ -7,6 +7,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import Index from "./pages/Index";
 import Customers from "./pages/Customers";
+import CustomerDetails from "./pages/CustomerDetails";
 import Jobs from "./pages/Jobs";
 import Invoices from "./pages/Invoices";
 import Estimates from "./pages/Estimates";
@@ -33,6 +34,7 @@ const App = () => (
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/customers" element={<Customers />} />
+                <Route path="/customers/:id" element={<CustomerDetails />} />
                 <Route path="/jobs" element={<Jobs />} />
                 <Route path="/appointments/manage" element={<ManageAppointments />} />
                 <Route path="/appointments/add" element={<AddAppointment />} />

@@ -1,0 +1,307 @@
+import { useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { AppHeader } from "@/components/AppHeader";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { 
+  ArrowLeft, 
+  Edit, 
+  Calendar as CalendarIcon,
+  FileText,
+  ClipboardList,
+  FileSignature,
+  Upload
+} from "lucide-react";
+import { mockCustomers, mockJobs } from "@/data/mockData";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
+
+const CustomerDetails = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [typeFilter, setTypeFilter] = useState("all");
+  const [dateRange, setDateRange] = useState<{ from: Date | undefined; to: Date | undefined }>({
+    from: undefined,
+    to: undefined,
+  });
+  const [memo, setMemo] = useState("");
+
+  const customer = mockCustomers.find(c => c.id === id);
+  const customerOrders = mockJobs.filter(job => job.customerId === id);
+
+  if (!customer) {
+    return (
+      <div className="flex-1">
+        <AppHeader searchPlaceholder="Search..." onSearchChange={() => {}} />
+        <main className="px-6 py-6">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-foreground">Customer not found</h1>
+            <Button onClick={() => navigate("/customers")} className="mt-4">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Customers
+            </Button>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  const initials = customer.name
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase();
+
+  const filteredOrders = customerOrders.filter(order => {
+    const matchesSearch = order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      order.assignedTo.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesType = typeFilter === "all" || order.type === typeFilter;
+    return matchesSearch && matchesType;
+  });
+
+  return (
+    <div className="flex-1">
+      <AppHeader searchPlaceholder="Search orders..." onSearchChange={setSearchQuery} />
+
+      <main className="px-6 py-6 space-y-6 animate-fade-in">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate("/customers")}
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <div>
+              <h1 className="text-3xl font-bold text-foreground">Customer Details</h1>
+              <p className="text-muted-foreground">View and manage customer information</p>
+            </div>
+          </div>
+
+          {/* Date Range Filter */}
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className="gap-2">
+                <CalendarIcon className="h-4 w-4" />
+                {dateRange?.from ? (
+                  dateRange.to ? (
+                    <>
+                      {format(dateRange.from, "LLL dd, y")} - {format(dateRange.to, "LLL dd, y")}
+                    </>
+                  ) : (
+                    format(dateRange.from, "LLL dd, y")
+                  )
+                ) : (
+                  "Pick a date range"
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="end">
+              <Calendar
+                mode="range"
+                selected={dateRange}
+                onSelect={(range) => setDateRange(range as any)}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Customer Details Card */}
+          <Card className="lg:col-span-1">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-lg">Customer Information</CardTitle>
+              <Button variant="ghost" size="icon" className="h-8 w-8">
+                <Edit className="h-4 w-4" />
+              </Button>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Profile Image */}
+              <div className="flex flex-col items-center space-y-2">
+                <Avatar className="h-24 w-24 border-4 border-primary/20">
+                  <AvatarImage src={customer.avatar} alt={customer.name} />
+                  <AvatarFallback className="bg-primary/10 text-primary font-semibold text-2xl">
+                    {initials}
+                  </AvatarFallback>
+                </Avatar>
+                <Button variant="outline" size="sm" className="gap-2">
+                  <Upload className="h-3 w-3" />
+                  Upload Photo
+                </Button>
+              </div>
+
+              {/* Customer Details */}
+              <div className="space-y-4 text-sm">
+                <div>
+                  <label className="text-muted-foreground">Name</label>
+                  <p className="font-medium text-foreground">{customer.name}</p>
+                </div>
+
+                <div>
+                  <label className="text-muted-foreground">Email Address</label>
+                  <p className="font-medium text-foreground">{customer.email}</p>
+                </div>
+
+                <div>
+                  <label className="text-muted-foreground">Phone Number</label>
+                  <p className="font-medium text-foreground">{customer.phone}</p>
+                </div>
+
+                <div>
+                  <label className="text-muted-foreground">Company Name</label>
+                  <p className="font-medium text-foreground">-</p>
+                </div>
+
+                <div>
+                  <label className="text-muted-foreground">Address</label>
+                  <p className="font-medium text-foreground">{customer.address || "-"}</p>
+                </div>
+
+                <div>
+                  <label className="text-muted-foreground">Active</label>
+                  <div className="mt-1">
+                    <Badge variant={customer.status === "active" ? "default" : "secondary"}>
+                      {customer.status === "active" ? "Yes" : "No"}
+                    </Badge>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-muted-foreground">Gender</label>
+                  <p className="font-medium text-foreground">
+                    {customer.gender === "M" ? "Male" : customer.gender === "F" ? "Female" : "-"}
+                  </p>
+                </div>
+
+                <div>
+                  <label className="text-muted-foreground mb-2 block">Memo</label>
+                  <Textarea
+                    placeholder="Add a memo about this customer..."
+                    value={memo}
+                    onChange={(e) => setMemo(e.target.value)}
+                    className="min-h-[100px]"
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Orders Section */}
+          <Card className="lg:col-span-2">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle>Orders</CardTitle>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" className="gap-2">
+                    <CalendarIcon className="h-4 w-4" />
+                    Add Appointment
+                  </Button>
+                  <Button variant="outline" size="sm" className="gap-2">
+                    <FileText className="h-4 w-4" />
+                    Create Estimate
+                  </Button>
+                  <Button variant="outline" size="sm" className="gap-2">
+                    <ClipboardList className="h-4 w-4" />
+                    Create Invoice
+                  </Button>
+                  <Button variant="outline" size="sm" className="gap-2">
+                    <FileSignature className="h-4 w-4" />
+                    Create Agreement
+                  </Button>
+                </div>
+              </div>
+
+              {/* Filters */}
+              <div className="flex gap-4 mt-4">
+                <div className="flex-1">
+                  <Input
+                    placeholder="Search orders..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                </div>
+                <Select value={typeFilter} onValueChange={setTypeFilter}>
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Type filter" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All</SelectItem>
+                    <SelectItem value="invoice">Invoices</SelectItem>
+                    <SelectItem value="estimate">Estimates</SelectItem>
+                    <SelectItem value="agreement">Agreements</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Order ID</TableHead>
+                    <TableHead>Employee Name</TableHead>
+                    <TableHead>Amount</TableHead>
+                    <TableHead>Type</TableHead>
+                    <TableHead>Date</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredOrders.length > 0 ? (
+                    filteredOrders.map((order) => (
+                      <TableRow key={order.id}>
+                        <TableCell className="font-medium">{order.id}</TableCell>
+                        <TableCell>{order.assignedTo}</TableCell>
+                        <TableCell>${order.amount.toFixed(2)}</TableCell>
+                        <TableCell>
+                          <Badge variant="outline" className="capitalize">
+                            {order.type}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>{format(new Date(order.scheduledDate), "MMM dd, yyyy")}</TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
+                        No orders found
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </div>
+      </main>
+    </div>
+  );
+};
+
+export default CustomerDetails;
