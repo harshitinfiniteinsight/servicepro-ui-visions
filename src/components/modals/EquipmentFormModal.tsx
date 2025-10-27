@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { RefreshCw } from "lucide-react";
 
 interface EquipmentFormModalProps {
   open: boolean;
@@ -22,16 +23,19 @@ export function EquipmentFormModal({ open, onOpenChange, mode, equipment }: Equi
 
   useEffect(() => {
     if (mode === "create" && open) {
-      // Auto-generate product code
-      const timestamp = Date.now().toString().slice(-6);
-      const randomPart = Math.random().toString(36).substring(2, 5).toUpperCase();
-      setFormData(prev => ({
-        ...prev,
-        serialNumber: `EQ-${randomPart}-${timestamp}`,
-        sku: `EQUIP-${randomPart}-${timestamp}`,
-      }));
+      generateProductCode();
     }
   }, [mode, open]);
+
+  const generateProductCode = () => {
+    const timestamp = Date.now().toString().slice(-6);
+    const randomPart = Math.random().toString(36).substring(2, 5).toUpperCase();
+    setFormData(prev => ({
+      ...prev,
+      serialNumber: `EQ-${randomPart}-${timestamp}`,
+      sku: `EQUIP-${randomPart}-${timestamp}`,
+    }));
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,13 +66,25 @@ export function EquipmentFormModal({ open, onOpenChange, mode, equipment }: Equi
 
           <div>
             <Label htmlFor="serialNumber">Serial Number / Product Code *</Label>
-            <Input
-              id="serialNumber"
-              value={formData.serialNumber}
-              onChange={(e) => setFormData({ ...formData, serialNumber: e.target.value })}
-              required
-              disabled={mode === "create"}
-            />
+            <div className="flex gap-2">
+              <Input
+                id="serialNumber"
+                value={formData.serialNumber}
+                onChange={(e) => setFormData({ ...formData, serialNumber: e.target.value })}
+                required
+              />
+              {mode === "create" && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  onClick={generateProductCode}
+                  title="Generate new product code"
+                >
+                  <RefreshCw className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
           </div>
 
           {mode === "edit" && (

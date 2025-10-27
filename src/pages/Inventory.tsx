@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Package, Wrench, Tags, FileText, AlertTriangle, Edit, Trash2, UserCheck } from "lucide-react";
 import { mockInventory, mockEquipment, mockDiscounts } from "@/data/mockData";
 import { InventoryFormModal } from "@/components/modals/InventoryFormModal";
@@ -313,10 +314,23 @@ const Inventory = () => {
 
           {/* Equipment Tab */}
           <TabsContent value="equipment" className="space-y-4 mt-6">
-            <div className="flex justify-end">
+            <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
+              <Select defaultValue="all">
+                <SelectTrigger className="w-full sm:w-[200px]">
+                  <SelectValue placeholder="Filter by Employee" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Employees</SelectItem>
+                  <SelectItem value="john-doe">John Doe</SelectItem>
+                  <SelectItem value="jane-smith">Jane Smith</SelectItem>
+                  <SelectItem value="mike-johnson">Mike Johnson</SelectItem>
+                  <SelectItem value="unassigned">Unassigned</SelectItem>
+                </SelectContent>
+              </Select>
+              
               <Button 
                 onClick={() => setEquipmentModalOpen(true)} 
-                className="gap-2 shadow-md hover:shadow-lg transition-all"
+                className="gap-2 shadow-md hover:shadow-lg transition-all w-full sm:w-auto"
               >
                 <Plus className="h-4 w-4" />
                 <span className="text-sm">Add Equipment</span>
@@ -350,10 +364,6 @@ const Inventory = () => {
                             <div className="px-3 py-1.5 bg-muted rounded-md">
                               <span className="text-xs font-medium text-muted-foreground">Serial: </span>
                               <span className="text-xs font-bold text-foreground">{equipment.serialNumber}</span>
-                            </div>
-                            <div className="px-3 py-1.5 bg-muted rounded-md">
-                              <span className="text-xs font-medium text-muted-foreground">SKU: </span>
-                              <span className="text-xs font-bold text-foreground">{equipment.sku}</span>
                             </div>
                           </div>
                           
