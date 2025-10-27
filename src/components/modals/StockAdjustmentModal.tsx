@@ -28,14 +28,13 @@ export function StockAdjustmentModal({ open, onOpenChange, item }: StockAdjustme
     "Correction",
     "Return or Restock",
     "Mark as Damaged",
-    "Mark as Demo Units"
+    "Mark as Demo Units",
+    "Mark as Equipment"
   ];
 
   const stockOutReasons = [
     "Correction",
-    "Theft or Loss",
-    "Mark as Damaged",
-    "Mark as Demo Units"
+    "Theft or Loss"
   ];
 
   const getReasons = () => {
