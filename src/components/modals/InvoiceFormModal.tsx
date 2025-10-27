@@ -14,6 +14,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Checkbox } from "@/components/ui/checkbox";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 interface InvoiceFormModalProps {
   open: boolean;
@@ -27,8 +29,6 @@ export const InvoiceFormModal = ({ open, onOpenChange, invoice, mode }: InvoiceF
     customerId: invoice?.customerId || "",
     employeeId: invoice?.employeeId || "",
     jobId: invoice?.jobId || "",
-    issueDate: invoice?.issueDate || new Date().toISOString().split('T')[0],
-    dueDate: invoice?.dueDate || "",
     terms: invoice?.terms || "net 30",
     invoiceType: invoice?.invoiceType || "single",
     memo: invoice?.memo || "",
@@ -44,6 +44,13 @@ export const InvoiceFormModal = ({ open, onOpenChange, invoice, mode }: InvoiceF
   const [selectedDiscount, setSelectedDiscount] = useState<any>(invoice?.discount || null);
   const [showDiscountModal, setShowDiscountModal] = useState(false);
   const [discountError, setDiscountError] = useState("");
+  
+  // Recurring invoice states
+  const [recurringEnabled, setRecurringEnabled] = useState(false);
+  const [recurringInterval, setRecurringInterval] = useState("daily");
+  const [recurringEndType, setRecurringEndType] = useState<"date" | "count">("date");
+  const [recurringEndDate, setRecurringEndDate] = useState("");
+  const [recurringOccurrences, setRecurringOccurrences] = useState("");
 
   const handleAddItem = (newItem: any) => {
     setItems([...items, newItem]);
@@ -189,48 +196,99 @@ export const InvoiceFormModal = ({ open, onOpenChange, invoice, mode }: InvoiceF
                 </div>
               </div>
 
-              {/* Dates and Terms */}
-              <div className="grid grid-cols-3 gap-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="issueDate">Issue Date *</Label>
-                  <Input
-                    id="issueDate"
-                    type="date"
-                    value={formData.issueDate}
-                    onChange={(e) => setFormData({ ...formData, issueDate: e.target.value })}
-                    className="glass-effect"
-                    required
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="dueDate">Due Date *</Label>
-                  <Input
-                    id="dueDate"
-                    type="date"
-                    value={formData.dueDate}
-                    onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
-                    className="glass-effect"
-                    required
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="terms">Terms *</Label>
-                  <Select value={formData.terms} onValueChange={(value) => setFormData({ ...formData, terms: value })}>
-                    <SelectTrigger className="glass-effect">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-popover backdrop-blur-xl">
-                      <SelectItem value="due on receipt">Due on Receipt</SelectItem>
-                      <SelectItem value="net 15">Net 15</SelectItem>
-                      <SelectItem value="net 30">Net 30</SelectItem>
-                      <SelectItem value="net 45">Net 45</SelectItem>
-                      <SelectItem value="net 60">Net 60</SelectItem>
-                      <SelectItem value="net 90">Net 90</SelectItem>
-                      <SelectItem value="net 120">Net 120</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+              {/* Terms */}
+              <div className="grid gap-2">
+                <Label htmlFor="terms">Terms *</Label>
+                <Select value={formData.terms} onValueChange={(value) => setFormData({ ...formData, terms: value })}>
+                  <SelectTrigger className="glass-effect">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-popover backdrop-blur-xl">
+                    <SelectItem value="due on receipt">Due on Receipt</SelectItem>
+                    <SelectItem value="net 15">Net 15</SelectItem>
+                    <SelectItem value="net 30">Net 30</SelectItem>
+                    <SelectItem value="net 45">Net 45</SelectItem>
+                    <SelectItem value="net 60">Net 60</SelectItem>
+                    <SelectItem value="net 90">Net 90</SelectItem>
+                    <SelectItem value="net 120">Net 120</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
+
+              {/* Recurring Invoice Options */}
+              {formData.invoiceType === "recurring" && (
+                <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-accent/5">
+                  <CardContent className="pt-6 space-y-4">
+                    <div className="flex items-start gap-3">
+                      <Checkbox
+                        id="recurring-enabled"
+                        checked={recurringEnabled}
+                        onCheckedChange={(checked) => setRecurringEnabled(checked as boolean)}
+                        className="mt-1"
+                      />
+                      <div className="flex-1 flex items-center gap-2 flex-wrap">
+                        <Label htmlFor="recurring-enabled" className="text-sm font-normal cursor-pointer">
+                          Recurring invoicing automatically sends the invoice on
+                        </Label>
+                        <Select value={recurringInterval} onValueChange={setRecurringInterval}>
+                          <SelectTrigger className="w-[120px] h-9">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="bg-popover backdrop-blur-xl">
+                            <SelectItem value="daily">Daily</SelectItem>
+                            <SelectItem value="weekly">Weekly</SelectItem>
+                            <SelectItem value="monthly">Monthly</SelectItem>
+                            <SelectItem value="yearly">Yearly</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <span className="text-sm">intervals.</span>
+                      </div>
+                    </div>
+
+                    {recurringEnabled && (
+                      <div className="space-y-4 pl-8 animate-fade-in">
+                        <RadioGroup value={recurringEndType} onValueChange={(value: any) => setRecurringEndType(value)}>
+                          <div className="flex items-center gap-3">
+                            <RadioGroupItem value="date" id="end-date" />
+                            <Label htmlFor="end-date" className="font-normal cursor-pointer flex-shrink-0">
+                              End Date Of Your Recurring :
+                            </Label>
+                            <Input
+                              type="date"
+                              value={recurringEndDate}
+                              onChange={(e) => setRecurringEndDate(e.target.value)}
+                              disabled={recurringEndType !== "date"}
+                              className="max-w-[200px] glass-effect"
+                            />
+                          </div>
+                        </RadioGroup>
+
+                        <div className="flex items-center justify-center py-2">
+                          <span className="text-sm font-medium text-muted-foreground">OR</span>
+                        </div>
+
+                        <RadioGroup value={recurringEndType} onValueChange={(value: any) => setRecurringEndType(value)}>
+                          <div className="flex items-center gap-3">
+                            <RadioGroupItem value="count" id="occurrence-count" />
+                            <Label htmlFor="occurrence-count" className="font-normal cursor-pointer flex-shrink-0">
+                              How many occurrence needed:
+                            </Label>
+                            <Input
+                              type="number"
+                              value={recurringOccurrences}
+                              onChange={(e) => setRecurringOccurrences(e.target.value)}
+                              disabled={recurringEndType !== "count"}
+                              className="max-w-[200px] glass-effect"
+                              placeholder="Enter number"
+                              min="1"
+                            />
+                          </div>
+                        </RadioGroup>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
 
               {/* Line Items Section */}
               <div className="border-t pt-4">
@@ -272,7 +330,7 @@ export const InvoiceFormModal = ({ open, onOpenChange, invoice, mode }: InvoiceF
                                   variant="ghost"
                                   size="sm"
                                   onClick={() => updateItemQuantity(index, -1)}
-                                  className="h-8 w-8 p-0"
+                                  className="h-8 w-8 p-0 hover:bg-primary hover:text-primary-foreground transition-colors"
                                 >
                                   <Minus className="h-4 w-4" />
                                 </Button>
@@ -282,7 +340,7 @@ export const InvoiceFormModal = ({ open, onOpenChange, invoice, mode }: InvoiceF
                                   variant="ghost"
                                   size="sm"
                                   onClick={() => updateItemQuantity(index, 1)}
-                                  className="h-8 w-8 p-0"
+                                  className="h-8 w-8 p-0 hover:bg-primary hover:text-primary-foreground transition-colors"
                                 >
                                   <Plus className="h-4 w-4" />
                                 </Button>
@@ -593,8 +651,10 @@ export const InvoiceFormModal = ({ open, onOpenChange, invoice, mode }: InvoiceF
                 {mockDiscounts.map((discount) => (
                   <Card
                     key={discount.id}
-                    className={`cursor-pointer transition-all duration-200 hover:border-primary/50 hover:shadow-md ${
-                      selectedDiscount?.id === discount.id ? 'border-primary bg-primary/5' : 'border-border/50'
+                    className={`cursor-pointer transition-all duration-200 hover:shadow-md ${
+                      selectedDiscount?.id === discount.id 
+                        ? 'border-primary border-2 bg-primary/10 shadow-lg' 
+                        : 'border-border/50 hover:border-primary/50'
                     }`}
                     onClick={() => {
                       const calculatedDiscount = discount.type === "%" 
@@ -626,9 +686,18 @@ export const InvoiceFormModal = ({ open, onOpenChange, invoice, mode }: InvoiceF
                             </span>
                           </div>
                         </div>
-                        {discount.isDefault && (
-                          <Badge variant="outline" className="text-xs">Default</Badge>
-                        )}
+                        <div className="flex items-center gap-2">
+                          {discount.isDefault && (
+                            <Badge variant="outline" className="text-xs">Default</Badge>
+                          )}
+                          {selectedDiscount?.id === discount.id && (
+                            <div className="h-5 w-5 rounded-full bg-primary flex items-center justify-center">
+                              <svg className="h-3 w-3 text-primary-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                              </svg>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
