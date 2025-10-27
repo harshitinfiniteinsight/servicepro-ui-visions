@@ -13,6 +13,7 @@ import { DiscountFormModal } from "@/components/modals/DiscountFormModal";
 import { EquipmentFormModal } from "@/components/modals/EquipmentFormModal";
 import { EquipmentAssignModal } from "@/components/modals/EquipmentAssignModal";
 import { EquipmentNotesModal } from "@/components/modals/EquipmentNotesModal";
+import { AddAgreementInventoryModal } from "@/components/modals/AddAgreementInventoryModal";
 
 const Inventory = () => {
   const [inventoryModalOpen, setInventoryModalOpen] = useState(false);
@@ -22,6 +23,7 @@ const Inventory = () => {
   const [equipmentModalOpen, setEquipmentModalOpen] = useState(false);
   const [equipmentAssignModal, setEquipmentAssignModal] = useState<{ open: boolean; equipment: any }>({ open: false, equipment: null });
   const [equipmentNotesModal, setEquipmentNotesModal] = useState<{ open: boolean; equipment: any }>({ open: false, equipment: null });
+  const [agreementInventoryModalOpen, setAgreementInventoryModalOpen] = useState(false);
   const [selectedTab, setSelectedTab] = useState("inventory");
 
   const getTypeLabel = (type: string) => {
@@ -199,9 +201,12 @@ const Inventory = () => {
           {/* Agreement Inventory Tab */}
           <TabsContent value="agreement-inventory" className="space-y-4 mt-6">
             <div className="flex justify-end">
-              <Button className="gap-2 shadow-md hover:shadow-lg transition-all">
+              <Button 
+                onClick={() => setAgreementInventoryModalOpen(true)}
+                className="gap-2 shadow-md hover:shadow-lg transition-all"
+              >
                 <Plus className="h-4 w-4" />
-                <span className="text-sm">Add Variable Inventory</span>
+                <span className="text-sm">Add Agreement Inventory</span>
               </Button>
             </div>
 
@@ -222,7 +227,7 @@ const Inventory = () => {
                           ID: {item.id}
                         </Badge>
                         <Badge variant="outline" className="bg-accent/5 text-accent border-accent/30 text-xs">
-                          ${item.price}
+                          SKU: {item.sku}
                         </Badge>
                       </div>
                     </div>
@@ -423,6 +428,10 @@ const Inventory = () => {
           open={equipmentNotesModal.open}
           onOpenChange={(open) => setEquipmentNotesModal({ open, equipment: null })}
           equipment={equipmentNotesModal.equipment}
+        />
+        <AddAgreementInventoryModal
+          open={agreementInventoryModalOpen}
+          onOpenChange={setAgreementInventoryModalOpen}
         />
       </main>
     </div>
