@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Package, Wrench, Tags, FileText, AlertTriangle, Edit, Trash2, UserCheck } from "lucide-react";
+import { Plus, Package, Wrench, Tags, FileText, AlertTriangle, Edit, Trash2, UserCheck, LayoutGrid, List } from "lucide-react";
 import { mockInventory, mockEquipment, mockDiscounts } from "@/data/mockData";
 import { InventoryFormModal } from "@/components/modals/InventoryFormModal";
 import { StockAdjustmentModal } from "@/components/modals/StockAdjustmentModal";
@@ -18,6 +18,7 @@ import { AddAgreementInventoryModal } from "@/components/modals/AddAgreementInve
 
 const Inventory = () => {
   const [inventoryModalOpen, setInventoryModalOpen] = useState(false);
+  const [editingInventory, setEditingInventory] = useState<any>(null);
   const [stockAdjustmentModal, setStockAdjustmentModal] = useState<{ open: boolean; item: any }>({ open: false, item: null });
   const [lowStockAlertModal, setLowStockAlertModal] = useState<{ open: boolean; item: any }>({ open: false, item: null });
   const [discountModalOpen, setDiscountModalOpen] = useState(false);
@@ -26,6 +27,7 @@ const Inventory = () => {
   const [equipmentNotesModal, setEquipmentNotesModal] = useState<{ open: boolean; equipment: any }>({ open: false, equipment: null });
   const [agreementInventoryModalOpen, setAgreementInventoryModalOpen] = useState(false);
   const [selectedTab, setSelectedTab] = useState("inventory");
+  const [viewMode, setViewMode] = useState<"list" | "grid">("list");
 
   const getTypeLabel = (type: string) => {
     switch (type) {
@@ -70,25 +72,53 @@ const Inventory = () => {
 
           {/* Inventory Tab */}
           <TabsContent value="inventory" className="space-y-4 mt-6">
-            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-              <Button className="gap-2 w-full sm:w-auto shadow-sm hover:shadow-md transition-shadow">
-                <FileText className="h-4 w-4" />
-                <span className="text-sm">Current Report</span>
-              </Button>
-              <Button variant="outline" className="gap-2 w-full sm:w-auto shadow-sm hover:shadow-md hover:bg-muted transition-all">
-                <span className="text-sm">Generate Report</span>
-              </Button>
-              <Button 
-                onClick={() => setInventoryModalOpen(true)} 
-                className="gap-2 w-full sm:w-auto sm:ml-auto shadow-md hover:shadow-lg transition-all"
-              >
-                <Plus className="h-4 w-4" />
-                <span className="text-sm">Add Inventory</span>
-              </Button>
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 items-start sm:items-center justify-between">
+              <div className="flex gap-2">
+                <Button className="gap-2 shadow-sm hover:shadow-md transition-shadow">
+                  <FileText className="h-4 w-4" />
+                  <span className="text-sm">Current Report</span>
+                </Button>
+                <Button variant="outline" className="gap-2 shadow-sm hover:shadow-md hover:bg-muted transition-all">
+                  <span className="text-sm">Generate Report</span>
+                </Button>
+              </div>
+              
+              <div className="flex gap-2 w-full sm:w-auto">
+                <div className="flex border rounded-lg overflow-hidden">
+                  <Button
+                    variant={viewMode === "list" ? "default" : "ghost"}
+                    size="sm"
+                    onClick={() => setViewMode("list")}
+                    className="rounded-none"
+                  >
+                    <List className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant={viewMode === "grid" ? "default" : "ghost"}
+                    size="sm"
+                    onClick={() => setViewMode("grid")}
+                    className="rounded-none"
+                  >
+                    <LayoutGrid className="h-4 w-4" />
+                  </Button>
+                </div>
+                <Button 
+                  onClick={() => {
+                    setEditingInventory(null);
+                    setInventoryModalOpen(true);
+                  }} 
+                  className="gap-2 flex-1 sm:flex-initial shadow-md hover:shadow-lg transition-all"
+                >
+                  <Plus className="h-4 w-4" />
+                  <span className="text-sm">Add Inventory</span>
+                </Button>
+              </div>
             </div>
 
-            <div className="grid gap-4">
-              {mockInventory.map((item) => (
+            {/* List View */}
+            {viewMode === "list" && (
+              <div className="grid gap-4">
+                {mockInventory.map((item) => (
                 <Card 
                   key={item.id} 
                   className="border border-border bg-card shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden"
@@ -153,6 +183,10 @@ const Inventory = () => {
                           variant="outline" 
                           size="sm" 
                           className="gap-1.5 hover:bg-primary/10 hover:text-primary hover:border-primary transition-all font-medium"
+                          onClick={() => {
+                            setEditingInventory(item);
+                            setInventoryModalOpen(true);
+                          }}
                         >
                           <Edit className="h-3.5 w-3.5" />
                           <span className="text-xs">Update</span>
@@ -197,6 +231,77 @@ const Inventory = () => {
                 </Card>
               ))}
             </div>
+            )}
+
+            {/* Grid View */}
+            {viewMode === "grid" && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {mockInventory.map((item) => (
+                  <Card 
+                    key={item.id} 
+                    className="border border-border bg-card shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden group"
+                  >
+                    <div className="aspect-square bg-gradient-to-br from-primary/10 to-accent/10 relative overflow-hidden">
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <Package className="h-20 w-20 text-primary/30" />
+                      </div>
+                      {item.stockQuantity <= item.lowStockAlert && item.stockQuantity > 0 && (
+                        <Badge className="absolute top-2 right-2 bg-warning text-warning-foreground">
+                          Low Stock
+                        </Badge>
+                      )}
+                    </div>
+                    
+                    <CardContent className="p-4 space-y-3">
+                      <div>
+                        <h3 className="font-bold text-base text-foreground truncate">{item.name}</h3>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Badge variant="outline" className="text-xs bg-primary/5 text-primary border-primary/30">
+                            {getTypeLabel(item.type)}
+                          </Badge>
+                          <span className="text-xs text-muted-foreground">SKU: {item.sku}</span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between py-2 border-t border-border">
+                        <div>
+                          <div className="text-xs text-muted-foreground">Stock</div>
+                          <div className="font-bold text-lg text-foreground">{item.stockQuantity}</div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-xs text-muted-foreground">Price</div>
+                          <div className="font-bold text-lg text-primary">${item.price}</div>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-2 pt-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          className="w-full text-xs"
+                          onClick={() => {
+                            setEditingInventory(item);
+                            setInventoryModalOpen(true);
+                          }}
+                        >
+                          <Edit className="h-3 w-3 mr-1" />
+                          Edit
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          className="w-full text-xs"
+                          onClick={() => setStockAdjustmentModal({ open: true, item })}
+                        >
+                          <Package className="h-3 w-3 mr-1" />
+                          Stock
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
           </TabsContent>
 
           {/* Agreement Inventory Tab */}
@@ -416,7 +521,15 @@ const Inventory = () => {
         </Tabs>
 
         {/* Modals */}
-        <InventoryFormModal open={inventoryModalOpen} onOpenChange={setInventoryModalOpen} mode="create" />
+        <InventoryFormModal 
+          open={inventoryModalOpen} 
+          onOpenChange={(open) => {
+            setInventoryModalOpen(open);
+            if (!open) setEditingInventory(null);
+          }} 
+          mode={editingInventory ? "edit" : "create"}
+          inventory={editingInventory}
+        />
         <StockAdjustmentModal 
           open={stockAdjustmentModal.open} 
           onOpenChange={(open) => setStockAdjustmentModal({ open, item: null })}

@@ -269,7 +269,7 @@ const Index = () => {
 
         {/* Bottom Section - Today's Appointments and Payments */}
         <div className="grid lg:grid-cols-2 gap-6">
-          {/* Today's Appointments */}
+          {/* Today's Appointments with Calendar Preview */}
           <Card className="shadow-md border-border">
             <CardHeader className="pb-4 border-b">
               <div className="flex items-center justify-between">
@@ -284,10 +284,49 @@ const Index = () => {
                 </Button>
               </div>
             </CardHeader>
-            <CardContent className="pt-4">
+            <CardContent className="pt-4 space-y-4">
+              {/* Mini Calendar */}
+              <div className="p-3 bg-muted/30 rounded-lg border border-border">
+                <div className="grid grid-cols-7 gap-1 mb-2">
+                  {["S", "M", "T", "W", "T", "F", "S"].map((day, i) => (
+                    <div key={i} className="text-center text-xs font-semibold text-muted-foreground p-1">
+                      {day}
+                    </div>
+                  ))}
+                </div>
+                <div className="grid grid-cols-7 gap-1">
+                  {Array.from({ length: 35 }, (_, i) => {
+                    const date = new Date(2025, 9, 27);
+                    const firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+                    const startDate = new Date(firstDay);
+                    startDate.setDate(startDate.getDate() - startDate.getDay());
+                    const cellDate = new Date(startDate);
+                    cellDate.setDate(cellDate.getDate() + i);
+                    const isCurrentMonth = cellDate.getMonth() === date.getMonth();
+                    const isToday = cellDate.toDateString() === date.toDateString();
+                    
+                    return (
+                      <div
+                        key={i}
+                        className={`aspect-square flex items-center justify-center text-xs rounded cursor-pointer transition-colors ${
+                          isToday 
+                            ? "bg-primary text-primary-foreground font-bold" 
+                            : isCurrentMonth 
+                            ? "hover:bg-muted text-foreground" 
+                            : "text-muted-foreground/50"
+                        }`}
+                      >
+                        {cellDate.getDate()}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Appointments List */}
               <div className="space-y-3">
                 {todaysAppointments.map((appointment) => (
-                  <div key={appointment.id} className="flex items-center gap-4 p-4 bg-muted/50 rounded-lg hover:bg-muted transition-colors">
+                  <div key={appointment.id} className="flex items-center gap-4 p-4 bg-muted/50 rounded-lg hover:bg-muted transition-colors cursor-pointer">
                     <Avatar className="h-12 w-12 bg-primary">
                       <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
                         {appointment.customer.split(" ").map(n => n[0]).join("")}

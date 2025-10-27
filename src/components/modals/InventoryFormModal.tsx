@@ -26,10 +26,29 @@ export function InventoryFormModal({ open, onOpenChange, mode, inventory }: Inve
   });
 
   useEffect(() => {
-    if (mode === "create" && open) {
-      generateSKU();
+    if (open) {
+      if (mode === "edit" && inventory) {
+        setFormData({
+          name: inventory.name || "",
+          type: inventory.type || "Fixed",
+          price: inventory.price?.toString() || "",
+          itemUnit: inventory.itemUnit || "",
+          sku: inventory.sku || "",
+          stockQuantity: inventory.stockQuantity?.toString() || "",
+        });
+      } else if (mode === "create") {
+        setFormData({
+          name: "",
+          type: "Fixed",
+          price: "",
+          itemUnit: "",
+          sku: "",
+          stockQuantity: "",
+        });
+        generateSKU();
+      }
     }
-  }, [mode, open]);
+  }, [mode, open, inventory]);
 
   const generateSKU = () => {
     const timestamp = Date.now().toString().slice(-6);
