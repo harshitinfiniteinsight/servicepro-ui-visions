@@ -62,231 +62,273 @@ const Index = () => {
     <div className="flex-1">
       <AppHeader searchPlaceholder="Search..." />
 
-      <main className="px-6 py-6 space-y-6 animate-fade-in">
+      <main className="px-4 sm:px-6 py-4 sm:py-6 space-y-6 animate-fade-in">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold text-foreground">
-            Good morning, {currentUser}
-          </h1>
-          <div className="flex gap-3">
-            <Button variant="outline" className="gap-2">
-              <Eye className="h-4 w-4" />
-              View Insights
-            </Button>
-            <Button variant="outline" className="gap-2">
-              More Actions
-            </Button>
+        <div className="app-card p-6 bg-gradient-to-br from-primary/5 via-accent/5 to-transparent">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                Good morning, {currentUser}
+              </h1>
+              <p className="text-sm text-muted-foreground mt-1">Welcome back to your dashboard</p>
+            </div>
+            <div className="flex gap-2 w-full sm:w-auto">
+              <Button variant="outline" className="gap-2 flex-1 sm:flex-initial touch-target hover:bg-primary/10 hover:border-primary">
+                <Eye className="h-4 w-4" />
+                <span className="hidden sm:inline">View Insights</span>
+              </Button>
+              <Button variant="default" className="gap-2 flex-1 sm:flex-initial touch-target shadow-lg hover:shadow-xl">
+                <Plus className="h-4 w-4" />
+                <span className="hidden sm:inline">Quick Add</span>
+              </Button>
+            </div>
           </div>
         </div>
 
         {/* Quick Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-          <StatCard
-            title="New Estimates"
-            value={estimatesData.new}
-            icon={FileText}
-            color="primary"
-            trend={{ value: "12% from last week", positive: true }}
-          />
-          <StatCard
-            title="Active Jobs"
-            value={jobsData.active.count}
-            icon={Briefcase}
-            color="accent"
-            trend={{ value: `$${jobsData.active.amount}`, positive: true }}
-          />
-          <StatCard
-            title="Awaiting Payment"
-            value={invoicesData.awaitingPayment.count}
-            icon={DollarSign}
-            color="warning"
-            trend={{ value: `$${invoicesData.awaitingPayment.amount}`, positive: false }}
-          />
-          <StatCard
-            title="Today's Appointments"
-            value={appointmentsData.total.count}
-            icon={Calendar}
-            color="success"
-            trend={{ value: `$${appointmentsData.total.amount.toFixed(2)}`, positive: true }}
-          />
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          <div className="app-card p-4 hover:shadow-xl transition-all duration-300 cursor-pointer group">
+            <div className="flex items-center justify-between mb-3">
+              <div className="p-3 rounded-xl bg-primary/10 group-hover:bg-primary/20 transition-colors">
+                <FileText className="h-5 w-5 text-primary" />
+              </div>
+              <TrendingUp className="h-4 w-4 text-success" />
+            </div>
+            <div className="space-y-1">
+              <p className="text-xs font-medium text-muted-foreground">New Estimates</p>
+              <p className="text-2xl sm:text-3xl font-bold text-foreground">{estimatesData.new}</p>
+              <p className="text-xs text-success">↑ 12% this week</p>
+            </div>
+          </div>
+
+          <div className="app-card p-4 hover:shadow-xl transition-all duration-300 cursor-pointer group">
+            <div className="flex items-center justify-between mb-3">
+              <div className="p-3 rounded-xl bg-accent/10 group-hover:bg-accent/20 transition-colors">
+                <Briefcase className="h-5 w-5 text-accent" />
+              </div>
+              <TrendingUp className="h-4 w-4 text-success" />
+            </div>
+            <div className="space-y-1">
+              <p className="text-xs font-medium text-muted-foreground">Active Jobs</p>
+              <p className="text-2xl sm:text-3xl font-bold text-foreground">{jobsData.active.count}</p>
+              <p className="text-xs text-accent">${jobsData.active.amount}</p>
+            </div>
+          </div>
+
+          <div className="app-card p-4 hover:shadow-xl transition-all duration-300 cursor-pointer group">
+            <div className="flex items-center justify-between mb-3">
+              <div className="p-3 rounded-xl bg-warning/10 group-hover:bg-warning/20 transition-colors">
+                <DollarSign className="h-5 w-5 text-warning" />
+              </div>
+              <AlertCircle className="h-4 w-4 text-warning" />
+            </div>
+            <div className="space-y-1">
+              <p className="text-xs font-medium text-muted-foreground">Awaiting Payment</p>
+              <p className="text-2xl sm:text-3xl font-bold text-foreground">{invoicesData.awaitingPayment.count}</p>
+              <p className="text-xs text-warning">${invoicesData.awaitingPayment.amount}</p>
+            </div>
+          </div>
+
+          <div className="app-card p-4 hover:shadow-xl transition-all duration-300 cursor-pointer group">
+            <div className="flex items-center justify-between mb-3">
+              <div className="p-3 rounded-xl bg-success/10 group-hover:bg-success/20 transition-colors">
+                <Calendar className="h-5 w-5 text-success" />
+              </div>
+              <CheckCircle className="h-4 w-4 text-success" />
+            </div>
+            <div className="space-y-1">
+              <p className="text-xs font-medium text-muted-foreground">Today's Appointments</p>
+              <p className="text-2xl sm:text-3xl font-bold text-foreground">{appointmentsData.total.count}</p>
+              <p className="text-xs text-success">${appointmentsData.total.amount.toFixed(2)}</p>
+            </div>
+          </div>
         </div>
 
         {/* Detailed Cards Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
           {/* Estimates Detail */}
-          <Card className="shadow-md border-border">
-            <CardHeader className="pb-4 border-b">
+          <div className="app-card overflow-hidden">
+            <div className="p-4 sm:p-5 border-b bg-gradient-to-r from-primary/5 to-transparent">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-lg font-semibold flex items-center gap-2">
-                  <div className="p-2 rounded-lg bg-primary/10">
+                <div className="flex items-center gap-3">
+                  <div className="p-2.5 rounded-xl bg-primary/10 shadow-sm">
                     <FileText className="h-5 w-5 text-primary" />
                   </div>
-                  Estimates
-                </CardTitle>
-                <Button size="sm" variant="default" onClick={() => navigate("/estimates")}>
-                  <Plus className="h-4 w-4 mr-1" />
-                  New
+                  <div>
+                    <h3 className="font-bold text-foreground">Estimates</h3>
+                    <p className="text-xs text-muted-foreground">Manage quotes</p>
+                  </div>
+                </div>
+                <Button size="sm" variant="default" onClick={() => navigate("/estimates")} className="touch-target shadow-md">
+                  <Plus className="h-4 w-4" />
                 </Button>
               </div>
-            </CardHeader>
-            <CardContent className="pt-4 space-y-3">
-              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
-                <div className="flex items-center gap-2">
-                  <AlertCircle className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm font-medium">Approved</span>
+            </div>
+            <div className="p-4 sm:p-5 space-y-2">
+              <div className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-success/10 to-success/5 hover:from-success/15 hover:to-success/10 transition-all cursor-pointer border border-success/20">
+                <div className="flex items-center gap-3">
+                  <div className="h-2 w-2 rounded-full bg-success animate-pulse" />
+                  <span className="text-sm font-semibold">Approved</span>
                 </div>
                 <div className="text-right">
-                  <div className="font-bold">{estimatesData.approved.count}</div>
+                  <div className="font-bold text-lg">{estimatesData.approved.count}</div>
                   <div className="text-xs text-muted-foreground">${estimatesData.approved.amount.toLocaleString()}</div>
                 </div>
               </div>
               
-              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
-                <div className="flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-muted-foreground" />
+              <div className="flex items-center justify-between p-3 rounded-xl bg-muted/30 hover:bg-muted/50 transition-all cursor-pointer">
+                <div className="flex items-center gap-3">
+                  <Clock className="h-4 w-4 text-warning" />
                   <span className="text-sm font-medium">Changes Requested</span>
                 </div>
-                <div className="font-bold">{estimatesData.changesRequested}</div>
+                <div className="font-bold text-lg">{estimatesData.changesRequested}</div>
               </div>
 
-              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
-                <div className="flex items-center gap-2">
+              <div className="flex items-center justify-between p-3 rounded-xl bg-muted/30 hover:bg-muted/50 transition-all cursor-pointer">
+                <div className="flex items-center gap-3">
                   <FileText className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm font-medium">Draft</span>
                 </div>
                 <div className="text-right">
-                  <div className="font-bold">{estimatesData.draft.count}</div>
+                  <div className="font-bold text-lg">{estimatesData.draft.count}</div>
                   <div className="text-xs text-muted-foreground">${estimatesData.draft.amount.toLocaleString()}</div>
                 </div>
               </div>
 
-              <Button variant="outline" className="w-full mt-2" onClick={() => navigate("/estimates")}>
+              <Button variant="outline" className="w-full mt-3 touch-target" onClick={() => navigate("/estimates")}>
                 View All Estimates
               </Button>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
           {/* Jobs Detail */}
-          <Card className="shadow-md border-border">
-            <CardHeader className="pb-4 border-b">
+          <div className="app-card overflow-hidden">
+            <div className="p-4 sm:p-5 border-b bg-gradient-to-r from-accent/5 to-transparent">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-lg font-semibold flex items-center gap-2">
-                  <div className="p-2 rounded-lg bg-accent/10">
+                <div className="flex items-center gap-3">
+                  <div className="p-2.5 rounded-xl bg-accent/10 shadow-sm">
                     <Briefcase className="h-5 w-5 text-accent" />
                   </div>
-                  Jobs
-                </CardTitle>
-                <Button size="sm" variant="default" onClick={() => navigate("/jobs")}>
-                  <Plus className="h-4 w-4 mr-1" />
-                  New
+                  <div>
+                    <h3 className="font-bold text-foreground">Jobs</h3>
+                    <p className="text-xs text-muted-foreground">Track progress</p>
+                  </div>
+                </div>
+                <Button size="sm" variant="default" onClick={() => navigate("/jobs")} className="touch-target shadow-md">
+                  <Plus className="h-4 w-4" />
                 </Button>
               </div>
-            </CardHeader>
-            <CardContent className="pt-4 space-y-3">
-              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
-                <div className="flex items-center gap-2">
-                  <DollarSign className="h-4 w-4 text-muted-foreground" />
+            </div>
+            <div className="p-4 sm:p-5 space-y-2">
+              <div className="flex items-center justify-between p-3 rounded-xl bg-muted/30 hover:bg-muted/50 transition-all cursor-pointer">
+                <div className="flex items-center gap-3">
+                  <DollarSign className="h-4 w-4 text-warning" />
                   <span className="text-sm font-medium">Requires Invoicing</span>
                 </div>
-                <div className="font-bold">{jobsData.requiresInvoicing}</div>
+                <div className="font-bold text-lg">{jobsData.requiresInvoicing}</div>
               </div>
               
-              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
-                <div className="flex items-center gap-2">
+              <div className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-warning/10 to-warning/5 hover:from-warning/15 hover:to-warning/10 transition-all cursor-pointer border border-warning/20">
+                <div className="flex items-center gap-3">
                   <AlertCircle className="h-4 w-4 text-warning" />
                   <span className="text-sm font-medium">Action Required</span>
                 </div>
-                <div className="font-bold">{jobsData.actionRequired}</div>
+                <div className="font-bold text-lg">{jobsData.actionRequired}</div>
               </div>
 
-              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-success" />
-                  <span className="text-sm font-medium">Active</span>
+              <div className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-success/10 to-success/5 hover:from-success/15 hover:to-success/10 transition-all cursor-pointer border border-success/20">
+                <div className="flex items-center gap-3">
+                  <div className="h-2 w-2 rounded-full bg-success animate-pulse" />
+                  <span className="text-sm font-semibold">Active</span>
                 </div>
                 <div className="text-right">
-                  <div className="font-bold">{jobsData.active.count}</div>
+                  <div className="font-bold text-lg">{jobsData.active.count}</div>
                   <div className="text-xs text-muted-foreground">${jobsData.active.amount.toLocaleString()}</div>
                 </div>
               </div>
 
-              <Button variant="outline" className="w-full mt-2" onClick={() => navigate("/jobs")}>
+              <Button variant="outline" className="w-full mt-3 touch-target" onClick={() => navigate("/jobs")}>
                 View All Jobs
               </Button>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
           {/* Invoices Detail */}
-          <Card className="shadow-md border-border">
-            <CardHeader className="pb-4 border-b">
+          <div className="app-card overflow-hidden">
+            <div className="p-4 sm:p-5 border-b bg-gradient-to-r from-warning/5 to-transparent">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-lg font-semibold flex items-center gap-2">
-                  <div className="p-2 rounded-lg bg-warning/10">
+                <div className="flex items-center gap-3">
+                  <div className="p-2.5 rounded-xl bg-warning/10 shadow-sm">
                     <DollarSign className="h-5 w-5 text-warning" />
                   </div>
-                  Invoices
-                </CardTitle>
-                <Button size="sm" variant="default" onClick={() => navigate("/invoices")}>
-                  <Plus className="h-4 w-4 mr-1" />
-                  New
+                  <div>
+                    <h3 className="font-bold text-foreground">Invoices</h3>
+                    <p className="text-xs text-muted-foreground">Payments due</p>
+                  </div>
+                </div>
+                <Button size="sm" variant="default" onClick={() => navigate("/invoices")} className="touch-target shadow-md">
+                  <Plus className="h-4 w-4" />
                 </Button>
               </div>
-            </CardHeader>
-            <CardContent className="pt-4 space-y-3">
-              <div className="flex items-center justify-between p-3 rounded-lg bg-destructive/10 hover:bg-destructive/20 transition-colors">
-                <div className="flex items-center gap-2">
+            </div>
+            <div className="p-4 sm:p-5 space-y-2">
+              <div className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-destructive/10 to-destructive/5 hover:from-destructive/15 hover:to-destructive/10 transition-all cursor-pointer border border-destructive/20">
+                <div className="flex items-center gap-3">
                   <AlertCircle className="h-4 w-4 text-destructive" />
-                  <span className="text-sm font-medium">Past Due</span>
+                  <span className="text-sm font-semibold">Past Due</span>
                 </div>
-                <div className="font-bold text-destructive">{invoicesData.pastDue}</div>
+                <div className="font-bold text-lg text-destructive">{invoicesData.pastDue}</div>
               </div>
               
-              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
-                <div className="flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-muted-foreground" />
+              <div className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-warning/10 to-warning/5 hover:from-warning/15 hover:to-warning/10 transition-all cursor-pointer border border-warning/20">
+                <div className="flex items-center gap-3">
+                  <Clock className="h-4 w-4 text-warning" />
                   <span className="text-sm font-medium">Awaiting Payment</span>
                 </div>
                 <div className="text-right">
-                  <div className="font-bold">{invoicesData.awaitingPayment.count}</div>
+                  <div className="font-bold text-lg">{invoicesData.awaitingPayment.count}</div>
                   <div className="text-xs text-muted-foreground">${invoicesData.awaitingPayment.amount.toLocaleString()}</div>
                 </div>
               </div>
 
-              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
-                <div className="flex items-center gap-2">
+              <div className="flex items-center justify-between p-3 rounded-xl bg-muted/30 hover:bg-muted/50 transition-all cursor-pointer">
+                <div className="flex items-center gap-3">
                   <FileText className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm font-medium">Draft</span>
                 </div>
-                <div className="font-bold">{invoicesData.draft}</div>
+                <div className="font-bold text-lg">{invoicesData.draft}</div>
               </div>
 
-              <Button variant="outline" className="w-full mt-2" onClick={() => navigate("/invoices")}>
+              <Button variant="outline" className="w-full mt-3 touch-target" onClick={() => navigate("/invoices")}>
                 View All Invoices
               </Button>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
 
         {/* Bottom Section - Today's Appointments and Payments */}
-        <div className="grid lg:grid-cols-2 gap-6">
+        <div className="grid lg:grid-cols-2 gap-4 sm:gap-6">
           {/* Today's Appointments with Calendar Preview */}
-          <Card className="shadow-md border-border">
-            <CardHeader className="pb-4 border-b">
+          <div className="app-card overflow-hidden">
+            <div className="p-4 sm:p-5 border-b bg-gradient-to-r from-success/5 to-transparent">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-lg font-semibold flex items-center gap-2">
-                  <div className="p-2 rounded-lg bg-success/10">
+                <div className="flex items-center gap-3">
+                  <div className="p-2.5 rounded-xl bg-success/10 shadow-sm">
                     <Calendar className="h-5 w-5 text-success" />
                   </div>
-                  Today's Appointments
-                </CardTitle>
-                <Button size="sm" variant="outline" onClick={() => navigate("/appointments/manage")}>
+                  <div>
+                    <h3 className="font-bold text-foreground">Today's Schedule</h3>
+                    <p className="text-xs text-muted-foreground">{todaysAppointments.length} appointments</p>
+                  </div>
+                </div>
+                <Button size="sm" variant="outline" onClick={() => navigate("/appointments/manage")} className="touch-target">
                   View All
                 </Button>
               </div>
-            </CardHeader>
-            <CardContent className="pt-4 space-y-4">
+            </div>
+            <div className="p-4 sm:p-5 space-y-4">
               {/* Mini Calendar */}
-              <div className="p-3 bg-muted/30 rounded-lg border border-border">
+              <div className="p-3 bg-gradient-to-br from-muted/30 to-muted/10 rounded-xl border border-border shadow-inner">
                 <div className="grid grid-cols-7 gap-1 mb-2">
                   {["S", "M", "T", "W", "T", "F", "S"].map((day, i) => (
                     <div key={i} className="text-center text-xs font-semibold text-muted-foreground p-1">
@@ -324,18 +366,18 @@ const Index = () => {
               </div>
 
               {/* Appointments List */}
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {todaysAppointments.map((appointment) => (
-                  <div key={appointment.id} className="flex items-center gap-4 p-4 bg-muted/50 rounded-lg hover:bg-muted transition-colors cursor-pointer">
-                    <Avatar className="h-12 w-12 bg-primary">
-                      <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
+                  <div key={appointment.id} className="flex items-center gap-3 p-3 sm:p-4 bg-gradient-to-r from-primary/5 to-transparent rounded-xl border border-border/50 hover:border-primary/30 hover:shadow-md transition-all cursor-pointer group">
+                    <Avatar className="h-12 w-12 sm:h-14 sm:w-14 bg-gradient-to-br from-primary to-accent shadow-md group-hover:scale-110 transition-transform">
+                      <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-primary-foreground font-bold text-lg">
                         {appointment.customer.split(" ").map(n => n[0]).join("")}
                       </AvatarFallback>
                     </Avatar>
-                    <div className="flex-1">
-                      <div className="font-semibold text-foreground">{appointment.customer}</div>
-                      <div className="flex items-center gap-3 mt-1">
-                        <Badge variant="secondary" className="text-xs">
+                    <div className="flex-1 min-w-0">
+                      <div className="font-semibold text-foreground truncate">{appointment.customer}</div>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Badge variant="secondary" className="text-xs px-2">
                           {appointment.type}
                         </Badge>
                         <div className="flex items-center gap-1 text-xs text-muted-foreground">
@@ -347,48 +389,61 @@ const Index = () => {
                   </div>
                 ))}
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
           {/* Payments */}
-          <Card className="shadow-md border-border">
-            <CardHeader className="pb-4 border-b">
-              <CardTitle className="text-lg font-semibold flex items-center gap-2">
-                <div className="p-2 rounded-lg bg-success/10">
+          <div className="app-card overflow-hidden">
+            <div className="p-4 sm:p-5 border-b bg-gradient-to-r from-success/5 to-transparent">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-xl bg-success/10 shadow-sm">
                   <DollarSign className="h-5 w-5 text-success" />
                 </div>
-                Payments
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-4 space-y-4">
-              <div className="p-4 rounded-lg bg-success/10 border border-success/20">
-                <div className="flex items-center gap-2 mb-2">
-                  <TrendingUp className="h-4 w-4 text-success" />
-                  <p className="text-xs font-semibold text-success uppercase">On Its Way</p>
+                <div>
+                  <h3 className="font-bold text-foreground">Payments</h3>
+                  <p className="text-xs text-muted-foreground">Financial overview</p>
                 </div>
-                <p className="text-xs text-muted-foreground mb-3">Expected on Oct 06, 2023</p>
-                <div className="flex items-end justify-between">
-                  <div className="text-2xl font-bold text-foreground">$320.33</div>
-                  <Button size="sm" variant="outline" onClick={() => navigate("/reports")}>
-                    View Reports
-                  </Button>
+              </div>
+            </div>
+            <div className="p-4 sm:p-5 space-y-4">
+              <div className="p-4 rounded-xl bg-gradient-to-br from-success/15 to-success/5 border border-success/30 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-success/10 rounded-full blur-3xl" />
+                <div className="relative">
+                  <div className="flex items-center gap-2 mb-2">
+                    <TrendingUp className="h-4 w-4 text-success" />
+                    <p className="text-xs font-bold text-success uppercase tracking-wide">On Its Way</p>
+                  </div>
+                  <p className="text-xs text-muted-foreground mb-3">Expected on Oct 06, 2023</p>
+                  <div className="flex items-end justify-between">
+                    <div className="text-3xl font-bold bg-gradient-to-r from-success to-success/70 bg-clip-text text-transparent">
+                      $320.33
+                    </div>
+                    <Button size="sm" variant="outline" onClick={() => navigate("/reports")} className="touch-target">
+                      View
+                    </Button>
+                  </div>
                 </div>
               </div>
 
-              <div className="p-4 rounded-lg bg-primary/10 border border-primary/20">
-                <div className="flex items-center gap-2 mb-3">
-                  <CheckCircle className="h-4 w-4 text-primary" />
-                  <p className="text-xs font-semibold text-primary uppercase">Available Now</p>
-                </div>
-                <div className="flex items-end justify-between">
-                  <div className="text-2xl font-bold text-foreground">$1,337.00</div>
-                  <Button size="sm" variant="default">
-                    Get it now
-                  </Button>
+              <div className="p-4 rounded-xl bg-gradient-to-br from-primary/15 to-primary/5 border border-primary/30 relative overflow-hidden pulse-glow">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl" />
+                <div className="relative">
+                  <div className="flex items-center gap-2 mb-3">
+                    <CheckCircle className="h-4 w-4 text-primary" />
+                    <p className="text-xs font-bold text-primary uppercase tracking-wide">Available Now</p>
+                  </div>
+                  <div className="flex items-end justify-between">
+                    <div className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+                      $1,337.00
+                    </div>
+                    <Button size="sm" variant="default" className="touch-target shadow-md hover:shadow-lg">
+                      Get it now
+                    </Button>
+                  </div>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
       </main>
     </div>
