@@ -64,20 +64,22 @@ const Index = () => {
 
       <main className="px-4 sm:px-6 py-4 sm:py-6 space-y-6 animate-fade-in">
         {/* Header */}
-        <div className="app-card p-6 bg-gradient-to-br from-primary/5 via-accent/5 to-transparent">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="app-card p-4 sm:p-6 bg-gradient-to-br from-primary/5 via-accent/5 to-transparent relative overflow-hidden">
+          <div className="gradient-mesh absolute inset-0 opacity-50"></div>
+          <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                Good morning, {currentUser}
+              <h1 className="text-2xl sm:text-3xl font-bold font-display mb-1">
+                <span className="text-gradient">Good morning, </span>
+                <span className="text-foreground">{currentUser}</span>
               </h1>
-              <p className="text-sm text-muted-foreground mt-1">Welcome back to your dashboard</p>
+              <p className="text-sm text-muted-foreground">Welcome back to your dashboard</p>
             </div>
             <div className="flex gap-2 w-full sm:w-auto">
-              <Button variant="outline" className="gap-2 flex-1 sm:flex-initial touch-target hover:bg-primary/10 hover:border-primary">
+              <Button variant="outline" className="gap-2 flex-1 sm:flex-initial touch-target hover:bg-primary/10 hover:border-primary border-border/50 button-scale">
                 <Eye className="h-4 w-4" />
                 <span className="hidden sm:inline">View Insights</span>
               </Button>
-              <Button variant="default" className="gap-2 flex-1 sm:flex-initial touch-target shadow-lg hover:shadow-xl">
+              <Button variant="default" className="gap-2 flex-1 sm:flex-initial touch-target shadow-lg hover:shadow-xl button-scale gradient-primary border-0">
                 <Plus className="h-4 w-4" />
                 <span className="hidden sm:inline">Quick Add</span>
               </Button>
@@ -87,59 +89,59 @@ const Index = () => {
 
         {/* Quick Stats Overview */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-          <div className="app-card p-4 hover:shadow-xl transition-all duration-300 cursor-pointer group">
+          <div className="app-card p-4 card-shine cursor-pointer group">
             <div className="flex items-center justify-between mb-3">
-              <div className="p-3 rounded-xl bg-primary/10 group-hover:bg-primary/20 transition-colors">
+              <div className="p-3 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 group-hover:from-primary/20 group-hover:to-primary/10 transition-all shadow-sm">
                 <FileText className="h-5 w-5 text-primary" />
               </div>
-              <TrendingUp className="h-4 w-4 text-success" />
+              <TrendingUp className="h-4 w-4 text-success animate-float" />
             </div>
             <div className="space-y-1">
-              <p className="text-xs font-medium text-muted-foreground">New Estimates</p>
-              <p className="text-2xl sm:text-3xl font-bold text-foreground">{estimatesData.new}</p>
-              <p className="text-xs text-success">↑ 12% this week</p>
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">New Estimates</p>
+              <p className="text-2xl sm:text-3xl font-bold text-foreground font-display">{estimatesData.new}</p>
+              <p className="text-xs text-success font-medium">↑ 12% this week</p>
             </div>
           </div>
 
-          <div className="app-card p-4 hover:shadow-xl transition-all duration-300 cursor-pointer group">
+          <div className="app-card p-4 card-shine cursor-pointer group">
             <div className="flex items-center justify-between mb-3">
-              <div className="p-3 rounded-xl bg-accent/10 group-hover:bg-accent/20 transition-colors">
+              <div className="p-3 rounded-xl bg-gradient-to-br from-accent/10 to-accent/5 group-hover:from-accent/20 group-hover:to-accent/10 transition-all shadow-sm">
                 <Briefcase className="h-5 w-5 text-accent" />
               </div>
-              <TrendingUp className="h-4 w-4 text-success" />
+              <TrendingUp className="h-4 w-4 text-success animate-float" style={{ animationDelay: '0.2s' }} />
             </div>
             <div className="space-y-1">
-              <p className="text-xs font-medium text-muted-foreground">Active Jobs</p>
-              <p className="text-2xl sm:text-3xl font-bold text-foreground">{jobsData.active.count}</p>
-              <p className="text-xs text-accent">${jobsData.active.amount}</p>
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Active Jobs</p>
+              <p className="text-2xl sm:text-3xl font-bold text-foreground font-display">{jobsData.active.count}</p>
+              <p className="text-xs text-accent font-medium">${jobsData.active.amount}</p>
             </div>
           </div>
 
-          <div className="app-card p-4 hover:shadow-xl transition-all duration-300 cursor-pointer group">
+          <div className="app-card p-4 card-shine cursor-pointer group">
             <div className="flex items-center justify-between mb-3">
-              <div className="p-3 rounded-xl bg-warning/10 group-hover:bg-warning/20 transition-colors">
+              <div className="p-3 rounded-xl bg-gradient-to-br from-warning/10 to-warning/5 group-hover:from-warning/20 group-hover:to-warning/10 transition-all shadow-sm">
                 <DollarSign className="h-5 w-5 text-warning" />
               </div>
-              <AlertCircle className="h-4 w-4 text-warning" />
+              <AlertCircle className="h-4 w-4 text-warning animate-pulse" />
             </div>
             <div className="space-y-1">
-              <p className="text-xs font-medium text-muted-foreground">Awaiting Payment</p>
-              <p className="text-2xl sm:text-3xl font-bold text-foreground">{invoicesData.awaitingPayment.count}</p>
-              <p className="text-xs text-warning">${invoicesData.awaitingPayment.amount}</p>
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Awaiting Payment</p>
+              <p className="text-2xl sm:text-3xl font-bold text-foreground font-display">{invoicesData.awaitingPayment.count}</p>
+              <p className="text-xs text-warning font-medium">${invoicesData.awaitingPayment.amount}</p>
             </div>
           </div>
 
-          <div className="app-card p-4 hover:shadow-xl transition-all duration-300 cursor-pointer group">
+          <div className="app-card p-4 card-shine cursor-pointer group">
             <div className="flex items-center justify-between mb-3">
-              <div className="p-3 rounded-xl bg-success/10 group-hover:bg-success/20 transition-colors">
+              <div className="p-3 rounded-xl bg-gradient-to-br from-success/10 to-success/5 group-hover:from-success/20 group-hover:to-success/10 transition-all shadow-sm">
                 <Calendar className="h-5 w-5 text-success" />
               </div>
-              <CheckCircle className="h-4 w-4 text-success" />
+              <CheckCircle className="h-4 w-4 text-success animate-float" style={{ animationDelay: '0.4s' }} />
             </div>
             <div className="space-y-1">
-              <p className="text-xs font-medium text-muted-foreground">Today's Appointments</p>
-              <p className="text-2xl sm:text-3xl font-bold text-foreground">{appointmentsData.total.count}</p>
-              <p className="text-xs text-success">${appointmentsData.total.amount.toFixed(2)}</p>
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Today's Appointments</p>
+              <p className="text-2xl sm:text-3xl font-bold text-foreground font-display">{appointmentsData.total.count}</p>
+              <p className="text-xs text-success font-medium">${appointmentsData.total.amount.toFixed(2)}</p>
             </div>
           </div>
         </div>

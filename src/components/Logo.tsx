@@ -19,16 +19,21 @@ export const Logo = ({ size = "md", showText = true }: LogoProps) => {
   };
 
   return (
-    <div className="flex items-center gap-3">
-      <div className="gradient-primary rounded-xl p-2 shadow-lg">
-        <Wrench className={`${sizes[size]} text-white`} />
+    <div className="flex items-center gap-3 group">
+      <div className="relative">
+        <div className="gradient-primary rounded-xl p-2.5 shadow-lg group-hover:shadow-xl transition-all duration-300 relative overflow-hidden">
+          <Wrench className={`${sizes[size]} text-white relative z-10`} />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent"></div>
+        </div>
+        <div className="absolute -inset-1 bg-gradient-to-r from-primary to-accent rounded-xl opacity-0 group-hover:opacity-20 blur transition-opacity duration-300"></div>
       </div>
       {showText && (
         <div className="flex flex-col">
-          <h1 className={`${textSizes[size]} font-bold text-foreground leading-none`}>
+          <h1 className={`${textSizes[size]} font-bold text-foreground leading-none font-display tracking-tight`}>
             ServicePro
-            <span className="text-primary">911</span>
+            <span className="text-gradient">911</span>
           </h1>
+          <span className="text-xs text-muted-foreground font-medium">Field Service Pro</span>
         </div>
       )}
     </div>

@@ -31,22 +31,37 @@ const Customers = () => {
     <div className="flex-1">
       <AppHeader searchPlaceholder="Search customers..." onSearchChange={setSearchQuery} />
 
-      <main className="px-6 py-6 space-y-6 animate-fade-in">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">Customers</h1>
-            <p className="text-muted-foreground">Manage your customer relationships</p>
+      <main className="px-4 sm:px-6 py-4 sm:py-6 space-y-6 animate-fade-in">
+        <div className="app-card p-6 bg-gradient-to-br from-primary/5 via-accent/5 to-transparent relative overflow-hidden">
+          <div className="gradient-mesh absolute inset-0 opacity-50"></div>
+          <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold font-display mb-1">
+                <span className="text-gradient">Customers</span>
+              </h1>
+              <p className="text-sm text-muted-foreground">Manage your customer relationships</p>
+            </div>
+            <Button onClick={() => setModalOpen(true)} className="gap-2 shadow-lg hover:shadow-xl button-scale gradient-primary border-0 touch-target">
+              <Plus className="h-5 w-5" />
+              Add Customer
+            </Button>
           </div>
-          <Button onClick={() => setModalOpen(true)} className="gap-2">
-            <Plus className="h-5 w-5" />
-            Add Customer
-          </Button>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full max-w-md grid-cols-2">
-            <TabsTrigger value="active">Active Customers</TabsTrigger>
-            <TabsTrigger value="deactivated">Deactivated Customers</TabsTrigger>
+          <TabsList className="grid w-full max-w-md grid-cols-2 bg-muted/50 p-1 h-auto shadow-sm">
+            <TabsTrigger 
+              value="active" 
+              className="data-[state=active]:bg-card data-[state=active]:shadow-md transition-all rounded-lg py-2.5 font-semibold"
+            >
+              Active Customers
+            </TabsTrigger>
+            <TabsTrigger 
+              value="deactivated" 
+              className="data-[state=active]:bg-card data-[state=active]:shadow-md transition-all rounded-lg py-2.5 font-semibold"
+            >
+              Deactivated
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="active" className="mt-6">
