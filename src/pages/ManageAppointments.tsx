@@ -7,28 +7,228 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Plus, Calendar as CalendarIcon, List, Edit } from "lucide-react";
 import { mockEmployees } from "@/data/mockData";
 import { useNavigate } from "react-router-dom";
+import { cn } from "@/lib/utils";
 
 const ManageAppointments = () => {
   const navigate = useNavigate();
   const [selectedEmployee, setSelectedEmployee] = useState("all");
   const [calendarView, setCalendarView] = useState<"month" | "week" | "day">("month");
 
+  // Generate comprehensive mock appointments for current week
   const mockAppointments = [
+    // Monday
     {
       id: "APT-001",
       customerName: "Sarah Johnson",
       subject: "HVAC Maintenance Check",
-      date: "2025-10-25",
-      time: "10:00 AM",
+      date: "2025-10-27",
+      time: "09:00 AM",
       employee: "John Doe",
+      status: "scheduled",
     },
     {
       id: "APT-002",
       customerName: "Mike Williams",
       subject: "Plumbing Consultation",
-      date: "2025-10-26",
-      time: "2:00 PM",
+      date: "2025-10-27",
+      time: "11:00 AM",
       employee: "Jane Smith",
+      status: "scheduled",
+    },
+    {
+      id: "APT-003",
+      customerName: "Emily Davis",
+      subject: "Electrical Inspection",
+      date: "2025-10-27",
+      time: "02:00 PM",
+      employee: "John Doe",
+      status: "scheduled",
+    },
+    {
+      id: "APT-004",
+      customerName: "Robert Brown",
+      subject: "AC Unit Installation",
+      date: "2025-10-27",
+      time: "04:00 PM",
+      employee: "Mike Johnson",
+      status: "scheduled",
+    },
+    // Tuesday
+    {
+      id: "APT-005",
+      customerName: "Jessica Wilson",
+      subject: "Water Heater Repair",
+      date: "2025-10-28",
+      time: "08:00 AM",
+      employee: "Jane Smith",
+      status: "scheduled",
+    },
+    {
+      id: "APT-006",
+      customerName: "David Martinez",
+      subject: "Furnace Maintenance",
+      date: "2025-10-28",
+      time: "10:00 AM",
+      employee: "John Doe",
+      status: "scheduled",
+    },
+    {
+      id: "APT-007",
+      customerName: "Lisa Anderson",
+      subject: "Circuit Breaker Replacement",
+      date: "2025-10-28",
+      time: "01:00 PM",
+      employee: "Mike Johnson",
+      status: "scheduled",
+    },
+    {
+      id: "APT-008",
+      customerName: "James Taylor",
+      subject: "Duct Cleaning Service",
+      date: "2025-10-28",
+      time: "03:30 PM",
+      employee: "John Doe",
+      status: "scheduled",
+    },
+    // Wednesday
+    {
+      id: "APT-009",
+      customerName: "Maria Garcia",
+      subject: "Thermostat Installation",
+      date: "2025-10-29",
+      time: "09:30 AM",
+      employee: "Jane Smith",
+      status: "scheduled",
+    },
+    {
+      id: "APT-010",
+      customerName: "Christopher Lee",
+      subject: "Drain Cleaning",
+      date: "2025-10-29",
+      time: "11:30 AM",
+      employee: "Mike Johnson",
+      status: "scheduled",
+    },
+    {
+      id: "APT-011",
+      customerName: "Patricia White",
+      subject: "Lighting Fixture Installation",
+      date: "2025-10-29",
+      time: "02:00 PM",
+      employee: "John Doe",
+      status: "scheduled",
+    },
+    // Thursday
+    {
+      id: "APT-012",
+      customerName: "Daniel Harris",
+      subject: "Boiler Inspection",
+      date: "2025-10-30",
+      time: "08:30 AM",
+      employee: "Jane Smith",
+      status: "scheduled",
+    },
+    {
+      id: "APT-013",
+      customerName: "Nancy Clark",
+      subject: "Smoke Detector Installation",
+      date: "2025-10-30",
+      time: "10:30 AM",
+      employee: "Mike Johnson",
+      status: "scheduled",
+    },
+    {
+      id: "APT-014",
+      customerName: "Kevin Rodriguez",
+      subject: "Pipe Leak Repair",
+      date: "2025-10-30",
+      time: "01:30 PM",
+      employee: "John Doe",
+      status: "scheduled",
+    },
+    {
+      id: "APT-015",
+      customerName: "Sandra Lewis",
+      subject: "HVAC System Tune-up",
+      date: "2025-10-30",
+      time: "03:00 PM",
+      employee: "Jane Smith",
+      status: "scheduled",
+    },
+    // Friday
+    {
+      id: "APT-016",
+      customerName: "Paul Walker",
+      subject: "Bathroom Exhaust Fan Installation",
+      date: "2025-10-31",
+      time: "09:00 AM",
+      employee: "Mike Johnson",
+      status: "scheduled",
+    },
+    {
+      id: "APT-017",
+      customerName: "Laura Hall",
+      subject: "Water Softener Installation",
+      date: "2025-10-31",
+      time: "11:00 AM",
+      employee: "John Doe",
+      status: "scheduled",
+    },
+    {
+      id: "APT-018",
+      customerName: "Steven Young",
+      subject: "Ceiling Fan Repair",
+      date: "2025-10-31",
+      time: "02:30 PM",
+      employee: "Jane Smith",
+      status: "scheduled",
+    },
+    // Saturday
+    {
+      id: "APT-019",
+      customerName: "Karen King",
+      subject: "Emergency Plumbing Service",
+      date: "2025-11-01",
+      time: "10:00 AM",
+      employee: "Mike Johnson",
+      status: "scheduled",
+    },
+    {
+      id: "APT-020",
+      customerName: "Brian Scott",
+      subject: "Air Quality Assessment",
+      date: "2025-11-01",
+      time: "01:00 PM",
+      employee: "John Doe",
+      status: "scheduled",
+    },
+    // Next Week
+    {
+      id: "APT-021",
+      customerName: "Michelle Green",
+      subject: "Refrigerator Line Installation",
+      date: "2025-11-03",
+      time: "09:00 AM",
+      employee: "Jane Smith",
+      status: "scheduled",
+    },
+    {
+      id: "APT-022",
+      customerName: "George Adams",
+      subject: "Outlet Installation",
+      date: "2025-11-04",
+      time: "10:00 AM",
+      employee: "Mike Johnson",
+      status: "scheduled",
+    },
+    {
+      id: "APT-023",
+      customerName: "Betty Nelson",
+      subject: "Heating System Inspection",
+      date: "2025-11-05",
+      time: "02:00 PM",
+      employee: "John Doe",
+      status: "scheduled",
     },
   ];
 
@@ -117,23 +317,42 @@ const ManageAppointments = () => {
                       </div>
                     ))}
                     {Array.from({ length: 35 }, (_, i) => {
-                      const date = new Date();
-                      date.setDate(date.getDate() - date.getDay() + i);
-                      const dayAppointments = mockAppointments.filter(apt => apt.date === date.toISOString().split('T')[0]);
+                      const currentDate = new Date(2025, 9, 27); // Oct 27, 2025 (month is 0-indexed)
+                      const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+                      const startDate = new Date(firstDayOfMonth);
+                      startDate.setDate(startDate.getDate() - startDate.getDay());
+                      
+                      const cellDate = new Date(startDate);
+                      cellDate.setDate(cellDate.getDate() + i);
+                      
+                      const dateStr = cellDate.toISOString().split('T')[0];
+                      const dayAppointments = mockAppointments.filter(apt => apt.date === dateStr);
+                      const isCurrentMonth = cellDate.getMonth() === currentDate.getMonth();
+                      const isToday = dateStr === currentDate.toISOString().split('T')[0];
                       
                       return (
                         <div
                           key={i}
-                          className="min-h-24 p-2 rounded-lg border border-border bg-card hover:shadow-md transition-all cursor-pointer"
+                          className={cn(
+                            "min-h-24 p-2 rounded-lg border transition-all cursor-pointer",
+                            isCurrentMonth ? "bg-card border-border hover:shadow-md" : "bg-muted/30 border-muted",
+                            isToday && "ring-2 ring-primary"
+                          )}
                         >
-                          <div className="text-xs font-semibold mb-1 text-foreground">{date.getDate()}</div>
-                          {dayAppointments.slice(0, 2).map((apt) => (
-                            <div key={apt.id} className="text-xs p-1 mb-1 bg-primary/10 rounded border border-primary/20 truncate">
-                              {apt.time}
+                          <div className={cn(
+                            "text-xs font-semibold mb-1",
+                            isToday ? "text-primary" : isCurrentMonth ? "text-foreground" : "text-muted-foreground"
+                          )}>
+                            {cellDate.getDate()}
+                          </div>
+                          {dayAppointments.slice(0, 3).map((apt) => (
+                            <div key={apt.id} className="text-xs p-1 mb-1 bg-primary/10 rounded border border-primary/20 truncate hover:bg-primary/20">
+                              <div className="font-medium">{apt.time}</div>
+                              <div className="truncate text-muted-foreground">{apt.subject}</div>
                             </div>
                           ))}
-                          {dayAppointments.length > 2 && (
-                            <div className="text-xs text-muted-foreground">+{dayAppointments.length - 2}</div>
+                          {dayAppointments.length > 3 && (
+                            <div className="text-xs font-medium text-primary">+{dayAppointments.length - 3} more</div>
                           )}
                         </div>
                       );
@@ -146,40 +365,39 @@ const ManageAppointments = () => {
             {calendarView === "week" && (
               <Card className="border border-border bg-card shadow-md">
                 <CardContent className="p-4">
-                  <div className="space-y-2 max-h-[600px] overflow-y-auto">
+                  <div className="grid grid-cols-1 lg:grid-cols-7 gap-3">
                     {Array.from({ length: 7 }, (_, dayIndex) => {
-                      const date = new Date();
-                      date.setDate(date.getDate() - date.getDay() + dayIndex);
+                      const weekStart = new Date(2025, 9, 27); // Oct 27, 2025
+                      weekStart.setDate(weekStart.getDate() - weekStart.getDay() + dayIndex);
+                      
+                      const dateStr = weekStart.toISOString().split('T')[0];
+                      const dayAppointments = mockAppointments.filter(apt => apt.date === dateStr);
+                      const isToday = dateStr === new Date(2025, 9, 27).toISOString().split('T')[0];
                       
                       return (
-                        <div key={dayIndex} className="border border-border rounded-lg p-3">
-                          <h3 className="font-semibold text-foreground mb-3">
-                            {date.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
+                        <div key={dayIndex} className={cn(
+                          "border rounded-lg p-3 min-h-[400px]",
+                          isToday ? "border-primary bg-primary/5" : "border-border"
+                        )}>
+                          <h3 className={cn(
+                            "font-bold text-sm mb-3 pb-2 border-b",
+                            isToday ? "text-primary border-primary/20" : "text-foreground border-border"
+                          )}>
+                            {weekStart.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
                           </h3>
                           <div className="space-y-2">
-                            {Array.from({ length: 24 }, (_, hour) => {
-                              const hourAppointments = mockAppointments.filter(apt => {
-                                const aptDate = new Date(apt.date);
-                                return aptDate.toDateString() === date.toDateString() && 
-                                       parseInt(apt.time) === hour;
-                              });
-                              
-                              return (
-                                <div key={hour} className="flex gap-3 p-2 bg-muted/20 rounded-md">
-                                  <div className="w-20 text-sm font-medium text-muted-foreground">
-                                    {hour.toString().padStart(2, '0')}:00
-                                  </div>
-                                  <div className="flex-1">
-                                    {hourAppointments.map((apt) => (
-                                      <div key={apt.id} className="p-2 bg-primary/10 rounded border border-primary/20 mb-1">
-                                        <p className="text-sm font-semibold">{apt.subject}</p>
-                                        <p className="text-xs text-muted-foreground">{apt.customerName}</p>
-                                      </div>
-                                    ))}
-                                  </div>
+                            {dayAppointments.length > 0 ? (
+                              dayAppointments.map((apt) => (
+                                <div key={apt.id} className="p-2 bg-primary/10 rounded-lg border border-primary/20 hover:bg-primary/20 transition-colors cursor-pointer">
+                                  <div className="text-xs font-bold text-primary mb-1">{apt.time}</div>
+                                  <div className="text-xs font-semibold text-foreground truncate">{apt.subject}</div>
+                                  <div className="text-xs text-muted-foreground truncate">{apt.customerName}</div>
+                                  <div className="text-xs text-muted-foreground mt-1">{apt.employee}</div>
                                 </div>
-                              );
-                            })}
+                              ))
+                            ) : (
+                              <p className="text-xs text-muted-foreground italic text-center mt-8">No appointments</p>
+                            )}
                           </div>
                         </div>
                       );
@@ -192,28 +410,50 @@ const ManageAppointments = () => {
             {calendarView === "day" && (
               <Card className="border border-border bg-card shadow-md">
                 <CardContent className="p-4">
-                  <div className="space-y-2 max-h-[600px] overflow-y-auto">
+                  <div className="mb-4 pb-3 border-b">
+                    <h2 className="text-xl font-bold text-foreground">
+                      {new Date(2025, 9, 27).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
+                    </h2>
+                  </div>
+                  <div className="space-y-1 max-h-[600px] overflow-y-auto">
                     {Array.from({ length: 24 }, (_, hour) => {
-                      const hourAppointments = mockAppointments.filter(apt => 
-                        parseInt(apt.time) === hour
-                      );
+                      const today = new Date(2025, 9, 27).toISOString().split('T')[0];
+                      const hourAppointments = mockAppointments.filter(apt => {
+                        const aptHour = parseInt(apt.time.split(':')[0]);
+                        return apt.date === today && aptHour === hour;
+                      });
+                      
+                      const isBusinessHour = hour >= 8 && hour <= 17;
                       
                       return (
-                        <div key={hour} className="flex gap-3 p-3 bg-muted/20 rounded-lg border border-border hover:shadow-md transition-all">
-                          <div className="w-24 text-base font-semibold text-foreground">
+                        <div key={hour} className={cn(
+                          "flex gap-3 p-3 rounded-lg border transition-all",
+                          hourAppointments.length > 0 ? "bg-primary/5 border-primary/20 hover:shadow-md" : "bg-muted/10 border-border",
+                          !isBusinessHour && "opacity-50"
+                        )}>
+                          <div className="w-24 text-base font-bold text-foreground">
                             {hour.toString().padStart(2, '0')}:00
                           </div>
                           <div className="flex-1 space-y-2">
                             {hourAppointments.length > 0 ? (
                               hourAppointments.map((apt) => (
-                                <div key={apt.id} className="p-3 bg-primary/10 rounded-lg border border-primary/20">
-                                  <p className="font-semibold text-foreground">{apt.subject}</p>
-                                  <p className="text-sm text-muted-foreground">{apt.customerName}</p>
-                                  <p className="text-xs text-muted-foreground mt-1">Employee: {apt.employee}</p>
+                                <div key={apt.id} className="p-3 bg-primary/10 rounded-lg border border-primary/30 hover:bg-primary/20 transition-colors cursor-pointer">
+                                  <div className="flex items-start justify-between">
+                                    <div className="flex-1">
+                                      <p className="font-bold text-foreground">{apt.subject}</p>
+                                      <p className="text-sm text-muted-foreground mt-1">Customer: {apt.customerName}</p>
+                                      <p className="text-sm text-muted-foreground">Employee: {apt.employee}</p>
+                                    </div>
+                                    <div className="text-xs font-semibold text-primary px-2 py-1 bg-primary/20 rounded">
+                                      {apt.time}
+                                    </div>
+                                  </div>
                                 </div>
                               ))
                             ) : (
-                              <p className="text-sm text-muted-foreground italic">No appointments</p>
+                              <div className="h-8 flex items-center">
+                                <span className="text-sm text-muted-foreground italic">Available</span>
+                              </div>
                             )}
                           </div>
                         </div>
