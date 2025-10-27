@@ -5,9 +5,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Plus, FileText, Calendar, Eye } from "lucide-react";
 import { mockAgreements } from "@/data/mockData";
+import { AddAgreementModal } from "@/components/modals/AddAgreementModal";
 
 const Agreements = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [addAgreementOpen, setAddAgreementOpen] = useState(false);
 
   const filteredAgreements = mockAgreements.filter((agreement) =>
     agreement.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -38,7 +40,7 @@ const Agreements = () => {
               <h1 className="text-3xl font-bold text-foreground">Agreements</h1>
               <p className="text-muted-foreground">Manage service contracts and agreements</p>
             </div>
-            <Button className="gap-2">
+            <Button className="gap-2" onClick={() => setAddAgreementOpen(true)}>
               <Plus className="h-5 w-5" />
               New Agreement
             </Button>
@@ -106,6 +108,8 @@ const Agreements = () => {
           ))}
         </div>
       </main>
+
+      <AddAgreementModal open={addAgreementOpen} onOpenChange={setAddAgreementOpen} />
     </div>
   );
 };
