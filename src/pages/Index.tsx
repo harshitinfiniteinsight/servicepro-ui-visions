@@ -1,6 +1,6 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AppHeader } from "@/components/AppHeader";
+import { StatCard } from "@/components/StatCard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -12,7 +12,10 @@ import {
   Briefcase, 
   Calendar,
   DollarSign,
-  Clock
+  Clock,
+  TrendingUp,
+  AlertCircle,
+  CheckCircle
 } from "lucide-react";
 
 const Index = () => {
@@ -76,264 +79,230 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Main Stats Grid */}
+        {/* Quick Stats Overview */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-          {/* Estimates Card */}
-          <Card className="border-0 shadow-md border-t-4 border-t-blue-500">
-            <CardHeader className="pb-4">
+          <StatCard
+            title="New Estimates"
+            value={estimatesData.new}
+            icon={FileText}
+            color="primary"
+            trend={{ value: "12% from last week", positive: true }}
+          />
+          <StatCard
+            title="Active Jobs"
+            value={jobsData.active.count}
+            icon={Briefcase}
+            color="accent"
+            trend={{ value: `$${jobsData.active.amount}`, positive: true }}
+          />
+          <StatCard
+            title="Awaiting Payment"
+            value={invoicesData.awaitingPayment.count}
+            icon={DollarSign}
+            color="warning"
+            trend={{ value: `$${invoicesData.awaitingPayment.amount}`, positive: false }}
+          />
+          <StatCard
+            title="Today's Appointments"
+            value={appointmentsData.total.count}
+            icon={Calendar}
+            color="success"
+            trend={{ value: `$${appointmentsData.total.amount.toFixed(2)}`, positive: true }}
+          />
+        </div>
+
+        {/* Detailed Cards Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Estimates Detail */}
+          <Card className="shadow-md border-border">
+            <CardHeader className="pb-4 border-b">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-xl font-bold">Estimates</CardTitle>
-                <Button size="sm" variant="outline" className="text-green-600 border-green-600 hover:bg-green-50" onClick={() => navigate("/estimates")}>
+                <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                  <div className="p-2 rounded-lg bg-primary/10">
+                    <FileText className="h-5 w-5 text-primary" />
+                  </div>
+                  Estimates
+                </CardTitle>
+                <Button size="sm" variant="default" onClick={() => navigate("/estimates")}>
                   <Plus className="h-4 w-4 mr-1" />
-                  New Estimate
+                  New
                 </Button>
               </div>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-3">
-                <div className="flex items-center justify-between py-2">
-                  <span className="text-muted-foreground">New</span>
-                  <div className="flex items-center gap-3">
-                    <span className="text-2xl font-bold">{estimatesData.new}</span>
-                    <Button size="sm" variant="outline" className="text-green-600 border-green-600 hover:bg-green-50">
-                      Schedule Assessments
-                    </Button>
-                  </div>
+            <CardContent className="pt-4 space-y-3">
+              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
+                <div className="flex items-center gap-2">
+                  <AlertCircle className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm font-medium">Approved</span>
                 </div>
-
-                <div className="flex items-center justify-between py-2 border-t">
-                  <span className="text-muted-foreground">Approved</span>
-                  <div className="flex items-center gap-3">
-                    <div className="text-right">
-                      <div className="text-2xl font-bold">{estimatesData.approved.count}</div>
-                      <div className="text-sm text-muted-foreground">${estimatesData.approved.amount.toLocaleString()}</div>
-                    </div>
-                    <Button size="sm" variant="outline" className="text-green-600 border-green-600 hover:bg-green-50">
-                      Convert to Jobs
-                    </Button>
-                  </div>
+                <div className="text-right">
+                  <div className="font-bold">{estimatesData.approved.count}</div>
+                  <div className="text-xs text-muted-foreground">${estimatesData.approved.amount.toLocaleString()}</div>
                 </div>
-
-                <div className="flex items-center justify-between py-2 border-t">
-                  <span className="text-muted-foreground">Changes requested</span>
-                  <span className="text-2xl font-bold">{estimatesData.changesRequested}</span>
+              </div>
+              
+              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
+                <div className="flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm font-medium">Changes Requested</span>
                 </div>
+                <div className="font-bold">{estimatesData.changesRequested}</div>
+              </div>
 
-                <div className="flex items-center justify-between py-2 border-t">
-                  <span className="text-muted-foreground">Draft</span>
-                  <div className="flex items-center gap-3">
-                    <div className="text-right">
-                      <div className="text-2xl font-bold">{estimatesData.draft.count}</div>
-                      <div className="text-sm text-muted-foreground">${estimatesData.draft.amount.toLocaleString()}</div>
-                    </div>
-                    <Button size="sm" variant="link" className="text-green-600">
-                      View
-                    </Button>
-                  </div>
+              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
+                <div className="flex items-center gap-2">
+                  <FileText className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm font-medium">Draft</span>
+                </div>
+                <div className="text-right">
+                  <div className="font-bold">{estimatesData.draft.count}</div>
+                  <div className="text-xs text-muted-foreground">${estimatesData.draft.amount.toLocaleString()}</div>
                 </div>
               </div>
 
-              <div className="pt-4 border-t">
-                <p className="text-xs text-muted-foreground mb-2">Last 7 Days</p>
-                <div className="h-12 flex items-end gap-1">
-                  {[20, 35, 45, 30, 50, 40, 55].map((height, i) => (
-                    <div key={i} className="flex-1 bg-blue-500 rounded-t" style={{ height: `${height}%` }} />
-                  ))}
-                </div>
-                <div className="flex items-center gap-2 mt-2 text-xs">
-                  <div className="flex items-center gap-1">
-                    <div className="w-3 h-3 rounded-full bg-blue-700" />
-                    <span className="text-muted-foreground">Sent</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <div className="w-3 h-3 rounded-full bg-blue-300" />
-                    <span className="text-muted-foreground">Converted</span>
-                  </div>
-                </div>
-              </div>
+              <Button variant="outline" className="w-full mt-2" onClick={() => navigate("/estimates")}>
+                View All Estimates
+              </Button>
             </CardContent>
           </Card>
 
-          {/* Jobs Card */}
-          <Card className="border-0 shadow-md border-t-4 border-t-yellow-500">
-            <CardHeader className="pb-4">
+          {/* Jobs Detail */}
+          <Card className="shadow-md border-border">
+            <CardHeader className="pb-4 border-b">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-xl font-bold">Jobs</CardTitle>
-                <Button size="sm" variant="outline" className="text-green-600 border-green-600 hover:bg-green-50" onClick={() => navigate("/jobs")}>
+                <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                  <div className="p-2 rounded-lg bg-accent/10">
+                    <Briefcase className="h-5 w-5 text-accent" />
+                  </div>
+                  Jobs
+                </CardTitle>
+                <Button size="sm" variant="default" onClick={() => navigate("/jobs")}>
                   <Plus className="h-4 w-4 mr-1" />
-                  New Job
+                  New
                 </Button>
               </div>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-3">
-                <div className="flex items-center justify-between py-2">
-                  <span className="text-muted-foreground">Requires invoicing</span>
-                  <span className="text-2xl font-bold">{jobsData.requiresInvoicing}</span>
+            <CardContent className="pt-4 space-y-3">
+              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
+                <div className="flex items-center gap-2">
+                  <DollarSign className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm font-medium">Requires Invoicing</span>
                 </div>
-
-                <div className="flex items-center justify-between py-2 border-t">
-                  <span className="text-muted-foreground">Action required</span>
-                  <span className="text-2xl font-bold">{jobsData.actionRequired}</span>
+                <div className="font-bold">{jobsData.requiresInvoicing}</div>
+              </div>
+              
+              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
+                <div className="flex items-center gap-2">
+                  <AlertCircle className="h-4 w-4 text-warning" />
+                  <span className="text-sm font-medium">Action Required</span>
                 </div>
+                <div className="font-bold">{jobsData.actionRequired}</div>
+              </div>
 
-                <div className="flex items-center justify-between py-2 border-t">
-                  <span className="text-muted-foreground">Active</span>
-                  <div className="flex items-center gap-3">
-                    <div className="text-right">
-                      <div className="text-2xl font-bold">{jobsData.active.count}</div>
-                      <div className="text-sm text-muted-foreground">${jobsData.active.amount.toLocaleString()}</div>
-                    </div>
-                    <Button size="sm" variant="link" className="text-green-600">
-                      View
-                    </Button>
-                  </div>
+              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="h-4 w-4 text-success" />
+                  <span className="text-sm font-medium">Active</span>
+                </div>
+                <div className="text-right">
+                  <div className="font-bold">{jobsData.active.count}</div>
+                  <div className="text-xs text-muted-foreground">${jobsData.active.amount.toLocaleString()}</div>
                 </div>
               </div>
 
-              <div className="pt-4 border-t">
-                <p className="text-xs text-muted-foreground mb-2">Last 7 Days</p>
-                <div className="h-12 flex items-end gap-1">
-                  {[40, 55, 35, 60, 45, 70, 50].map((height, i) => (
-                    <div key={i} className="flex-1 bg-yellow-500 rounded-t" style={{ height: `${height}%` }} />
-                  ))}
-                </div>
-                <div className="flex items-center gap-2 mt-2 text-xs">
-                  <div className="flex items-center gap-1">
-                    <div className="w-3 h-3 rounded-full bg-yellow-700" />
-                    <span className="text-muted-foreground">Started</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <div className="w-3 h-3 rounded-full bg-yellow-300" />
-                    <span className="text-muted-foreground">Completed</span>
-                  </div>
-                </div>
-              </div>
+              <Button variant="outline" className="w-full mt-2" onClick={() => navigate("/jobs")}>
+                View All Jobs
+              </Button>
             </CardContent>
           </Card>
 
-          {/* Invoices Card */}
-          <Card className="border-0 shadow-md border-t-4 border-t-purple-500">
-            <CardHeader className="pb-4">
+          {/* Invoices Detail */}
+          <Card className="shadow-md border-border">
+            <CardHeader className="pb-4 border-b">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-xl font-bold">Invoices</CardTitle>
-                <Button size="sm" variant="outline" className="text-green-600 border-green-600 hover:bg-green-50" onClick={() => navigate("/invoices")}>
+                <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                  <div className="p-2 rounded-lg bg-warning/10">
+                    <DollarSign className="h-5 w-5 text-warning" />
+                  </div>
+                  Invoices
+                </CardTitle>
+                <Button size="sm" variant="default" onClick={() => navigate("/invoices")}>
                   <Plus className="h-4 w-4 mr-1" />
-                  New Invoice
+                  New
                 </Button>
               </div>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-3">
-                <div className="flex items-center justify-between py-2">
-                  <span className="text-muted-foreground">Past Due</span>
-                  <span className="text-2xl font-bold">{invoicesData.pastDue}</span>
+            <CardContent className="pt-4 space-y-3">
+              <div className="flex items-center justify-between p-3 rounded-lg bg-destructive/10 hover:bg-destructive/20 transition-colors">
+                <div className="flex items-center gap-2">
+                  <AlertCircle className="h-4 w-4 text-destructive" />
+                  <span className="text-sm font-medium">Past Due</span>
                 </div>
-
-                <div className="flex items-center justify-between py-2 border-t">
-                  <span className="text-muted-foreground">Awaiting payment</span>
-                  <div className="flex items-center gap-3">
-                    <div className="text-right">
-                      <div className="text-2xl font-bold">{invoicesData.awaitingPayment.count}</div>
-                      <div className="text-sm text-muted-foreground">${invoicesData.awaitingPayment.amount.toLocaleString()}</div>
-                    </div>
-                    <Button size="sm" variant="link" className="text-green-600">
-                      View
-                    </Button>
-                  </div>
+                <div className="font-bold text-destructive">{invoicesData.pastDue}</div>
+              </div>
+              
+              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
+                <div className="flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm font-medium">Awaiting Payment</span>
                 </div>
-
-                <div className="flex items-center justify-between py-2 border-t">
-                  <span className="text-muted-foreground">Draft</span>
-                  <span className="text-2xl font-bold">{invoicesData.draft}</span>
+                <div className="text-right">
+                  <div className="font-bold">{invoicesData.awaitingPayment.count}</div>
+                  <div className="text-xs text-muted-foreground">${invoicesData.awaitingPayment.amount.toLocaleString()}</div>
                 </div>
               </div>
 
-              <div className="pt-4 border-t">
-                <p className="text-xs text-muted-foreground mb-2">Last 30 Days</p>
-                <div className="h-12 flex items-end gap-1">
-                  {[30, 40, 35, 50, 45, 60, 70].map((height, i) => (
-                    <div key={i} className="flex-1 bg-purple-500 rounded-t" style={{ height: `${height}%` }} />
-                  ))}
+              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
+                <div className="flex items-center gap-2">
+                  <FileText className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm font-medium">Draft</span>
                 </div>
-                <div className="flex items-center gap-2 mt-2 text-xs">
-                  <div className="flex items-center gap-1">
-                    <div className="w-3 h-3 rounded-full bg-purple-700" />
-                    <span className="text-muted-foreground">Sent</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <div className="w-3 h-3 rounded-full bg-purple-300" />
-                    <span className="text-muted-foreground">Paid</span>
-                  </div>
-                </div>
+                <div className="font-bold">{invoicesData.draft}</div>
               </div>
-            </CardContent>
-          </Card>
 
-          {/* Appointments Summary Card */}
-          <Card className="border-0 shadow-md border-t-4 border-t-green-500">
-            <CardHeader className="pb-4">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-xl font-bold">Appointments</CardTitle>
-                <Button size="sm" variant="outline" className="text-green-600 border-green-600 hover:bg-green-50" onClick={() => navigate("/appointments/add")}>
-                  <Plus className="h-4 w-4 mr-1" />
-                  New Appointment
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-gray-900 text-white p-4 rounded-lg">
-                  <div className="text-3xl font-bold">{appointmentsData.total.count}</div>
-                  <div className="text-sm mt-1">Total</div>
-                  <div className="text-sm mt-2">${appointmentsData.total.amount.toFixed(2)}</div>
-                </div>
-                <div className="bg-gray-700 text-white p-4 rounded-lg">
-                  <div className="text-3xl font-bold">{appointmentsData.toGo.count}</div>
-                  <div className="text-sm mt-1">To Go</div>
-                  <div className="text-sm mt-2">${appointmentsData.toGo.amount.toFixed(2)}</div>
-                </div>
-                <div className="bg-blue-500 text-white p-4 rounded-lg">
-                  <div className="text-3xl font-bold">{appointmentsData.active.count}</div>
-                  <div className="text-sm mt-1">Active</div>
-                  <div className="text-sm mt-2">${appointmentsData.active.amount.toFixed(2)}</div>
-                </div>
-                <div className="bg-green-600 text-white p-4 rounded-lg">
-                  <div className="text-3xl font-bold">{appointmentsData.complete.count}</div>
-                  <div className="text-sm mt-1">Complete</div>
-                  <div className="text-sm mt-2">${appointmentsData.complete.amount.toFixed(2)}</div>
-                </div>
-              </div>
+              <Button variant="outline" className="w-full mt-2" onClick={() => navigate("/invoices")}>
+                View All Invoices
+              </Button>
             </CardContent>
           </Card>
         </div>
 
         {/* Bottom Section - Today's Appointments and Payments */}
-        <div className="grid lg:grid-cols-3 gap-6">
+        <div className="grid lg:grid-cols-2 gap-6">
           {/* Today's Appointments */}
-          <Card className="lg:col-span-2 border-0 shadow-md">
-            <CardHeader>
-              <CardTitle className="text-xl font-bold">Today's Appointments</CardTitle>
+          <Card className="shadow-md border-border">
+            <CardHeader className="pb-4 border-b">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                  <div className="p-2 rounded-lg bg-success/10">
+                    <Calendar className="h-5 w-5 text-success" />
+                  </div>
+                  Today's Appointments
+                </CardTitle>
+                <Button size="sm" variant="outline" onClick={() => navigate("/appointments/manage")}>
+                  View All
+                </Button>
+              </div>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
+            <CardContent className="pt-4">
+              <div className="space-y-3">
                 {todaysAppointments.map((appointment) => (
-                  <div key={appointment.id} className="flex items-center gap-4 p-4 bg-muted/30 rounded-lg">
-                    <Avatar className="h-10 w-10 bg-gray-500">
-                      <AvatarFallback className="bg-gray-500 text-white">
+                  <div key={appointment.id} className="flex items-center gap-4 p-4 bg-muted/50 rounded-lg hover:bg-muted transition-colors">
+                    <Avatar className="h-12 w-12 bg-primary">
+                      <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
                         {appointment.customer.split(" ").map(n => n[0]).join("")}
                       </AvatarFallback>
                     </Avatar>
-                    <div className="flex items-center gap-4 flex-1">
-                      <div className="flex items-center gap-2 text-muted-foreground">
-                        <Clock className="h-4 w-4" />
-                        <span className="font-mono">{appointment.time}</span>
-                      </div>
-                      <div>
-                        <Badge variant="outline" className="text-xs mb-1">
+                    <div className="flex-1">
+                      <div className="font-semibold text-foreground">{appointment.customer}</div>
+                      <div className="flex items-center gap-3 mt-1">
+                        <Badge variant="secondary" className="text-xs">
                           {appointment.type}
                         </Badge>
-                        <div className="font-medium">{appointment.customer}</div>
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                          <Clock className="h-3 w-3" />
+                          <span>{appointment.time}</span>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -343,34 +312,41 @@ const Index = () => {
           </Card>
 
           {/* Payments */}
-          <Card className="border-0 shadow-md">
-            <CardHeader>
-              <CardTitle className="text-xl font-bold">Payments</CardTitle>
+          <Card className="shadow-md border-border">
+            <CardHeader className="pb-4 border-b">
+              <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                <div className="p-2 rounded-lg bg-success/10">
+                  <DollarSign className="h-5 w-5 text-success" />
+                </div>
+                Payments
+              </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <div>
-                <p className="text-sm text-muted-foreground font-medium mb-2">ON ITS WAY TO YOUR BANK</p>
-                <p className="text-xs text-muted-foreground mb-2">Expected on Oct 06, 2023</p>
-                <div className="flex items-center justify-between">
-                  <div className="text-3xl font-bold">$320.33</div>
-                  <Button size="sm" variant="outline" className="text-green-600 border-green-600 hover:bg-green-50">
+            <CardContent className="pt-4 space-y-4">
+              <div className="p-4 rounded-lg bg-success/10 border border-success/20">
+                <div className="flex items-center gap-2 mb-2">
+                  <TrendingUp className="h-4 w-4 text-success" />
+                  <p className="text-xs font-semibold text-success uppercase">On Its Way</p>
+                </div>
+                <p className="text-xs text-muted-foreground mb-3">Expected on Oct 06, 2023</p>
+                <div className="flex items-end justify-between">
+                  <div className="text-2xl font-bold text-foreground">$320.33</div>
+                  <Button size="sm" variant="outline" onClick={() => navigate("/reports")}>
                     View Reports
                   </Button>
                 </div>
               </div>
 
-              <div className="pt-4 border-t">
-                <p className="text-sm text-muted-foreground font-medium mb-2">AVAILABLE FOR INSTANT PAYOUT</p>
-                <div className="flex items-center justify-between">
-                  <div className="text-3xl font-bold">$1,337.00</div>
-                  <Button size="sm" className="bg-gray-800 hover:bg-gray-700">
+              <div className="p-4 rounded-lg bg-primary/10 border border-primary/20">
+                <div className="flex items-center gap-2 mb-3">
+                  <CheckCircle className="h-4 w-4 text-primary" />
+                  <p className="text-xs font-semibold text-primary uppercase">Available Now</p>
+                </div>
+                <div className="flex items-end justify-between">
+                  <div className="text-2xl font-bold text-foreground">$1,337.00</div>
+                  <Button size="sm" variant="default">
                     Get it now
                   </Button>
                 </div>
-              </div>
-
-              <div className="pt-4 border-t">
-                <p className="text-sm text-muted-foreground font-medium">DISPUTES</p>
               </div>
             </CardContent>
           </Card>
