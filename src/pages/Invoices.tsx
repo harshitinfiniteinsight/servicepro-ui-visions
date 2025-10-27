@@ -9,14 +9,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Plus, Eye, Mail, MessageSquare, Edit, UserCog, FileText, CreditCard, Banknote, MoreVertical, Trash2, Check, X } from "lucide-react";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Plus, Eye, Mail, MessageSquare, Edit, UserCog, FileText, CreditCard, Banknote, MoreVertical, Trash2, Check, X, CheckCircle2 } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { mockInvoices } from "@/data/mockData";
 import { toast } from "sonner";
 
 const Invoices = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [deactivatedStatusFilter, setDeactivatedStatusFilter] = useState("all");
   const [startDate, setStartDate] = useState("2024-08-01");
   const [endDate, setEndDate] = useState("2024-10-27");
   const [modalOpen, setModalOpen] = useState(false);
@@ -31,16 +32,32 @@ const Invoices = () => {
         invoice.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
         invoice.orderId.toLowerCase().includes(searchQuery.toLowerCase());
       
+      if (type === "deactivated") {
+        const filter = deactivatedStatusFilter.toLowerCase();
+        let matchesFilter = true;
+        
+        if (filter !== "all") {
+          if (filter === "paid" || filter === "open") {
+            matchesFilter = invoice.status.toLowerCase() === filter;
+          } else if (filter === "single" || filter === "recurring") {
+            matchesFilter = invoice.invoiceType === filter;
+          }
+        }
+        
+        const invoiceDate = new Date(invoice.issueDate);
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        const matchesDateRange = invoiceDate >= start && invoiceDate <= end;
+        
+        return invoice.deactivated && matchesSearch && matchesFilter && matchesDateRange;
+      }
+      
       const matchesStatus = statusFilter === "all" || invoice.status.toLowerCase() === statusFilter.toLowerCase();
       
       const invoiceDate = new Date(invoice.issueDate);
       const start = new Date(startDate);
       const end = new Date(endDate);
       const matchesDateRange = invoiceDate >= start && invoiceDate <= end;
-
-      if (type === "deactivated") {
-        return invoice.deactivated && matchesSearch && matchesStatus && matchesDateRange;
-      }
       
       return !invoice.deactivated && invoice.invoiceType === type && matchesSearch && matchesStatus && matchesDateRange;
     });
@@ -67,6 +84,10 @@ const Invoices = () => {
     toast.success(`Invoice ${invoice.id} has been deactivated`);
   };
 
+  const handleActivate = (invoice: any) => {
+    toast.success(`Invoice ${invoice.id} has been reactivated`);
+  };
+
   const handleSendEmail = (invoice: any) => {
     setSelectedInvoiceForContact(invoice);
     setEmailModalOpen(true);
@@ -77,7 +98,7 @@ const Invoices = () => {
     setSmsModalOpen(true);
   };
 
-  const renderInvoiceTable = (invoices: any[]) => (
+  const renderSingleInvoiceTable = (invoices: any[]) => (
     <div className="bg-card rounded-lg border shadow-sm">
       <Table>
         <TableHeader>
@@ -138,11 +159,11 @@ const Invoices = () => {
                 <TableCell className="text-right">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0 hover:bg-primary/10">
                         <MoreVertical className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuContent align="end" className="w-52">
                       <DropdownMenuItem className="gap-2">
                         <Eye className="h-4 w-4" />
                         Preview invoice
@@ -155,6 +176,7 @@ const Invoices = () => {
                         <MessageSquare className="h-4 w-4" />
                         Send sms
                       </DropdownMenuItem>
+                      <DropdownMenuSeparator />
                       <DropdownMenuItem 
                         className="gap-2"
                         onClick={() => {
@@ -169,27 +191,236 @@ const Invoices = () => {
                         <UserCog className="h-4 w-4" />
                         Reassign Employee
                       </DropdownMenuItem>
-                      <DropdownMenuItem className="gap-2">
-                        <FileText className="h-4 w-4" />
-                        Doc History
-                      </DropdownMenuItem>
-                      <DropdownMenuItem className="gap-2">
-                        <CreditCard className="h-4 w-4" />
-                        Pay Now
-                      </DropdownMenuItem>
-                      <DropdownMenuItem className="gap-2">
-                        <Banknote className="h-4 w-4" />
-                        Pay Cash
-                      </DropdownMenuItem>
-                      {invoice.status === "Open" && !invoice.deactivated && (
-                        <DropdownMenuItem 
-                          className="gap-2 text-destructive focus:text-destructive"
-                          onClick={() => handleDeactivate(invoice)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                          Deactivate
-                        </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      {invoice.status === "Open" && (
+                        <>
+                          <DropdownMenuItem className="gap-2">
+                            <FileText className="h-4 w-4" />
+                            Doc History
+                          </DropdownMenuItem>
+                          <DropdownMenuItem className="gap-2">
+                            <CreditCard className="h-4 w-4" />
+                            Pay Now
+                          </DropdownMenuItem>
+                          <DropdownMenuItem className="gap-2">
+                            <Banknote className="h-4 w-4" />
+                            Pay Cash
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem 
+                            className="gap-2 text-destructive focus:text-destructive"
+                            onClick={() => handleDeactivate(invoice)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                            Deactivate
+                          </DropdownMenuItem>
+                        </>
                       )}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableCell>
+              </TableRow>
+            ))
+          )}
+        </TableBody>
+      </Table>
+    </div>
+  );
+
+  const renderRecurringInvoiceTable = (invoices: any[]) => (
+    <div className="bg-card rounded-lg border shadow-sm">
+      <Table>
+        <TableHeader>
+          <TableRow className="bg-muted/50">
+            <TableHead className="font-semibold">Date</TableHead>
+            <TableHead className="font-semibold">OrderID</TableHead>
+            <TableHead className="font-semibold">Customer Name</TableHead>
+            <TableHead className="font-semibold">Occurrence</TableHead>
+            <TableHead className="font-semibold">Order Amount</TableHead>
+            <TableHead className="font-semibold">Days</TableHead>
+            <TableHead className="font-semibold">Status</TableHead>
+            <TableHead className="font-semibold text-right">Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {invoices.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
+                No recurring invoices found
+              </TableCell>
+            </TableRow>
+          ) : (
+            invoices.map((invoice) => (
+              <TableRow key={invoice.id} className="hover:bg-muted/30 transition-colors">
+                <TableCell className="font-medium">
+                  {new Date(invoice.issueDate).toLocaleDateString()}
+                </TableCell>
+                <TableCell className="text-primary font-mono text-sm">
+                  {invoice.orderId}
+                </TableCell>
+                <TableCell className="text-info font-medium">
+                  {invoice.customerName}
+                </TableCell>
+                <TableCell className="font-medium">
+                  {new Date(invoice.recurringEndDate).toLocaleDateString()}
+                </TableCell>
+                <TableCell className="font-semibold text-success">
+                  ${invoice.amount.toFixed(2)}
+                </TableCell>
+                <TableCell>
+                  <Badge variant="outline" className="bg-info/10 text-info border-info/20">
+                    {invoice.recurringInterval}
+                  </Badge>
+                </TableCell>
+                <TableCell>
+                  <Badge className={getStatusColor(invoice.status)} variant="outline">
+                    {invoice.status.toUpperCase()}
+                  </Badge>
+                </TableCell>
+                <TableCell className="text-right">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0 hover:bg-primary/10">
+                        <MoreVertical className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-52">
+                      <DropdownMenuItem className="gap-2">
+                        <Eye className="h-4 w-4" />
+                        Preview invoice
+                      </DropdownMenuItem>
+                      <DropdownMenuItem className="gap-2" onClick={() => handleSendEmail(invoice)}>
+                        <Mail className="h-4 w-4" />
+                        Send email
+                      </DropdownMenuItem>
+                      <DropdownMenuItem className="gap-2" onClick={() => handleSendSMS(invoice)}>
+                        <MessageSquare className="h-4 w-4" />
+                        Send sms
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem 
+                        className="gap-2"
+                        disabled={invoice.status === "Paid"}
+                        onClick={() => {
+                          if (invoice.status !== "Paid") {
+                            setSelectedInvoice(invoice);
+                            setModalOpen(true);
+                          }
+                        }}
+                      >
+                        <Edit className="h-4 w-4" />
+                        Edit Invoice {invoice.status === "Paid" && "(Disabled)"}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem className="gap-2">
+                        <UserCog className="h-4 w-4" />
+                        Reassign Employee
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      {invoice.status === "Open" && (
+                        <>
+                          <DropdownMenuItem className="gap-2">
+                            <FileText className="h-4 w-4" />
+                            Doc History
+                          </DropdownMenuItem>
+                          <DropdownMenuItem className="gap-2">
+                            <CreditCard className="h-4 w-4" />
+                            Pay Now
+                          </DropdownMenuItem>
+                          <DropdownMenuItem className="gap-2">
+                            <Banknote className="h-4 w-4" />
+                            Pay Cash
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem 
+                            className="gap-2 text-destructive focus:text-destructive"
+                            onClick={() => handleDeactivate(invoice)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                            Deactivate
+                          </DropdownMenuItem>
+                        </>
+                      )}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableCell>
+              </TableRow>
+            ))
+          )}
+        </TableBody>
+      </Table>
+    </div>
+  );
+
+  const renderDeactivatedInvoiceTable = (invoices: any[]) => (
+    <div className="bg-card rounded-lg border shadow-sm">
+      <Table>
+        <TableHeader>
+          <TableRow className="bg-muted/50">
+            <TableHead className="font-semibold">Date</TableHead>
+            <TableHead className="font-semibold">OrderID</TableHead>
+            <TableHead className="font-semibold">Customer Name</TableHead>
+            <TableHead className="font-semibold">Employee Name</TableHead>
+            <TableHead className="font-semibold">Order Amount</TableHead>
+            <TableHead className="font-semibold">Status</TableHead>
+            <TableHead className="font-semibold">Refund</TableHead>
+            <TableHead className="font-semibold text-right">Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {invoices.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
+                No deactivated invoices found
+              </TableCell>
+            </TableRow>
+          ) : (
+            invoices.map((invoice) => (
+              <TableRow key={invoice.id} className="hover:bg-muted/30 transition-colors opacity-75">
+                <TableCell className="font-medium">
+                  {new Date(invoice.issueDate).toLocaleDateString()}
+                </TableCell>
+                <TableCell className="text-primary font-mono text-sm">
+                  {invoice.orderId}
+                </TableCell>
+                <TableCell className="text-info font-medium">
+                  {invoice.customerName}
+                </TableCell>
+                <TableCell className="text-info">
+                  {invoice.employeeName}
+                </TableCell>
+                <TableCell className="font-semibold text-success">
+                  ${invoice.amount.toFixed(2)}
+                </TableCell>
+                <TableCell>
+                  <Badge className={getStatusColor(invoice.status)} variant="outline">
+                    {invoice.status.toUpperCase()}
+                  </Badge>
+                </TableCell>
+                <TableCell>
+                  <span className={invoice.refund === "Yes" ? "text-destructive" : "text-muted-foreground"}>
+                    {invoice.refund}
+                  </span>
+                </TableCell>
+                <TableCell className="text-right">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0 hover:bg-primary/10">
+                        <MoreVertical className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-52">
+                      <DropdownMenuItem className="gap-2">
+                        <Eye className="h-4 w-4" />
+                        Preview invoice
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem 
+                        className="gap-2 text-success focus:text-success"
+                        onClick={() => handleActivate(invoice)}
+                      >
+                        <CheckCircle2 className="h-4 w-4" />
+                        Activate
+                      </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>
@@ -257,15 +488,38 @@ const Invoices = () => {
           </TabsList>
 
           <TabsContent value="single" className="space-y-4">
-            {renderInvoiceTable(filterInvoices("single"))}
+            <div className="text-sm text-muted-foreground mb-4">
+              Date: {new Date(startDate).toLocaleDateString()} TO {new Date(endDate).toLocaleDateString()}
+            </div>
+            {renderSingleInvoiceTable(filterInvoices("single"))}
           </TabsContent>
 
           <TabsContent value="recurring" className="space-y-4">
-            {renderInvoiceTable(filterInvoices("recurring"))}
+            <div className="text-sm text-muted-foreground mb-4">
+              Date: {new Date(startDate).toLocaleDateString()} TO {new Date(endDate).toLocaleDateString()}
+            </div>
+            {renderRecurringInvoiceTable(filterInvoices("recurring"))}
           </TabsContent>
 
           <TabsContent value="deactivated" className="space-y-4">
-            {renderInvoiceTable(filterInvoices("deactivated"))}
+            <div className="flex items-center justify-between mb-4">
+              <div className="text-sm text-muted-foreground">
+                Date: {new Date(startDate).toLocaleDateString()} TO {new Date(endDate).toLocaleDateString()}
+              </div>
+              <Select value={deactivatedStatusFilter} onValueChange={setDeactivatedStatusFilter}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Filter" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem value="paid">Paid</SelectItem>
+                  <SelectItem value="open">Open</SelectItem>
+                  <SelectItem value="single">Single</SelectItem>
+                  <SelectItem value="recurring">Recurring</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            {renderDeactivatedInvoiceTable(filterInvoices("deactivated"))}
           </TabsContent>
         </Tabs>
 
