@@ -480,25 +480,25 @@ const Invoices = () => {
           </Select>
         </div>
 
-        <Tabs defaultValue="single" className="space-y-6">
+        <Tabs defaultValue="recurring" className="space-y-6">
           <TabsList className="grid w-full max-w-md grid-cols-3">
-            <TabsTrigger value="single">Single Invoices</TabsTrigger>
             <TabsTrigger value="recurring">Recurring Invoices</TabsTrigger>
+            <TabsTrigger value="single">Single Invoices</TabsTrigger>
             <TabsTrigger value="deactivated">Deactivated</TabsTrigger>
           </TabsList>
-
-          <TabsContent value="single" className="space-y-4">
-            <div className="text-sm text-muted-foreground mb-4">
-              Date: {new Date(startDate).toLocaleDateString()} TO {new Date(endDate).toLocaleDateString()}
-            </div>
-            {renderSingleInvoiceTable(filterInvoices("single"))}
-          </TabsContent>
 
           <TabsContent value="recurring" className="space-y-4">
             <div className="text-sm text-muted-foreground mb-4">
               Date: {new Date(startDate).toLocaleDateString()} TO {new Date(endDate).toLocaleDateString()}
             </div>
             {renderRecurringInvoiceTable(filterInvoices("recurring"))}
+          </TabsContent>
+
+          <TabsContent value="single" className="space-y-4">
+            <div className="text-sm text-muted-foreground mb-4">
+              Date: {new Date(startDate).toLocaleDateString()} TO {new Date(endDate).toLocaleDateString()}
+            </div>
+            {renderSingleInvoiceTable(filterInvoices("single"))}
           </TabsContent>
 
           <TabsContent value="deactivated" className="space-y-4">

@@ -95,62 +95,65 @@ export const InvoiceFormModal = ({ open, onOpenChange, invoice, mode }: InvoiceF
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-[900px] max-h-[90vh] overflow-y-auto app-card">
-          <DialogHeader>
-            <DialogTitle className="text-gradient flex items-center gap-2">
-              {mode === "create" ? "Create New Invoice" : "Edit Invoice"}
+        <DialogContent className="sm:max-w-[1000px] max-h-[90vh] overflow-y-auto bg-gradient-to-br from-background via-background to-primary/5">
+          <DialogHeader className="bg-gradient-to-r from-primary to-accent text-primary-foreground p-6 -m-6 mb-6 rounded-t-lg">
+            <DialogTitle className="flex items-center justify-between text-2xl">
+              <span className="flex items-center gap-2">
+                <FileText className="h-6 w-6" />
+                Service Pro911 - {mode === "create" ? "New Invoice" : "Edit Invoice"}
+              </span>
+              {formData.invoiceType === "single" && (
+                <Badge variant="secondary" className="bg-background/20 text-primary-foreground border-none">
+                  SINGLE INVOICE
+                </Badge>
+              )}
             </DialogTitle>
-            <DialogDescription>
-              {mode === "create" ? "Generate an invoice for a completed job." : "Update invoice details."}
-            </DialogDescription>
           </DialogHeader>
           
           <form onSubmit={handleSubmit}>
             <div className="grid gap-6 py-4">
               {/* Invoice Type Selector */}
-              <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-accent/5">
-                <CardContent className="pt-6">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <FileText className="h-5 w-5 text-primary" />
-                      <div>
-                        <Label className="text-base font-semibold">Invoice Type</Label>
-                        <p className="text-xs text-muted-foreground">Choose between single or recurring invoice</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-4 bg-background/50 rounded-xl p-2">
-                      <button
-                        type="button"
-                        onClick={() => setFormData({ ...formData, invoiceType: "single" })}
-                        className={`px-4 py-2 rounded-lg transition-all duration-200 ${
-                          formData.invoiceType === "single"
-                            ? "bg-primary text-primary-foreground shadow-lg"
-                            : "hover:bg-muted"
-                        }`}
-                      >
-                        Single
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setFormData({ ...formData, invoiceType: "recurring" })}
-                        className={`px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 ${
-                          formData.invoiceType === "recurring"
-                            ? "bg-primary text-primary-foreground shadow-lg"
-                            : "hover:bg-muted"
-                        }`}
-                      >
-                        <Repeat className="h-4 w-4" />
-                        Recurring
-                      </button>
-                    </div>
+              <div className="flex items-center justify-between p-4 bg-card rounded-xl border-2 border-primary/20 shadow-sm">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <FileText className="h-5 w-5 text-primary" />
                   </div>
-                </CardContent>
-              </Card>
+                  <div>
+                    <Label className="text-base font-semibold">Invoice Type</Label>
+                    <p className="text-xs text-muted-foreground">Choose between single or recurring invoice</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 bg-muted/50 rounded-lg p-1.5">
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, invoiceType: "single" })}
+                    className={`px-5 py-2.5 rounded-md font-semibold transition-all duration-200 ${
+                      formData.invoiceType === "single"
+                        ? "bg-primary text-primary-foreground shadow-lg scale-105"
+                        : "text-muted-foreground hover:text-foreground hover:bg-background/50"
+                    }`}
+                  >
+                    Single
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, invoiceType: "recurring" })}
+                    className={`px-5 py-2.5 rounded-md font-semibold transition-all duration-200 flex items-center gap-2 ${
+                      formData.invoiceType === "recurring"
+                        ? "bg-primary text-primary-foreground shadow-lg scale-105"
+                        : "text-muted-foreground hover:text-foreground hover:bg-background/50"
+                    }`}
+                  >
+                    <Repeat className="h-4 w-4" />
+                    Recurring
+                  </button>
+                </div>
+              </div>
 
               {/* Customer and Employee Selection */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="customer">Select Customer *</Label>
+              <div className="grid grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="customer" className="text-sm font-semibold">Select Customer *</Label>
                   <div className="flex gap-2">
                     <Select value={formData.customerId} onValueChange={(value) => {
                       if (value === "add-new") {
@@ -159,10 +162,10 @@ export const InvoiceFormModal = ({ open, onOpenChange, invoice, mode }: InvoiceF
                         setFormData({ ...formData, customerId: value });
                       }
                     }}>
-                      <SelectTrigger className="glass-effect">
+                      <SelectTrigger className="h-11 border-2 border-border/50 hover:border-primary/50 transition-colors bg-background">
                         <SelectValue placeholder="Please Select Customer" />
                       </SelectTrigger>
-                      <SelectContent className="bg-popover backdrop-blur-xl">
+                      <SelectContent className="z-50 bg-popover backdrop-blur-xl border-2">
                         <SelectItem value="add-new" className="text-primary font-semibold">
                           <div className="flex items-center gap-2">
                             <UserPlus className="h-4 w-4" />
@@ -179,13 +182,13 @@ export const InvoiceFormModal = ({ open, onOpenChange, invoice, mode }: InvoiceF
                     </Select>
                   </div>
                 </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="employee">Select Employee</Label>
+                <div className="space-y-2">
+                  <Label htmlFor="employee" className="text-sm font-semibold">Select Employee</Label>
                   <Select value={formData.employeeId} onValueChange={(value) => setFormData({ ...formData, employeeId: value })}>
-                    <SelectTrigger className="glass-effect">
+                    <SelectTrigger className="h-11 border-2 border-border/50 hover:border-primary/50 transition-colors bg-background">
                       <SelectValue placeholder="Select employee" />
                     </SelectTrigger>
-                    <SelectContent className="bg-popover backdrop-blur-xl">
+                    <SelectContent className="z-50 bg-popover backdrop-blur-xl border-2">
                       {mockEmployees.filter(e => e.status === "Active").map((employee) => (
                         <SelectItem key={employee.id} value={employee.id}>
                           {employee.name} - {employee.role}
@@ -217,77 +220,78 @@ export const InvoiceFormModal = ({ open, onOpenChange, invoice, mode }: InvoiceF
 
               {/* Recurring Invoice Options */}
               {formData.invoiceType === "recurring" && (
-                <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-accent/5">
-                  <CardContent className="pt-6 space-y-4">
-                    <div className="flex items-start gap-3">
-                      <Checkbox
-                        id="recurring-enabled"
-                        checked={recurringEnabled}
-                        onCheckedChange={(checked) => setRecurringEnabled(checked as boolean)}
-                        className="mt-1"
-                      />
-                      <div className="flex-1 flex items-center gap-2 flex-wrap">
-                        <Label htmlFor="recurring-enabled" className="text-sm font-normal cursor-pointer">
-                          Recurring invoicing automatically sends the invoice on
-                        </Label>
-                        <Select value={recurringInterval} onValueChange={setRecurringInterval}>
-                          <SelectTrigger className="w-[120px] h-9">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent className="bg-popover backdrop-blur-xl">
-                            <SelectItem value="daily">Daily</SelectItem>
-                            <SelectItem value="weekly">Weekly</SelectItem>
-                            <SelectItem value="monthly">Monthly</SelectItem>
-                            <SelectItem value="yearly">Yearly</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <span className="text-sm">intervals.</span>
-                      </div>
+                <div className="p-6 bg-gradient-to-br from-primary/5 via-accent/5 to-primary/5 rounded-xl border-2 border-primary/20 space-y-5 shadow-sm">
+                  <div className="flex items-start gap-4">
+                    <Checkbox
+                      id="recurring-enabled"
+                      checked={recurringEnabled}
+                      onCheckedChange={(checked) => setRecurringEnabled(checked as boolean)}
+                      className="mt-1 h-5 w-5"
+                    />
+                    <div className="flex-1 flex items-center gap-2 flex-wrap">
+                      <Label htmlFor="recurring-enabled" className="text-sm font-medium cursor-pointer">
+                        Recurring invoicing automatically sends the invoice on
+                      </Label>
+                      <Select value={recurringInterval} onValueChange={setRecurringInterval}>
+                        <SelectTrigger className="w-[140px] h-10 bg-background border-2">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className="z-50 bg-popover backdrop-blur-xl border-2">
+                          <SelectItem value="daily">Daily</SelectItem>
+                          <SelectItem value="weekly">Weekly</SelectItem>
+                          <SelectItem value="15days">15 Days</SelectItem>
+                          <SelectItem value="monthly">Monthly</SelectItem>
+                          <SelectItem value="yearly">Yearly</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <span className="text-sm font-medium">intervals.</span>
                     </div>
+                  </div>
 
-                    {recurringEnabled && (
-                      <div className="space-y-4 pl-8 animate-fade-in">
-                        <RadioGroup value={recurringEndType} onValueChange={(value: any) => setRecurringEndType(value)}>
-                          <div className="flex items-center gap-3">
-                            <RadioGroupItem value="date" id="end-date" />
-                            <Label htmlFor="end-date" className="font-normal cursor-pointer flex-shrink-0">
-                              End Date Of Your Recurring :
-                            </Label>
-                            <Input
-                              type="date"
-                              value={recurringEndDate}
-                              onChange={(e) => setRecurringEndDate(e.target.value)}
-                              disabled={recurringEndType !== "date"}
-                              className="max-w-[200px] glass-effect"
-                            />
-                          </div>
-                        </RadioGroup>
-
-                        <div className="flex items-center justify-center py-2">
-                          <span className="text-sm font-medium text-muted-foreground">OR</span>
+                  {recurringEnabled && (
+                    <div className="space-y-5 pl-9 animate-fade-in">
+                      <RadioGroup value={recurringEndType} onValueChange={(value: any) => setRecurringEndType(value)}>
+                        <div className="flex items-center gap-4">
+                          <RadioGroupItem value="date" id="end-date" className="h-5 w-5" />
+                          <Label htmlFor="end-date" className="font-medium cursor-pointer flex-shrink-0">
+                            End Date Of Your Recurring:
+                          </Label>
+                          <Input
+                            type="date"
+                            value={recurringEndDate}
+                            onChange={(e) => setRecurringEndDate(e.target.value)}
+                            disabled={recurringEndType !== "date"}
+                            className="max-w-[220px] h-10 border-2 bg-background"
+                          />
                         </div>
+                      </RadioGroup>
 
-                        <RadioGroup value={recurringEndType} onValueChange={(value: any) => setRecurringEndType(value)}>
-                          <div className="flex items-center gap-3">
-                            <RadioGroupItem value="count" id="occurrence-count" />
-                            <Label htmlFor="occurrence-count" className="font-normal cursor-pointer flex-shrink-0">
-                              How many occurrence needed:
-                            </Label>
-                            <Input
-                              type="number"
-                              value={recurringOccurrences}
-                              onChange={(e) => setRecurringOccurrences(e.target.value)}
-                              disabled={recurringEndType !== "count"}
-                              className="max-w-[200px] glass-effect"
-                              placeholder="Enter number"
-                              min="1"
-                            />
-                          </div>
-                        </RadioGroup>
+                      <div className="flex items-center justify-center py-1">
+                        <div className="h-px flex-1 bg-border"></div>
+                        <span className="px-4 text-sm font-semibold text-muted-foreground">OR</span>
+                        <div className="h-px flex-1 bg-border"></div>
                       </div>
-                    )}
-                  </CardContent>
-                </Card>
+
+                      <RadioGroup value={recurringEndType} onValueChange={(value: any) => setRecurringEndType(value)}>
+                        <div className="flex items-center gap-4">
+                          <RadioGroupItem value="count" id="occurrence-count" className="h-5 w-5" />
+                          <Label htmlFor="occurrence-count" className="font-medium cursor-pointer flex-shrink-0">
+                            How many occurrence needed:
+                          </Label>
+                          <Input
+                            type="number"
+                            value={recurringOccurrences}
+                            onChange={(e) => setRecurringOccurrences(e.target.value)}
+                            disabled={recurringEndType !== "count"}
+                            className="max-w-[220px] h-10 border-2 bg-background"
+                            placeholder="Enter number"
+                            min="1"
+                          />
+                        </div>
+                      </RadioGroup>
+                    </div>
+                  )}
+                </div>
               )}
 
               {/* Line Items Section */}
@@ -297,7 +301,7 @@ export const InvoiceFormModal = ({ open, onOpenChange, invoice, mode }: InvoiceF
                     <Label className="text-lg font-semibold">Items / Services</Label>
                     <p className="text-xs text-muted-foreground">Add items to this invoice</p>
                   </div>
-                  <Button type="button" onClick={() => setShowAddItemModal(true)} className="gap-2">
+                  <Button type="button" onClick={() => setShowAddItemModal(true)} className="gap-2 shadow-md hover:shadow-lg transition-all">
                     <Plus className="h-4 w-4" />
                     ADD ITEM
                   </Button>
@@ -388,9 +392,9 @@ export const InvoiceFormModal = ({ open, onOpenChange, invoice, mode }: InvoiceF
                           <p className="text-xs text-muted-foreground">Apply discount to this invoice</p>
                         </div>
                       </div>
-                      <Button type="button" variant="outline" onClick={() => setShowDiscountModal(true)} className="gap-2">
+                      <Button type="button" variant="outline" onClick={() => setShowDiscountModal(true)} className="gap-2 border-2 hover:border-primary/50 shadow-sm">
                         <Plus className="h-4 w-4" />
-                        Add Discount
+                        ADD ORDER DISCOUNT
                       </Button>
                     </div>
 
@@ -547,7 +551,7 @@ export const InvoiceFormModal = ({ open, onOpenChange, invoice, mode }: InvoiceF
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                 Cancel
               </Button>
-              <Button type="submit" disabled={items.length === 0 || !formData.customerId}>
+              <Button type="submit" disabled={items.length === 0 || !formData.customerId} className="min-w-[180px] h-11 shadow-lg hover:shadow-xl transition-all">
                 {mode === "create" ? "CREATE INVOICE" : "SAVE CHANGES"}
               </Button>
             </DialogFooter>
