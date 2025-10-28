@@ -88,14 +88,14 @@ export const EmployeeCard = ({
           </div>
         </div>
 
-        <div className="flex gap-2">
-          <Button onClick={onEdit} variant="outline" size="sm" className="flex-1 gap-2">
-            <Edit className="h-4 w-4" />
-            Edit Employee
+        <div className="flex flex-col sm:flex-row gap-2">
+          <Button onClick={onEdit} variant="outline" size="sm" className="flex-1 gap-2 min-w-0">
+            <Edit className="h-4 w-4 flex-shrink-0" />
+            <span className="truncate">Edit Employee</span>
           </Button>
-          <Button onClick={onDeactivate} variant="outline" size="sm" className="flex-1 gap-2 text-destructive border-destructive hover:bg-destructive hover:text-destructive-foreground">
-            <UserX className="h-4 w-4" />
-            Deactivate
+          <Button onClick={onDeactivate} variant="outline" size="sm" className="flex-1 gap-2 text-destructive border-destructive hover:bg-destructive hover:text-destructive-foreground min-w-0">
+            <UserX className="h-4 w-4 flex-shrink-0" />
+            <span className="truncate">Deactivate</span>
           </Button>
         </div>
       </CardContent>
