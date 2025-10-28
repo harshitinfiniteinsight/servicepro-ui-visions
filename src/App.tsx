@@ -15,6 +15,8 @@ import Estimates from "./pages/Estimates";
 import Agreements from "./pages/Agreements";
 import MinimumDepositPercentage from "./pages/MinimumDepositPercentage";
 import Employees from "./pages/Employees";
+import EmployeeSchedule from "./pages/EmployeeSchedule";
+import EmployeeTracking from "./pages/EmployeeTracking";
 import Inventory from "./pages/Inventory";
 import LowInventoryAlertSettings from "./pages/LowInventoryAlertSettings";
 import ManageAppointments from "./pages/ManageAppointments";
@@ -66,6 +68,8 @@ const AppContent = () => {
           <Route path="/agreements" element={<Agreements />} />
           <Route path="/agreements/minimum-deposit" element={<MinimumDepositPercentage />} />
           <Route path="/employees" element={<Employees />} />
+          <Route path="/employees/schedule" element={<EmployeeSchedule />} />
+          <Route path="/employees/tracking" element={<EmployeeTracking />} />
           <Route path="/inventory" element={<Inventory />} />
           <Route path="/inventory/alert-settings" element={<LowInventoryAlertSettings />} />
           <Route path="/reports" element={<Reports />} />
