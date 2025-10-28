@@ -25,8 +25,7 @@ const ManageAppointments = () => {
   const [currentAppointmentId, setCurrentAppointmentId] = useState("");
   const [editAppointmentData, setEditAppointmentData] = useState<any>(null);
 
-  // Generate comprehensive mock appointments for current week
-  const mockAppointments = [
+  const initialAppointments = [
     {
       id: "APT-001",
       customerName: "Sarah Johnson",
@@ -108,6 +107,18 @@ const ManageAppointments = () => {
       status: "Active" as const,
     },
   ];
+
+  const [appointments, setAppointments] = useState(initialAppointments);
+
+  const handleDeactivateAppointment = (appointmentId: string) => {
+    setAppointments(appointments.map(apt => 
+      apt.id === appointmentId ? { ...apt, status: "Deactivated" as const } : apt
+    ));
+    toast({
+      title: "Appointment Deactivated",
+      description: "The appointment has been deactivated successfully.",
+    });
+  };
 
   return (
     <div className="flex-1">
@@ -203,7 +214,7 @@ const ManageAppointments = () => {
                       cellDate.setDate(cellDate.getDate() + i);
                       
                       const dateStr = cellDate.toISOString().split('T')[0];
-                      const dayAppointments = mockAppointments.filter(apt => apt.date === dateStr);
+                      const dayAppointments = appointments.filter(apt => apt.date === dateStr);
                       const isCurrentMonth = cellDate.getMonth() === currentDate.getMonth();
                       const isToday = dateStr === currentDate.toISOString().split('T')[0];
                       
@@ -248,7 +259,7 @@ const ManageAppointments = () => {
                       weekStart.setDate(weekStart.getDate() - weekStart.getDay() + dayIndex);
                       
                       const dateStr = weekStart.toISOString().split('T')[0];
-                      const dayAppointments = mockAppointments.filter(apt => apt.date === dateStr);
+                      const dayAppointments = appointments.filter(apt => apt.date === dateStr);
                       const isToday = dateStr === new Date(2025, 9, 27).toISOString().split('T')[0];
                       
                       return (
@@ -295,7 +306,7 @@ const ManageAppointments = () => {
                   <div className="space-y-1 max-h-[600px] overflow-y-auto">
                     {Array.from({ length: 24 }, (_, hour) => {
                       const today = new Date(2025, 9, 27).toISOString().split('T')[0];
-                      const hourAppointments = mockAppointments.filter(apt => {
+                      const hourAppointments = appointments.filter(apt => {
                         const aptHour = parseInt(apt.startTime.split(':')[0]);
                         return apt.date === today && aptHour === hour;
                       });
@@ -364,34 +375,39 @@ const ManageAppointments = () => {
               <CardContent className="p-4">
                 <div className="flex items-center gap-3 mb-4 pb-3 border-b border-border">
                   <Checkbox
-                    checked={selectedAppointments.length === mockAppointments.length}
+                    checked={selectedAppointments.length === appointments.filter(apt => apt.status === "Active").length && appointments.filter(apt => apt.status === "Active").length > 0}
                     onCheckedChange={(checked) => {
                       if (checked) {
-                        setSelectedAppointments(mockAppointments.map((apt) => apt.id));
+                        setSelectedAppointments(appointments.filter(apt => apt.status === "Active").map((apt) => apt.id));
                       } else {
                         setSelectedAppointments([]);
                       }
                     }}
                   />
-                  <span className="text-sm font-semibold">Select All</span>
+                  <span className="text-sm font-semibold">Select All Active</span>
                 </div>
 
                 <div className="space-y-3">
-                  {mockAppointments.map((apt) => (
+                  {appointments.map((apt) => (
                     <div key={apt.id} className="flex items-start gap-3 p-4 bg-gradient-to-r from-muted/30 to-muted/10 rounded-lg border border-border hover:shadow-md transition-all">
-                      <Checkbox
-                        checked={selectedAppointments.includes(apt.id)}
-                        onCheckedChange={(checked) => {
-                          if (checked) {
-                            setSelectedAppointments([...selectedAppointments, apt.id]);
-                          } else {
-                            setSelectedAppointments(
-                              selectedAppointments.filter((id) => id !== apt.id)
-                            );
-                          }
-                        }}
-                        className="mt-1"
-                      />
+                      {apt.status === "Active" && (
+                        <Checkbox
+                          checked={selectedAppointments.includes(apt.id)}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setSelectedAppointments([...selectedAppointments, apt.id]);
+                            } else {
+                              setSelectedAppointments(
+                                selectedAppointments.filter((id) => id !== apt.id)
+                              );
+                            }
+                          }}
+                          className="mt-1"
+                        />
+                      )}
+                      {apt.status === "Deactivated" && (
+                        <div className="w-4 h-4 mt-1" />
+                      )}
 
                       <div className="flex-1 space-y-2">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
@@ -442,6 +458,30 @@ const ManageAppointments = () => {
                             <StickyNote className="h-4 w-4" />
                             Add Note
                           </Button>
+                          {apt.status === "Active" && (
+                            <>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="gap-2"
+                                onClick={() => {
+                                  setSelectedAppointments([apt.id]);
+                                  setShareAppointmentOpen(true);
+                                }}
+                              >
+                                <Share2 className="h-4 w-4" />
+                                Share
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="gap-2"
+                                onClick={() => handleDeactivateAppointment(apt.id)}
+                              >
+                                Deactivate
+                              </Button>
+                            </>
+                          )}
                         </div>
                       </div>
                     </div>
