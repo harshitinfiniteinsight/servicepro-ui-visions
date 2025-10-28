@@ -11,12 +11,10 @@ const PaymentMethods = () => {
   const [hasChanges, setHasChanges] = useState(false);
   
   const [paymentMethods, setPaymentMethods] = useState({
-    cashApp: true,
     creditDebit: true,
     bankACH: false,
     tapToPay: true,
     manualCardEntry: true,
-    mobileCheckDeposit: false,
     otherPaymentMethods: false,
   });
 
@@ -63,23 +61,6 @@ const PaymentMethods = () => {
                 <div className="flex items-center justify-between p-4 border-b">
                   <div className="flex items-center gap-4">
                     <div className="p-2 rounded-lg bg-muted">
-                      <DollarSign className="h-6 w-6" />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-medium text-foreground">Cash App</h3>
-                      <p className="text-sm text-muted-foreground">2.5% fee per payment</p>
-                      <p className="text-xs text-muted-foreground">Available on payments between $0.50 - $1,000</p>
-                    </div>
-                  </div>
-                  <Switch
-                    checked={paymentMethods.cashApp}
-                    onCheckedChange={() => handleToggle("cashApp")}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between p-4 border-b">
-                  <div className="flex items-center gap-4">
-                    <div className="p-2 rounded-lg bg-muted">
                       <CreditCard className="h-6 w-6" />
                     </div>
                     <div className="flex-1">
@@ -105,12 +86,10 @@ const PaymentMethods = () => {
                       <p className="text-xs text-muted-foreground">Available on payments between $1 - $1,000</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-muted-foreground">Unavailable</span>
-                    <Button variant="link" size="sm" className="text-primary p-0 h-auto">
-                      Contact support
-                    </Button>
-                  </div>
+                  <Switch
+                    checked={paymentMethods.bankACH}
+                    onCheckedChange={() => handleToggle("bankACH")}
+                  />
                 </div>
               </CardContent>
             </Card>
@@ -139,7 +118,7 @@ const PaymentMethods = () => {
                   />
                 </div>
 
-                <div className="flex items-center justify-between p-4 border-b">
+                <div className="flex items-center justify-between p-4">
                   <div className="flex items-center gap-4">
                     <div className="p-2 rounded-lg bg-muted">
                       <CreditCard className="h-6 w-6" />
@@ -154,28 +133,6 @@ const PaymentMethods = () => {
                     checked={paymentMethods.manualCardEntry}
                     onCheckedChange={() => handleToggle("manualCardEntry")}
                   />
-                </div>
-
-                <div className="flex items-center justify-between p-4">
-                  <div className="flex items-center gap-4">
-                    <div className="p-2 rounded-lg bg-muted">
-                      <Banknote className="h-6 w-6" />
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-medium text-foreground">Mobile check deposit</h3>
-                        <span className="text-xs px-2 py-0.5 rounded bg-primary/10 text-primary font-medium">BETA</span>
-                      </div>
-                      <p className="text-sm text-muted-foreground">$2.00 fee per payment</p>
-                      <p className="text-xs text-muted-foreground">Available on payments between $1 - $20,000</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-muted-foreground">Unavailable</span>
-                    <Button variant="link" size="sm" className="text-primary p-0 h-auto">
-                      Contact support
-                    </Button>
-                  </div>
                 </div>
               </CardContent>
             </Card>
