@@ -338,7 +338,12 @@ const CustomerDetails = () => {
                 <div className="flex gap-2">
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Button variant="outline" size="icon" className="h-9 w-9">
+                      <Button 
+                        variant="outline" 
+                        size="icon" 
+                        className="h-9 w-9"
+                        onClick={() => navigate("/add-appointment", { state: { preselectedCustomer: customer } })}
+                      >
                         <CalendarIcon className="h-4 w-4" />
                       </Button>
                     </TooltipTrigger>
@@ -349,7 +354,12 @@ const CustomerDetails = () => {
 
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Button variant="outline" size="icon" className="h-9 w-9">
+                      <Button 
+                        variant="outline" 
+                        size="icon" 
+                        className="h-9 w-9"
+                        onClick={() => navigate("/estimates", { state: { preselectedCustomer: customer } })}
+                      >
                         <FileText className="h-4 w-4" />
                       </Button>
                     </TooltipTrigger>
@@ -360,7 +370,12 @@ const CustomerDetails = () => {
 
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Button variant="outline" size="icon" className="h-9 w-9">
+                      <Button 
+                        variant="outline" 
+                        size="icon" 
+                        className="h-9 w-9"
+                        onClick={() => navigate("/invoices", { state: { preselectedCustomer: customer } })}
+                      >
                         <ClipboardList className="h-4 w-4" />
                       </Button>
                     </TooltipTrigger>
@@ -371,7 +386,12 @@ const CustomerDetails = () => {
 
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Button variant="outline" size="icon" className="h-9 w-9">
+                      <Button 
+                        variant="outline" 
+                        size="icon" 
+                        className="h-9 w-9"
+                        onClick={() => navigate("/agreements", { state: { preselectedCustomer: customer } })}
+                      >
                         <FileSignature className="h-4 w-4" />
                       </Button>
                     </TooltipTrigger>
