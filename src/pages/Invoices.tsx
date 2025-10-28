@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { AppHeader } from "@/components/AppHeader";
 import { InvoiceFormModal } from "@/components/modals/InvoiceFormModal";
 import { SendEmailModal } from "@/components/modals/SendEmailModal";
@@ -9,12 +10,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Plus, Eye, Mail, MessageSquare, Edit, UserCog, FileText, CreditCard, Banknote, MoreVertical, Trash2, Check, X, CheckCircle2 } from "lucide-react";
+import { Plus, Eye, Mail, MessageSquare, Edit, UserCog, FileText, CreditCard, Banknote, MoreVertical, Trash2, Check, X, CheckCircle2, Bell, Settings } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { mockInvoices } from "@/data/mockData";
 import { toast } from "sonner";
 
 const Invoices = () => {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [deactivatedStatusFilter, setDeactivatedStatusFilter] = useState("all");
@@ -442,10 +444,20 @@ const Invoices = () => {
             <h1 className="text-3xl font-bold text-foreground">Service Pro911 - Invoices</h1>
             <p className="text-muted-foreground">Manage billing and payments</p>
           </div>
-          <Button onClick={() => setModalOpen(true)} className="gap-2">
-            <Plus className="h-5 w-5" />
-            New Invoice
-          </Button>
+          <div className="flex gap-3">
+            <Button 
+              variant="outline" 
+              onClick={() => navigate("/invoices/due-alert")} 
+              className="gap-2"
+            >
+              <Bell className="h-5 w-5" />
+              Invoice Due Alert
+            </Button>
+            <Button onClick={() => setModalOpen(true)} className="gap-2">
+              <Plus className="h-5 w-5" />
+              New Invoice
+            </Button>
+          </div>
         </div>
 
         <div className="flex gap-4 items-end">

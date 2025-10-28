@@ -348,7 +348,7 @@ const CustomerDetails = () => {
                         variant="outline" 
                         size="icon" 
                         className="h-9 w-9"
-                        onClick={() => navigate("/add-appointment", { state: { preselectedCustomer: customer } })}
+                        onClick={() => navigate("/appointments/add", { state: { preselectedCustomer: customer } })}
                       >
                         <CalendarIcon className="h-4 w-4" />
                       </Button>

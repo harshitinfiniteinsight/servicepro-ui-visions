@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { AppHeader } from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { Plus, FileText, Calendar as CalendarIcon, Eye, Mail, MessageSquare, Edit, DollarSign, Wallet, CalendarRange } from "lucide-react";
+import { Plus, FileText, Calendar as CalendarIcon, Eye, Mail, MessageSquare, Edit, DollarSign, Wallet, CalendarRange, Percent } from "lucide-react";
 import { mockAgreements } from "@/data/mockData";
 import { AddAgreementModal } from "@/components/modals/AddAgreementModal";
 import { SendEmailModal } from "@/components/modals/SendEmailModal";
@@ -16,6 +17,7 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 
 const Agreements = () => {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [addAgreementOpen, setAddAgreementOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("all");
@@ -150,6 +152,14 @@ const Agreements = () => {
                 </div>
               </PopoverContent>
             </Popover>
+            <Button 
+              variant="outline" 
+              onClick={() => navigate("/agreements/minimum-deposit")} 
+              className="gap-2"
+            >
+              <Percent className="h-5 w-5" />
+              Minimum Deposit
+            </Button>
             <Button className="gap-2" onClick={() => setAddAgreementOpen(true)}>
               <Plus className="h-5 w-5" />
               New Agreement

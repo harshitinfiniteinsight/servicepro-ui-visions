@@ -10,8 +10,10 @@ import Customers from "./pages/Customers";
 import CustomerDetails from "./pages/CustomerDetails";
 import Jobs from "./pages/Jobs";
 import Invoices from "./pages/Invoices";
+import InvoiceDueAlert from "./pages/InvoiceDueAlert";
 import Estimates from "./pages/Estimates";
 import Agreements from "./pages/Agreements";
+import MinimumDepositPercentage from "./pages/MinimumDepositPercentage";
 import Employees from "./pages/Employees";
 import Inventory from "./pages/Inventory";
 import ManageAppointments from "./pages/ManageAppointments";
@@ -38,9 +40,12 @@ const App = () => (
                 <Route path="/jobs" element={<Jobs />} />
                 <Route path="/appointments/manage" element={<ManageAppointments />} />
                 <Route path="/appointments/add" element={<AddAppointment />} />
+                <Route path="/add-appointment" element={<AddAppointment />} />
                 <Route path="/invoices" element={<Invoices />} />
+                <Route path="/invoices/due-alert" element={<InvoiceDueAlert />} />
                 <Route path="/estimates" element={<Estimates />} />
                 <Route path="/agreements" element={<Agreements />} />
+                <Route path="/agreements/minimum-deposit" element={<MinimumDepositPercentage />} />
                 <Route path="/employees" element={<Employees />} />
                 <Route path="/inventory" element={<Inventory />} />
                 <Route path="/reports" element={<Reports />} />
