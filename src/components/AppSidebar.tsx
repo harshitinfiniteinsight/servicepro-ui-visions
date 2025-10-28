@@ -21,7 +21,7 @@ import { useState } from "react";
 const mainItems = [
   { title: "Dashboard", url: "/", icon: Home },
   { title: "Customers", url: "/customers", icon: Users },
-  { title: "Jobs", url: "/jobs", icon: Briefcase },
+  { title: "Job Dashboard", url: "/jobs", icon: Briefcase },
   { title: "Employees", url: "/employees", icon: UserCheck },
   { title: "Inventory/Services", url: "/inventory", icon: Package },
 ];
