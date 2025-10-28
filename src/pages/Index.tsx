@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import { AppHeader } from "@/components/AppHeader";
 import { StatCard } from "@/components/StatCard";
 import { Button } from "@/components/ui/button";
@@ -9,6 +10,17 @@ import { Eye, Plus, FileText, Briefcase, Calendar, DollarSign, Clock, TrendingUp
 const Index = () => {
   const navigate = useNavigate();
   const currentUser = "Joe"; // Mock user name
+
+  useEffect(() => {
+    const isAuthenticated = localStorage.getItem("isAuthenticated");
+    const showWalkthrough = localStorage.getItem("showWalkthrough");
+    
+    if (!isAuthenticated) {
+      navigate("/signin");
+    } else if (showWalkthrough === "true") {
+      navigate("/walkthrough");
+    }
+  }, [navigate]);
 
   // Mock data for stats
   const estimatesData = {

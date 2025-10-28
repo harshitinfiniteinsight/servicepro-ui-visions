@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import Index from "./pages/Index";
@@ -32,9 +32,59 @@ import TermsConditions from "./pages/TermsConditions";
 import ReturnPolicy from "./pages/ReturnPolicy";
 import BusinessPolicies from "./pages/BusinessPolicies";
 import PaymentMethods from "./pages/PaymentMethods";
+import SignIn from "./pages/SignIn";
+import SignUp from "./pages/SignUp";
+import Walkthrough from "./pages/Walkthrough";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
+
+const AppContent = () => {
+  const location = useLocation();
+  const isAuthPage = ['/signin', '/signup', '/walkthrough'].includes(location.pathname);
+
+  return (
+    <div className="flex min-h-screen w-full bg-muted/30">
+      {!isAuthPage && <AppSidebar />}
+      <div className="flex-1">
+        <Routes>
+          <Route path="/signin" element={<SignIn />} />
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/walkthrough" element={<Walkthrough />} />
+          <Route path="/" element={<Index />} />
+          <Route path="/customers" element={<Customers />} />
+          <Route path="/customers/:id" element={<CustomerDetails />} />
+          <Route path="/jobs" element={<Jobs />} />
+          <Route path="/appointments/manage" element={<ManageAppointments />} />
+          <Route path="/appointments/add" element={<AddAppointment />} />
+          <Route path="/add-appointment" element={<AddAppointment />} />
+          <Route path="/invoices" element={<Invoices />} />
+          <Route path="/invoices/due-alert" element={<InvoiceDueAlert />} />
+          <Route path="/estimates" element={<Estimates />} />
+          <Route path="/agreements" element={<Agreements />} />
+          <Route path="/agreements/minimum-deposit" element={<MinimumDepositPercentage />} />
+          <Route path="/employees" element={<Employees />} />
+          <Route path="/inventory" element={<Inventory />} />
+          <Route path="/inventory/alert-settings" element={<LowInventoryAlertSettings />} />
+          <Route path="/reports" element={<Reports />} />
+          <Route path="/reports/invoice" element={<InvoiceReport />} />
+          <Route path="/reports/estimate" element={<EstimateReport />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="/settings/profile" element={<Profile />} />
+          <Route path="/settings/change-password" element={<ChangePassword />} />
+          <Route path="/settings/permissions" element={<PermissionSettings />} />
+          <Route path="/settings/terms" element={<TermsConditions />} />
+          <Route path="/settings/return-policy" element={<ReturnPolicy />} />
+          <Route path="/settings/business-policies" element={<BusinessPolicies />} />
+          <Route path="/settings/payment-methods" element={<PaymentMethods />} />
+          <Route path="/settings/language" element={<ChangeLanguage />} />
+          <Route path="/settings/help" element={<Help />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </div>
+    </div>
+  );
+};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -43,43 +93,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <SidebarProvider defaultOpen>
-          <div className="flex min-h-screen w-full bg-muted/30">
-            <AppSidebar />
-            <div className="flex-1">
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/customers" element={<Customers />} />
-                <Route path="/customers/:id" element={<CustomerDetails />} />
-                <Route path="/jobs" element={<Jobs />} />
-                <Route path="/appointments/manage" element={<ManageAppointments />} />
-                <Route path="/appointments/add" element={<AddAppointment />} />
-                <Route path="/add-appointment" element={<AddAppointment />} />
-                <Route path="/invoices" element={<Invoices />} />
-                <Route path="/invoices/due-alert" element={<InvoiceDueAlert />} />
-                <Route path="/estimates" element={<Estimates />} />
-                <Route path="/agreements" element={<Agreements />} />
-                <Route path="/agreements/minimum-deposit" element={<MinimumDepositPercentage />} />
-                <Route path="/employees" element={<Employees />} />
-                <Route path="/inventory" element={<Inventory />} />
-                <Route path="/inventory/alert-settings" element={<LowInventoryAlertSettings />} />
-                <Route path="/reports" element={<Reports />} />
-                <Route path="/reports/invoice" element={<InvoiceReport />} />
-                <Route path="/reports/estimate" element={<EstimateReport />} />
-                <Route path="/settings" element={<Settings />} />
-                <Route path="/settings/profile" element={<Profile />} />
-                <Route path="/settings/change-password" element={<ChangePassword />} />
-                <Route path="/settings/permissions" element={<PermissionSettings />} />
-                <Route path="/settings/terms" element={<TermsConditions />} />
-                <Route path="/settings/return-policy" element={<ReturnPolicy />} />
-                <Route path="/settings/business-policies" element={<BusinessPolicies />} />
-                <Route path="/settings/payment-methods" element={<PaymentMethods />} />
-                <Route path="/settings/language" element={<ChangeLanguage />} />
-                <Route path="/settings/help" element={<Help />} />
-                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </div>
-          </div>
+          <AppContent />
         </SidebarProvider>
       </BrowserRouter>
     </TooltipProvider>

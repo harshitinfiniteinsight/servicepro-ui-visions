@@ -207,7 +207,7 @@ const Estimates = () => {
                 <Card key={estimate.id} className="shadow-md hover:shadow-lg transition-shadow duration-200">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">{estimate.title}</CardTitle>
-                    <Badge variant="secondary">{estimate.type}</Badge>
+                    <Badge variant="secondary">{estimate.status}</Badge>
                   </CardHeader>
                   <CardContent>
                     <div className="text-sm text-muted-foreground">
@@ -287,7 +287,7 @@ const Estimates = () => {
                 <Card key={estimate.id} className="shadow-md hover:shadow-lg transition-shadow duration-200">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">{estimate.title}</CardTitle>
-                    <Badge variant="secondary">{estimate.type}</Badge>
+                    <Badge variant="secondary">{estimate.status}</Badge>
                   </CardHeader>
                   <CardContent>
                     <div className="text-sm text-muted-foreground">
@@ -363,8 +363,7 @@ const Estimates = () => {
       <InvoicePaymentModal
         open={paymentModalOpen}
         onOpenChange={setPaymentModalOpen}
-        selectedItems={selectedEstimateForPayment ? [selectedEstimateForPayment] : []}
-        type="estimate"
+        invoice={selectedEstimateForPayment}
       />
       <LinkModulesModal
         open={linkModalOpen}
