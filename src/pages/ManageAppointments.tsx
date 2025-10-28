@@ -4,231 +4,108 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Calendar as CalendarIcon, List, Edit } from "lucide-react";
+import { Plus, Calendar as CalendarIcon, List, Edit, StickyNote, Share2 } from "lucide-react";
 import { mockEmployees } from "@/data/mockData";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
+import { AddNoteModal } from "@/components/modals/AddNoteModal";
+import { ShareAppointmentModal } from "@/components/modals/ShareAppointmentModal";
+import { useToast } from "@/hooks/use-toast";
 
 const ManageAppointments = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [selectedEmployee, setSelectedEmployee] = useState("all");
   const [calendarView, setCalendarView] = useState<"month" | "week" | "day">("month");
+  const [selectedAppointments, setSelectedAppointments] = useState<string[]>([]);
+  const [addNoteOpen, setAddNoteOpen] = useState(false);
+  const [shareAppointmentOpen, setShareAppointmentOpen] = useState(false);
+  const [currentAppointmentId, setCurrentAppointmentId] = useState("");
+  const [editAppointmentData, setEditAppointmentData] = useState<any>(null);
 
   // Generate comprehensive mock appointments for current week
   const mockAppointments = [
-    // Monday
     {
       id: "APT-001",
       customerName: "Sarah Johnson",
       subject: "HVAC Maintenance Check",
       date: "2025-10-27",
-      time: "09:00 AM",
+      startTime: "09:00 AM",
+      endTime: "10:00 AM",
       employee: "John Doe",
-      status: "scheduled",
+      status: "Active" as const,
     },
     {
       id: "APT-002",
       customerName: "Mike Williams",
       subject: "Plumbing Consultation",
       date: "2025-10-27",
-      time: "11:00 AM",
+      startTime: "11:00 AM",
+      endTime: "12:00 PM",
       employee: "Jane Smith",
-      status: "scheduled",
+      status: "Active" as const,
     },
     {
       id: "APT-003",
       customerName: "Emily Davis",
       subject: "Electrical Inspection",
       date: "2025-10-27",
-      time: "02:00 PM",
+      startTime: "02:00 PM",
+      endTime: "03:30 PM",
       employee: "John Doe",
-      status: "scheduled",
+      status: "Deactivated" as const,
     },
     {
       id: "APT-004",
       customerName: "Robert Brown",
       subject: "AC Unit Installation",
       date: "2025-10-27",
-      time: "04:00 PM",
+      startTime: "04:00 PM",
+      endTime: "05:30 PM",
       employee: "Mike Johnson",
-      status: "scheduled",
+      status: "Active" as const,
     },
-    // Tuesday
     {
       id: "APT-005",
       customerName: "Jessica Wilson",
       subject: "Water Heater Repair",
       date: "2025-10-28",
-      time: "08:00 AM",
+      startTime: "08:00 AM",
+      endTime: "09:00 AM",
       employee: "Jane Smith",
-      status: "scheduled",
+      status: "Active" as const,
     },
     {
       id: "APT-006",
       customerName: "David Martinez",
       subject: "Furnace Maintenance",
       date: "2025-10-28",
-      time: "10:00 AM",
+      startTime: "10:00 AM",
+      endTime: "11:30 AM",
       employee: "John Doe",
-      status: "scheduled",
+      status: "Active" as const,
     },
     {
       id: "APT-007",
       customerName: "Lisa Anderson",
       subject: "Circuit Breaker Replacement",
       date: "2025-10-28",
-      time: "01:00 PM",
+      startTime: "01:00 PM",
+      endTime: "02:30 PM",
       employee: "Mike Johnson",
-      status: "scheduled",
+      status: "Deactivated" as const,
     },
     {
       id: "APT-008",
       customerName: "James Taylor",
       subject: "Duct Cleaning Service",
       date: "2025-10-28",
-      time: "03:30 PM",
+      startTime: "03:30 PM",
+      endTime: "05:00 PM",
       employee: "John Doe",
-      status: "scheduled",
-    },
-    // Wednesday
-    {
-      id: "APT-009",
-      customerName: "Maria Garcia",
-      subject: "Thermostat Installation",
-      date: "2025-10-29",
-      time: "09:30 AM",
-      employee: "Jane Smith",
-      status: "scheduled",
-    },
-    {
-      id: "APT-010",
-      customerName: "Christopher Lee",
-      subject: "Drain Cleaning",
-      date: "2025-10-29",
-      time: "11:30 AM",
-      employee: "Mike Johnson",
-      status: "scheduled",
-    },
-    {
-      id: "APT-011",
-      customerName: "Patricia White",
-      subject: "Lighting Fixture Installation",
-      date: "2025-10-29",
-      time: "02:00 PM",
-      employee: "John Doe",
-      status: "scheduled",
-    },
-    // Thursday
-    {
-      id: "APT-012",
-      customerName: "Daniel Harris",
-      subject: "Boiler Inspection",
-      date: "2025-10-30",
-      time: "08:30 AM",
-      employee: "Jane Smith",
-      status: "scheduled",
-    },
-    {
-      id: "APT-013",
-      customerName: "Nancy Clark",
-      subject: "Smoke Detector Installation",
-      date: "2025-10-30",
-      time: "10:30 AM",
-      employee: "Mike Johnson",
-      status: "scheduled",
-    },
-    {
-      id: "APT-014",
-      customerName: "Kevin Rodriguez",
-      subject: "Pipe Leak Repair",
-      date: "2025-10-30",
-      time: "01:30 PM",
-      employee: "John Doe",
-      status: "scheduled",
-    },
-    {
-      id: "APT-015",
-      customerName: "Sandra Lewis",
-      subject: "HVAC System Tune-up",
-      date: "2025-10-30",
-      time: "03:00 PM",
-      employee: "Jane Smith",
-      status: "scheduled",
-    },
-    // Friday
-    {
-      id: "APT-016",
-      customerName: "Paul Walker",
-      subject: "Bathroom Exhaust Fan Installation",
-      date: "2025-10-31",
-      time: "09:00 AM",
-      employee: "Mike Johnson",
-      status: "scheduled",
-    },
-    {
-      id: "APT-017",
-      customerName: "Laura Hall",
-      subject: "Water Softener Installation",
-      date: "2025-10-31",
-      time: "11:00 AM",
-      employee: "John Doe",
-      status: "scheduled",
-    },
-    {
-      id: "APT-018",
-      customerName: "Steven Young",
-      subject: "Ceiling Fan Repair",
-      date: "2025-10-31",
-      time: "02:30 PM",
-      employee: "Jane Smith",
-      status: "scheduled",
-    },
-    // Saturday
-    {
-      id: "APT-019",
-      customerName: "Karen King",
-      subject: "Emergency Plumbing Service",
-      date: "2025-11-01",
-      time: "10:00 AM",
-      employee: "Mike Johnson",
-      status: "scheduled",
-    },
-    {
-      id: "APT-020",
-      customerName: "Brian Scott",
-      subject: "Air Quality Assessment",
-      date: "2025-11-01",
-      time: "01:00 PM",
-      employee: "John Doe",
-      status: "scheduled",
-    },
-    // Next Week
-    {
-      id: "APT-021",
-      customerName: "Michelle Green",
-      subject: "Refrigerator Line Installation",
-      date: "2025-11-03",
-      time: "09:00 AM",
-      employee: "Jane Smith",
-      status: "scheduled",
-    },
-    {
-      id: "APT-022",
-      customerName: "George Adams",
-      subject: "Outlet Installation",
-      date: "2025-11-04",
-      time: "10:00 AM",
-      employee: "Mike Johnson",
-      status: "scheduled",
-    },
-    {
-      id: "APT-023",
-      customerName: "Betty Nelson",
-      subject: "Heating System Inspection",
-      date: "2025-11-05",
-      time: "02:00 PM",
-      employee: "John Doe",
-      status: "scheduled",
+      status: "Active" as const,
     },
   ];
 
@@ -347,7 +224,7 @@ const ManageAppointments = () => {
                           </div>
                           {dayAppointments.slice(0, 3).map((apt) => (
                             <div key={apt.id} className="text-xs p-1 mb-1 bg-primary/10 rounded border border-primary/20 truncate hover:bg-primary/20">
-                              <div className="font-medium">{apt.time}</div>
+                              <div className="font-medium">{apt.startTime}</div>
                               <div className="truncate text-muted-foreground">{apt.subject}</div>
                             </div>
                           ))}
@@ -389,7 +266,7 @@ const ManageAppointments = () => {
                             {dayAppointments.length > 0 ? (
                               dayAppointments.map((apt) => (
                                 <div key={apt.id} className="p-2 bg-primary/10 rounded-lg border border-primary/20 hover:bg-primary/20 transition-colors cursor-pointer">
-                                  <div className="text-xs font-bold text-primary mb-1">{apt.time}</div>
+                                  <div className="text-xs font-bold text-primary mb-1">{apt.startTime}</div>
                                   <div className="text-xs font-semibold text-foreground truncate">{apt.subject}</div>
                                   <div className="text-xs text-muted-foreground truncate">{apt.customerName}</div>
                                   <div className="text-xs text-muted-foreground mt-1">{apt.employee}</div>
@@ -419,7 +296,7 @@ const ManageAppointments = () => {
                     {Array.from({ length: 24 }, (_, hour) => {
                       const today = new Date(2025, 9, 27).toISOString().split('T')[0];
                       const hourAppointments = mockAppointments.filter(apt => {
-                        const aptHour = parseInt(apt.time.split(':')[0]);
+                        const aptHour = parseInt(apt.startTime.split(':')[0]);
                         return apt.date === today && aptHour === hour;
                       });
                       
@@ -445,7 +322,7 @@ const ManageAppointments = () => {
                                       <p className="text-sm text-muted-foreground">Employee: {apt.employee}</p>
                                     </div>
                                     <div className="text-xs font-semibold text-primary px-2 py-1 bg-primary/20 rounded">
-                                      {apt.time}
+                                      {apt.startTime}
                                     </div>
                                   </div>
                                 </div>
@@ -467,27 +344,106 @@ const ManageAppointments = () => {
 
           {/* Appointment List Tab */}
           <TabsContent value="list" className="space-y-4 mt-6">
+            {selectedAppointments.length > 0 && (
+              <div className="flex items-center justify-between p-4 bg-primary/5 rounded-lg border border-primary/20">
+                <p className="text-sm font-medium">
+                  {selectedAppointments.length} appointment(s) selected
+                </p>
+                <Button
+                  onClick={() => setShareAppointmentOpen(true)}
+                  className="gap-2"
+                  size="sm"
+                >
+                  <Share2 className="h-4 w-4" />
+                  Share Appointment
+                </Button>
+              </div>
+            )}
+
             <Card className="border border-border bg-card shadow-md">
               <CardContent className="p-4">
+                <div className="flex items-center gap-3 mb-4 pb-3 border-b border-border">
+                  <Checkbox
+                    checked={selectedAppointments.length === mockAppointments.length}
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        setSelectedAppointments(mockAppointments.map((apt) => apt.id));
+                      } else {
+                        setSelectedAppointments([]);
+                      }
+                    }}
+                  />
+                  <span className="text-sm font-semibold">Select All</span>
+                </div>
+
                 <div className="space-y-3">
                   {mockAppointments.map((apt) => (
-                    <div key={apt.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-gradient-to-r from-muted/30 to-muted/10 rounded-lg border border-border hover:shadow-md transition-all">
-                      <div className="flex-1 space-y-1 mb-3 sm:mb-0">
-                        <h3 className="font-bold text-foreground">{apt.subject}</h3>
-                        <p className="text-sm text-muted-foreground">Customer: {apt.customerName}</p>
-                        <div className="flex flex-wrap gap-2">
-                          <span className="text-xs px-2 py-1 bg-accent/10 text-accent rounded-md border border-accent/20">
-                            {apt.date}
-                          </span>
-                          <span className="text-xs px-2 py-1 bg-primary/10 text-primary rounded-md border border-primary/20">
-                            {apt.time}
-                          </span>
+                    <div key={apt.id} className="flex items-start gap-3 p-4 bg-gradient-to-r from-muted/30 to-muted/10 rounded-lg border border-border hover:shadow-md transition-all">
+                      <Checkbox
+                        checked={selectedAppointments.includes(apt.id)}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            setSelectedAppointments([...selectedAppointments, apt.id]);
+                          } else {
+                            setSelectedAppointments(
+                              selectedAppointments.filter((id) => id !== apt.id)
+                            );
+                          }
+                        }}
+                        className="mt-1"
+                      />
+
+                      <div className="flex-1 space-y-2">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                          <div className="space-y-1">
+                            <h3 className="font-bold text-foreground">{apt.subject}</h3>
+                            <p className="text-sm text-muted-foreground">Customer: {apt.customerName}</p>
+                            <p className="text-sm text-muted-foreground">Employee: {apt.employee}</p>
+                            <div className="flex flex-wrap gap-2 mt-1">
+                              <span className="text-xs px-2 py-1 bg-accent/10 text-accent rounded-md border border-accent/20">
+                                {apt.date}
+                              </span>
+                              <span className="text-xs px-2 py-1 bg-primary/10 text-primary rounded-md border border-primary/20">
+                                {apt.startTime} - {apt.endTime}
+                              </span>
+                            </div>
+                          </div>
+
+                          <Badge
+                            variant={apt.status === "Active" ? "default" : "secondary"}
+                            className="w-fit"
+                          >
+                            {apt.status}
+                          </Badge>
+                        </div>
+
+                        <div className="flex flex-wrap gap-2 pt-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="gap-2"
+                            onClick={() => {
+                              setEditAppointmentData(apt);
+                              navigate("/appointments/add", { state: { appointment: apt } });
+                            }}
+                          >
+                            <Edit className="h-4 w-4" />
+                            Edit
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="gap-2"
+                            onClick={() => {
+                              setCurrentAppointmentId(apt.id);
+                              setAddNoteOpen(true);
+                            }}
+                          >
+                            <StickyNote className="h-4 w-4" />
+                            Add Note
+                          </Button>
                         </div>
                       </div>
-                      <Button variant="outline" size="sm" className="gap-2 w-full sm:w-auto">
-                        <Edit className="h-4 w-4" />
-                        Edit
-                      </Button>
                     </div>
                   ))}
                 </div>
@@ -496,6 +452,18 @@ const ManageAppointments = () => {
           </TabsContent>
         </Tabs>
       </main>
+
+      <AddNoteModal
+        open={addNoteOpen}
+        onOpenChange={setAddNoteOpen}
+        appointmentId={currentAppointmentId}
+      />
+      
+      <ShareAppointmentModal
+        open={shareAppointmentOpen}
+        onOpenChange={setShareAppointmentOpen}
+        selectedAppointments={selectedAppointments}
+      />
     </div>
   );
 };
