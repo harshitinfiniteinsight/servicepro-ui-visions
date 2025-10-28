@@ -7,6 +7,8 @@ import { Plus, Eye, Mail, MessageSquare, DollarSign, Banknote, MapPin, UserCog, 
 import { mockEstimates, mockEmployees } from "@/data/mockData";
 import { SendEmailModal } from "@/components/modals/SendEmailModal";
 import { SendSMSModal } from "@/components/modals/SendSMSModal";
+import { PayCashModal } from "@/components/modals/PayCashModal";
+import { EstimateFormModal } from "@/components/modals/EstimateFormModal";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -31,10 +33,14 @@ const Estimates = () => {
   const [reassignModalOpen, setReassignModalOpen] = useState(false);
   const [selectedEstimate, setSelectedEstimate] = useState<any>(null);
   const [selectedEmployee, setSelectedEmployee] = useState("");
+  const [payCashModalOpen, setPayCashModalOpen] = useState(false);
+  const [estimateFormOpen, setEstimateFormOpen] = useState(false);
   const { toast } = useToast();
 
   const filteredEstimates = mockEstimates.filter((estimate) => {
-    const matchesActive = activeTab === "active" ? estimate.isActive : !estimate.isActive;
+    const matchesActive = activeTab === "active" 
+      ? estimate.isActive 
+      : !estimate.isActive && estimate.status === "Open"; // Only Open estimates in deactivated tab
     
     const matchesSearch = 
       estimate.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -94,10 +100,8 @@ const Estimates = () => {
   };
 
   const handlePayCash = (estimate: any) => {
-    toast({
-      title: "Cash Payment",
-      description: `Cash payment recorded for ${estimate.id}`,
-    });
+    setSelectedEstimate(estimate);
+    setPayCashModalOpen(true);
   };
 
   const handleShareAddress = (estimate: any) => {
@@ -138,7 +142,7 @@ const Estimates = () => {
             <h1 className="text-3xl font-bold text-foreground">Estimates</h1>
             <p className="text-muted-foreground">Create and manage project estimates</p>
           </div>
-          <Button className="gap-2">
+          <Button className="gap-2" onClick={() => setEstimateFormOpen(true)}>
             <Plus className="h-5 w-5" />
             New Estimate
           </Button>
@@ -321,19 +325,6 @@ const Estimates = () => {
                   onChange={(e) => setEndDate(e.target.value)}
                 />
               </div>
-              <div className="flex-1 min-w-[200px]">
-                <Label>Status</Label>
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="All">All</SelectItem>
-                    <SelectItem value="Paid">Paid</SelectItem>
-                    <SelectItem value="Open">Open</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
             </div>
 
             {(startDate || endDate) && (
@@ -411,8 +402,19 @@ const Estimates = () => {
               customerName={selectedEstimate.customerName}
               phoneNumber={selectedEstimate.customerPhone}
             />
+            <PayCashModal
+              open={payCashModalOpen}
+              onOpenChange={setPayCashModalOpen}
+              orderAmount={selectedEstimate.amount}
+              orderId={selectedEstimate.id}
+            />
           </>
         )}
+
+        <EstimateFormModal
+          open={estimateFormOpen}
+          onOpenChange={setEstimateFormOpen}
+        />
 
         <Dialog open={reassignModalOpen} onOpenChange={setReassignModalOpen}>
           <DialogContent>
