@@ -28,8 +28,9 @@ const Agreements = () => {
   const [payCashOpen, setPayCashOpen] = useState(false);
   const [selectedAgreement, setSelectedAgreement] = useState<any>(null);
   const [editAgreementOpen, setEditAgreementOpen] = useState(false);
+  const [agreements, setAgreements] = useState(mockAgreements);
 
-  const filteredAgreements = mockAgreements.filter((agreement) => {
+  const filteredAgreements = agreements.filter((agreement) => {
     const matchesSearch = agreement.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
       agreement.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       agreement.title.toLowerCase().includes(searchQuery.toLowerCase());
@@ -73,6 +74,18 @@ const Agreements = () => {
   const handleUpdateAgreement = (agreement: any) => {
     setSelectedAgreement(agreement);
     setEditAgreementOpen(true);
+  };
+
+  const handlePaymentComplete = () => {
+    if (selectedAgreement) {
+      setAgreements(prevAgreements =>
+        prevAgreements.map(agreement =>
+          agreement.id === selectedAgreement.id
+            ? { ...agreement, status: "Paid" }
+            : agreement
+        ) as typeof mockAgreements
+      );
+    }
   };
 
   return (
@@ -195,7 +208,7 @@ const Agreements = () => {
                     <div className="border-t pt-4 bg-muted/10 -mx-6 px-6 py-3 rounded-b-lg">
                       <p className="text-sm font-medium mb-2 flex items-center gap-2">
                         <FileText className="h-4 w-4" />
-                        Terms & Conditions:
+                        Notes:
                       </p>
                       <div className="bg-card p-4 rounded-lg border border-border/50 text-sm">
                         {agreement.terms}
@@ -285,6 +298,7 @@ const Agreements = () => {
         onOpenChange={setPayCashOpen}
         orderAmount={selectedAgreement?.amount || 0}
         orderId={selectedAgreement?.id || ""}
+        onPaymentComplete={handlePaymentComplete}
       />
     </div>
   );

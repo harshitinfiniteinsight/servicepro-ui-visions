@@ -10,6 +10,7 @@ interface PayCashModalProps {
   onOpenChange: (open: boolean) => void;
   orderAmount: number;
   orderId: string;
+  onPaymentComplete?: () => void;
 }
 
 export function PayCashModal({
@@ -17,6 +18,7 @@ export function PayCashModal({
   onOpenChange,
   orderAmount,
   orderId,
+  onPaymentComplete,
 }: PayCashModalProps) {
   const [amountReceived, setAmountReceived] = useState("");
   const [changeDue, setChangeDue] = useState<number | null>(null);
@@ -32,34 +34,67 @@ export function PayCashModal({
   }, [open]);
 
   const handleAmountChange = (value: string) => {
-    setAmountReceived(value);
+    // Remove any non-numeric characters except decimal point
+    const numericValue = value.replace(/[^0-9.]/g, '');
+    setAmountReceived(numericValue);
     setError("");
-    setChangeDue(null);
+    
+    // Calculate change automatically as user types
+    const received = parseFloat(numericValue);
+    if (!isNaN(received) && received > 0) {
+      if (received >= orderAmount) {
+        setChangeDue(received - orderAmount);
+      } else {
+        setChangeDue(null);
+      }
+    } else {
+      setChangeDue(null);
+    }
   };
 
   const handlePayCash = () => {
     const received = parseFloat(amountReceived);
     
-    if (isNaN(received) || received < orderAmount) {
-      setError("Amount received cannot be less than the order amount");
+    if (!amountReceived || isNaN(received)) {
+      setError("Please enter amount received");
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Please enter amount received",
+      });
+      return;
+    }
+
+    if (received < orderAmount) {
+      setError("Amount received cannot be less than order amount");
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Amount received cannot be less than order amount",
+      });
       return;
     }
 
     const change = received - orderAmount;
-    
-    if (change > 0) {
-      setChangeDue(change);
+
+    if (change === 0) {
       toast({
-        title: "Payment Recorded",
-        description: `Change due: $${change.toFixed(2)}`,
+        title: "Payment Successful",
+        description: `Exact payment of $${orderAmount.toFixed(2)} received for order ${orderId}`,
       });
     } else {
       toast({
-        title: "Payment Recorded",
-        description: `Cash payment of $${received.toFixed(2)} recorded for ${orderId}`,
+        title: "Payment Successful",
+        description: `Payment received. Change due: $${change.toFixed(2)}`,
       });
-      onOpenChange(false);
     }
+
+    // Call the callback to update agreement status
+    if (onPaymentComplete) {
+      onPaymentComplete();
+    }
+    
+    onOpenChange(false);
   };
 
   return (
@@ -76,14 +111,16 @@ export function PayCashModal({
           
           <div className="space-y-2">
             <Label>Amount Received</Label>
-            <Input
-              type="number"
-              placeholder="Enter amount received"
-              value={amountReceived}
-              onChange={(e) => handleAmountChange(e.target.value)}
-              min={orderAmount}
-              step="0.01"
-            />
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
+              <Input
+                type="text"
+                placeholder="0.00"
+                value={amountReceived}
+                onChange={(e) => handleAmountChange(e.target.value)}
+                className={`pl-7 ${error ? "border-destructive" : ""}`}
+              />
+            </div>
             {error && <p className="text-sm text-destructive">{error}</p>}
           </div>
 
