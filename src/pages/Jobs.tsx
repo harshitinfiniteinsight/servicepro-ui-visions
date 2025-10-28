@@ -2,9 +2,13 @@ import { useState } from "react";
 import { AppHeader } from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Eye, SlidersHorizontal, Calendar, List } from "lucide-react";
-import { mockAgreements, mockEstimates, mockInvoices } from "@/data/mockData";
+import { Eye, SlidersHorizontal, Calendar as CalendarIcon, List, ChevronLeft, ChevronRight } from "lucide-react";
+import { mockAgreements, mockEstimates, mockInvoices, mockEmployees } from "@/data/mockData";
 import { cn } from "@/lib/utils";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isSameMonth } from "date-fns";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 type ViewMode = "list" | "calendar";
 type TimeFilter = "day" | "week" | "month";
@@ -24,6 +28,10 @@ const Jobs = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [timeFilter, setTimeFilter] = useState<TimeFilter>("day");
+  const [selectedEmployee, setSelectedEmployee] = useState<string>("all");
+  const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined);
+  const [dateTo, setDateTo] = useState<Date | undefined>(undefined);
+  const [currentMonth, setCurrentMonth] = useState(new Date());
 
   // Transform data into unified format
   const allJobs: JobItem[] = [
@@ -58,12 +66,20 @@ const Jobs = () => {
 
   // Filter and sort jobs
   const filteredJobs = allJobs
-    .filter(
-      (job) =>
+    .filter((job) => {
+      const matchesSearch =
         job.orderId.toLowerCase().includes(searchQuery.toLowerCase()) ||
         job.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        job.employeeName.toLowerCase().includes(searchQuery.toLowerCase())
-    )
+        job.employeeName.toLowerCase().includes(searchQuery.toLowerCase());
+      
+      const matchesEmployee = selectedEmployee === "all" || job.employeeName === selectedEmployee;
+      
+      const jobDate = new Date(job.date);
+      const matchesDateFrom = !dateFrom || jobDate >= dateFrom;
+      const matchesDateTo = !dateTo || jobDate <= dateTo;
+      
+      return matchesSearch && matchesEmployee && matchesDateFrom && matchesDateTo;
+    })
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   // Group jobs by date
@@ -102,6 +118,28 @@ const Jobs = () => {
     }
   };
 
+  // Calendar helpers
+  const monthStart = startOfMonth(currentMonth);
+  const monthEnd = endOfMonth(currentMonth);
+  const daysInMonth = eachDayOfInterval({ start: monthStart, end: monthEnd });
+  
+  const firstDayOfMonth = monthStart.getDay();
+  const calendarDays = Array.from({ length: firstDayOfMonth }, () => null).concat(daysInMonth);
+  
+  const getJobsForDate = (date: Date) => {
+    return filteredJobs.filter((job) => isSameDay(new Date(job.date), date));
+  };
+
+  const navigateMonth = (direction: 'prev' | 'next') => {
+    const newMonth = new Date(currentMonth);
+    if (direction === 'prev') {
+      newMonth.setMonth(newMonth.getMonth() - 1);
+    } else {
+      newMonth.setMonth(newMonth.getMonth() + 1);
+    }
+    setCurrentMonth(newMonth);
+  };
+
   return (
     <div className="flex-1">
       <AppHeader searchPlaceholder="Search jobs..." onSearchChange={setSearchQuery} />
@@ -117,72 +155,121 @@ const Jobs = () => {
         </div>
 
         {/* Filters and View Controls */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
-          {/* Time Filter Buttons */}
-          <div className="flex gap-2">
-            <Button
-              variant={timeFilter === "day" ? "default" : "outline"}
-              onClick={() => setTimeFilter("day")}
-              className={cn(
-                "flex-1 sm:flex-none",
-                timeFilter === "day" && "bg-cyan-500 hover:bg-cyan-600 text-white"
-              )}
-            >
-              Day
-            </Button>
-            <Button
-              variant={timeFilter === "week" ? "default" : "outline"}
-              onClick={() => setTimeFilter("week")}
-              className={cn(
-                "flex-1 sm:flex-none",
-                timeFilter === "week" && "bg-cyan-500 hover:bg-cyan-600 text-white"
-              )}
-            >
-              Week
-            </Button>
-            <Button
-              variant={timeFilter === "month" ? "default" : "outline"}
-              onClick={() => setTimeFilter("month")}
-              className={cn(
-                "flex-1 sm:flex-none",
-                timeFilter === "month" && "bg-cyan-500 hover:bg-cyan-600 text-white"
-              )}
-            >
-              Month
-            </Button>
+        <div className="flex flex-col gap-4">
+          {/* Date Range and Employee Filters */}
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex-1">
+              <label className="text-sm text-muted-foreground mb-1.5 block">From Date</label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" className="w-full justify-start text-left">
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {dateFrom ? format(dateFrom, "PPP") : "Select date"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar mode="single" selected={dateFrom} onSelect={setDateFrom} />
+                </PopoverContent>
+              </Popover>
+            </div>
+            <div className="flex-1">
+              <label className="text-sm text-muted-foreground mb-1.5 block">To Date</label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" className="w-full justify-start text-left">
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {dateTo ? format(dateTo, "PPP") : "Select date"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar mode="single" selected={dateTo} onSelect={setDateTo} />
+                </PopoverContent>
+              </Popover>
+            </div>
+            <div className="flex-1">
+              <label className="text-sm text-muted-foreground mb-1.5 block">Employee</label>
+              <Select value={selectedEmployee} onValueChange={setSelectedEmployee}>
+                <SelectTrigger>
+                  <SelectValue placeholder="All Employees" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Employees</SelectItem>
+                  {mockEmployees.map((employee) => (
+                    <SelectItem key={employee.id} value={employee.name}>
+                      {employee.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
-          {/* View Mode Buttons */}
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              className="flex-1 sm:flex-none gap-2 bg-orange-500 hover:bg-orange-600 text-white border-0"
-            >
-              <SlidersHorizontal className="h-4 w-4" />
-              Apply Filter
-            </Button>
-            <Button
-              variant={viewMode === "list" ? "default" : "outline"}
-              onClick={() => setViewMode("list")}
-              className={cn(
-                "flex-1 sm:flex-none gap-2",
-                viewMode === "list" && "bg-cyan-500 hover:bg-cyan-600 text-white"
-              )}
-            >
-              <List className="h-4 w-4" />
-              List
-            </Button>
-            <Button
-              variant={viewMode === "calendar" ? "default" : "outline"}
-              onClick={() => setViewMode("calendar")}
-              className={cn(
-                "flex-1 sm:flex-none gap-2",
-                viewMode === "calendar" && "bg-cyan-500 hover:bg-cyan-600 text-white"
-              )}
-            >
-              <Calendar className="h-4 w-4" />
-              Calendar
-            </Button>
+          {/* Time Filter and View Mode Controls */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+            {/* Time Filter Buttons */}
+            <div className="flex gap-2">
+              <Button
+                variant={timeFilter === "day" ? "default" : "outline"}
+                onClick={() => setTimeFilter("day")}
+                className={cn(
+                  "flex-1 sm:flex-none",
+                  timeFilter === "day" && "bg-cyan-500 hover:bg-cyan-600 text-white"
+                )}
+              >
+                Day
+              </Button>
+              <Button
+                variant={timeFilter === "week" ? "default" : "outline"}
+                onClick={() => setTimeFilter("week")}
+                className={cn(
+                  "flex-1 sm:flex-none",
+                  timeFilter === "week" && "bg-cyan-500 hover:bg-cyan-600 text-white"
+                )}
+              >
+                Week
+              </Button>
+              <Button
+                variant={timeFilter === "month" ? "default" : "outline"}
+                onClick={() => setTimeFilter("month")}
+                className={cn(
+                  "flex-1 sm:flex-none",
+                  timeFilter === "month" && "bg-cyan-500 hover:bg-cyan-600 text-white"
+                )}
+              >
+                Month
+              </Button>
+            </div>
+
+            {/* View Mode Buttons */}
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                className="flex-1 sm:flex-none gap-2 bg-orange-500 hover:bg-orange-600 text-white border-0"
+              >
+                <SlidersHorizontal className="h-4 w-4" />
+                Apply Filter
+              </Button>
+              <Button
+                variant={viewMode === "list" ? "default" : "outline"}
+                onClick={() => setViewMode("list")}
+                className={cn(
+                  "flex-1 sm:flex-none",
+                  viewMode === "list" && "bg-cyan-500 hover:bg-cyan-600 text-white"
+                )}
+              >
+                <List className="h-5 w-5" />
+              </Button>
+              <Button
+                variant={viewMode === "calendar" ? "default" : "outline"}
+                onClick={() => setViewMode("calendar")}
+                className={cn(
+                  "flex-1 sm:flex-none",
+                  viewMode === "calendar" && "bg-cyan-500 hover:bg-cyan-600 text-white"
+                )}
+              >
+                <CalendarIcon className="h-5 w-5" />
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -262,11 +349,85 @@ const Jobs = () => {
           </div>
         )}
 
-        {/* Calendar View Placeholder */}
+        {/* Calendar View */}
         {viewMode === "calendar" && (
-          <div className="text-center py-12 text-muted-foreground">
-            <Calendar className="h-16 w-16 mx-auto mb-4 opacity-50" />
-            <p>Calendar view coming soon</p>
+          <div className="bg-card rounded-lg shadow-md p-6">
+            {/* Calendar Header */}
+            <div className="flex items-center justify-between mb-6">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigateMonth('prev')}
+                className="hover:bg-muted"
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </Button>
+              <h2 className="text-xl font-semibold text-cyan-500">
+                {format(currentMonth, "MMMM, yyyy")}
+              </h2>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigateMonth('next')}
+                className="hover:bg-muted"
+              >
+                <ChevronRight className="h-5 w-5" />
+              </Button>
+            </div>
+
+            {/* Calendar Grid */}
+            <div className="grid grid-cols-7 gap-2">
+              {/* Day Headers */}
+              {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
+                <div key={day} className="text-center font-medium text-muted-foreground py-2">
+                  {day}
+                </div>
+              ))}
+
+              {/* Calendar Days */}
+              {calendarDays.map((day, index) => {
+                if (!day) {
+                  return <div key={`empty-${index}`} className="aspect-square" />;
+                }
+
+                const dayJobs = getJobsForDate(day);
+                const isToday = isSameDay(day, new Date());
+                const isCurrentMonth = isSameMonth(day, currentMonth);
+
+                return (
+                  <div
+                    key={day.toISOString()}
+                    className={cn(
+                      "aspect-square border rounded-lg p-2 relative",
+                      isCurrentMonth ? "bg-background" : "bg-muted/20",
+                      isToday && "bg-cyan-500 text-white font-bold"
+                    )}
+                  >
+                    <div className="text-sm sm:text-base text-center mb-1">
+                      {format(day, "d")}
+                    </div>
+                    {dayJobs.length > 0 && (
+                      <div className="absolute bottom-1 left-1 right-1 flex gap-0.5 justify-center flex-wrap">
+                        {dayJobs.slice(0, 3).map((job) => (
+                          <div
+                            key={job.id}
+                            className={cn(
+                              "w-1.5 h-1.5 rounded-full",
+                              job.type === "agreement" && "bg-blue-500",
+                              job.type === "invoice" && "bg-orange-500",
+                              job.type === "estimate" && "bg-green-500"
+                            )}
+                          />
+                        ))}
+                        {dayJobs.length > 3 && (
+                          <div className="text-[8px] text-muted-foreground">+{dayJobs.length - 3}</div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           </div>
         )}
       </main>

@@ -20,7 +20,7 @@ import { useState } from "react";
 
 const topItems = [
   { title: "Dashboard", url: "/", icon: Home },
-  { title: "Menu", url: "/jobs", icon: Briefcase },
+  { title: "Job Dashboard", url: "/jobs", icon: Briefcase },
 ];
 
 const salesItems = [
