@@ -18,17 +18,9 @@ import { Logo } from "@/components/Logo";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useState } from "react";
 
-const mainItems = [
+const topItems = [
   { title: "Dashboard", url: "/", icon: Home },
-  { title: "Customers", url: "/customers", icon: Users },
-  { title: "Job Dashboard", url: "/jobs", icon: Briefcase },
-  { title: "Employees", url: "/employees", icon: UserCheck },
-  { title: "Inventory/Services", url: "/inventory", icon: Package },
-];
-
-const appointmentItems = [
-  { title: "Manage Appointment", url: "/appointments/manage", icon: Calendar },
-  { title: "Add Appointment", url: "/appointments/add", icon: Calendar },
+  { title: "Menu", url: "/jobs", icon: Briefcase },
 ];
 
 const salesItems = [
@@ -37,7 +29,15 @@ const salesItems = [
   { title: "Agreements", url: "/agreements", icon: ClipboardList },
 ];
 
-const secondaryItems = [
+const appointmentItems = [
+  { title: "Manage Appointment", url: "/appointments/manage", icon: Calendar },
+  { title: "Add Appointment", url: "/appointments/add", icon: Calendar },
+];
+
+const mainItems = [
+  { title: "Customers", url: "/customers", icon: Users },
+  { title: "Inventory/Services", url: "/inventory", icon: Package },
+  { title: "Employees", url: "/employees", icon: UserCheck },
   { title: "Reports", url: "/reports", icon: BarChart3 },
   { title: "Settings", url: "/settings", icon: Settings },
 ];
@@ -69,7 +69,8 @@ export function AppSidebar() {
           <SidebarGroupLabel>Main Menu</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {mainItems.map((item) => (
+              {/* Top Items */}
+              {topItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <NavLink to={item.url} end className={getNavClass(item.url)}>
@@ -79,33 +80,6 @@ export function AppSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
-
-              {/* Appointments Collapsible Group */}
-              <Collapsible open={appointmentsOpen} onOpenChange={setAppointmentsOpen} className="group/collapsible">
-                <SidebarMenuItem>
-                  <CollapsibleTrigger asChild>
-                    <SidebarMenuButton className={isAppointmentsActive ? "bg-primary/10 text-primary" : ""}>
-                      <Calendar className="h-5 w-5" />
-                      <span>Appointments</span>
-                      <ChevronDown className="ml-auto h-4 w-4 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-180" />
-                    </SidebarMenuButton>
-                  </CollapsibleTrigger>
-                  <CollapsibleContent>
-                    <SidebarMenuSub>
-                      {appointmentItems.map((item) => (
-                        <SidebarMenuSubItem key={item.title}>
-                          <SidebarMenuSubButton asChild>
-                            <NavLink to={item.url} className={getNavClass(item.url)}>
-                              <item.icon className="h-4 w-4" />
-                              <span>{item.title}</span>
-                            </NavLink>
-                          </SidebarMenuSubButton>
-                        </SidebarMenuSubItem>
-                      ))}
-                    </SidebarMenuSub>
-                  </CollapsibleContent>
-                </SidebarMenuItem>
-              </Collapsible>
 
               {/* Sales Collapsible Group */}
               <Collapsible open={salesOpen} onOpenChange={setSalesOpen} className="group/collapsible">
@@ -133,18 +107,39 @@ export function AppSidebar() {
                   </CollapsibleContent>
                 </SidebarMenuItem>
               </Collapsible>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
 
-        <SidebarGroup>
-          <SidebarGroupLabel>System</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {secondaryItems.map((item) => (
+              {/* Appointments Collapsible Group */}
+              <Collapsible open={appointmentsOpen} onOpenChange={setAppointmentsOpen} className="group/collapsible">
+                <SidebarMenuItem>
+                  <CollapsibleTrigger asChild>
+                    <SidebarMenuButton className={isAppointmentsActive ? "bg-primary/10 text-primary" : ""}>
+                      <Calendar className="h-5 w-5" />
+                      <span>Appointment</span>
+                      <ChevronDown className="ml-auto h-4 w-4 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-180" />
+                    </SidebarMenuButton>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <SidebarMenuSub>
+                      {appointmentItems.map((item) => (
+                        <SidebarMenuSubItem key={item.title}>
+                          <SidebarMenuSubButton asChild>
+                            <NavLink to={item.url} className={getNavClass(item.url)}>
+                              <item.icon className="h-4 w-4" />
+                              <span>{item.title}</span>
+                            </NavLink>
+                          </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                      ))}
+                    </SidebarMenuSub>
+                  </CollapsibleContent>
+                </SidebarMenuItem>
+              </Collapsible>
+
+              {/* Remaining Main Items */}
+              {mainItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <NavLink to={item.url} className={getNavClass(item.url)}>
+                    <NavLink to={item.url} end className={getNavClass(item.url)}>
                       <item.icon className="h-5 w-5" />
                       <span>{item.title}</span>
                     </NavLink>
