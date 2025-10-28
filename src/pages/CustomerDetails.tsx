@@ -7,6 +7,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { EstimateFormModal } from "@/components/modals/EstimateFormModal";
+import { InvoiceFormModal } from "@/components/modals/InvoiceFormModal";
+import { AddAgreementModal } from "@/components/modals/AddAgreementModal";
 import {
   Table,
   TableBody,
@@ -61,6 +64,9 @@ const CustomerDetails = () => {
   });
   const [memo, setMemo] = useState("");
   const [isEditing, setIsEditing] = useState(false);
+  const [estimateModalOpen, setEstimateModalOpen] = useState(false);
+  const [invoiceModalOpen, setInvoiceModalOpen] = useState(false);
+  const [agreementModalOpen, setAgreementModalOpen] = useState(false);
 
   // Check if we should start in edit mode from navigation state
   useEffect(() => {
@@ -358,7 +364,7 @@ const CustomerDetails = () => {
                         variant="outline" 
                         size="icon" 
                         className="h-9 w-9"
-                        onClick={() => navigate("/estimates", { state: { preselectedCustomer: customer } })}
+                        onClick={() => setEstimateModalOpen(true)}
                       >
                         <FileText className="h-4 w-4" />
                       </Button>
@@ -374,7 +380,7 @@ const CustomerDetails = () => {
                         variant="outline" 
                         size="icon" 
                         className="h-9 w-9"
-                        onClick={() => navigate("/invoices", { state: { preselectedCustomer: customer } })}
+                        onClick={() => setInvoiceModalOpen(true)}
                       >
                         <ClipboardList className="h-4 w-4" />
                       </Button>
@@ -390,7 +396,7 @@ const CustomerDetails = () => {
                         variant="outline" 
                         size="icon" 
                         className="h-9 w-9"
-                        onClick={() => navigate("/agreements", { state: { preselectedCustomer: customer } })}
+                        onClick={() => setAgreementModalOpen(true)}
                       >
                         <FileSignature className="h-4 w-4" />
                       </Button>
@@ -489,6 +495,22 @@ const CustomerDetails = () => {
           </Card>
         </div>
       </main>
+
+      {/* Modals */}
+      <EstimateFormModal
+        open={estimateModalOpen}
+        onOpenChange={setEstimateModalOpen}
+        mode="create"
+      />
+      <InvoiceFormModal
+        open={invoiceModalOpen}
+        onOpenChange={setInvoiceModalOpen}
+        mode="create"
+      />
+      <AddAgreementModal
+        open={agreementModalOpen}
+        onOpenChange={setAgreementModalOpen}
+      />
     </div>
     </TooltipProvider>
   );
