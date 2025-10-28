@@ -6,7 +6,6 @@ import {
   KeyRound, 
   Shield, 
   FileText, 
-  RotateCcw, 
   Languages, 
   HelpCircle, 
   LogOut,
@@ -45,19 +44,11 @@ const Settings = () => {
     },
     {
       icon: FileText,
-      label: "Terms & Conditions",
-      description: "Read our terms of service",
-      onClick: () => navigate("/settings/terms"),
+      label: "Business Policies",
+      description: "Manage payment terms, terms & conditions, and return policy",
+      onClick: () => navigate("/settings/business-policies"),
       color: "text-secondary",
       bg: "bg-secondary/10"
-    },
-    {
-      icon: RotateCcw,
-      label: "Cancellation & Return Policy",
-      description: "View our cancellation and return policies",
-      onClick: () => navigate("/settings/return-policy"),
-      color: "text-warning",
-      bg: "bg-warning/10"
     },
     {
       icon: Languages,
