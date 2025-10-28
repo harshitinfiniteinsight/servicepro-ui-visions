@@ -16,6 +16,7 @@ import Agreements from "./pages/Agreements";
 import MinimumDepositPercentage from "./pages/MinimumDepositPercentage";
 import Employees from "./pages/Employees";
 import Inventory from "./pages/Inventory";
+import LowInventoryAlertSettings from "./pages/LowInventoryAlertSettings";
 import ManageAppointments from "./pages/ManageAppointments";
 import AddAppointment from "./pages/AddAppointment";
 import Reports from "./pages/Reports";
@@ -48,6 +49,7 @@ const App = () => (
                 <Route path="/agreements/minimum-deposit" element={<MinimumDepositPercentage />} />
                 <Route path="/employees" element={<Employees />} />
                 <Route path="/inventory" element={<Inventory />} />
+                <Route path="/inventory/alert-settings" element={<LowInventoryAlertSettings />} />
                 <Route path="/reports" element={<Reports />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />

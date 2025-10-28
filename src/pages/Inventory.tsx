@@ -1,11 +1,12 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { AppHeader } from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Package, Wrench, Tags, FileText, AlertTriangle, Edit, Trash2, UserCheck, LayoutGrid, List } from "lucide-react";
+import { Plus, Package, Wrench, Tags, FileText, AlertTriangle, Edit, Trash2, UserCheck, LayoutGrid, List, Bell } from "lucide-react";
 import { mockInventory, mockEquipment, mockDiscounts } from "@/data/mockData";
 import { InventoryFormModal } from "@/components/modals/InventoryFormModal";
 import { StockAdjustmentModal } from "@/components/modals/StockAdjustmentModal";
@@ -17,6 +18,7 @@ import { EquipmentNotesModal } from "@/components/modals/EquipmentNotesModal";
 import { AddAgreementInventoryModal } from "@/components/modals/AddAgreementInventoryModal";
 
 const Inventory = () => {
+  const navigate = useNavigate();
   const [inventoryModalOpen, setInventoryModalOpen] = useState(false);
   const [editingInventory, setEditingInventory] = useState<any>(null);
   const [stockAdjustmentModal, setStockAdjustmentModal] = useState<{ open: boolean; item: any }>({ open: false, item: null });
@@ -48,6 +50,14 @@ const Inventory = () => {
             <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Inventory & Services</h1>
             <p className="text-sm sm:text-base text-muted-foreground">Manage inventory, equipment, and discounts</p>
           </div>
+          <Button
+            onClick={() => navigate("/inventory/alert-settings")}
+            variant="outline"
+            className="gap-2 shadow-sm hover:shadow-md transition-all"
+          >
+            <Bell className="h-4 w-4" />
+            <span className="text-sm">Alert Settings</span>
+          </Button>
         </div>
 
         <Tabs value={selectedTab} onValueChange={setSelectedTab} className="w-full">
