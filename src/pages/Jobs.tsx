@@ -1,8 +1,21 @@
 import { useState } from "react";
 import { AppHeader } from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Eye, SlidersHorizontal, Calendar as CalendarIcon, List, ChevronLeft, ChevronRight } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { 
+  Eye, 
+  SlidersHorizontal, 
+  Calendar as CalendarIcon, 
+  List, 
+  ChevronLeft, 
+  ChevronRight,
+  Briefcase,
+  FileText,
+  DollarSign,
+  User,
+  TrendingUp
+} from "lucide-react";
 import { mockAgreements, mockEstimates, mockInvoices, mockEmployees } from "@/data/mockData";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -96,25 +109,41 @@ const Jobs = () => {
     return acc;
   }, {} as Record<string, JobItem[]>);
 
-  const getJobColor = (type: JobType) => {
+  const getJobConfig = (type: JobType) => {
     switch (type) {
       case "agreement":
-        return "border-l-blue-500";
+        return {
+          gradient: "from-info/10 to-info/5",
+          border: "border-info/20",
+          badge: "bg-info/10 text-info border-info/20",
+          icon: Briefcase,
+          iconBg: "bg-info/10",
+          iconColor: "text-info",
+          label: "Agreement",
+          amountColor: "text-info"
+        };
       case "invoice":
-        return "border-l-orange-500";
+        return {
+          gradient: "from-warning/10 to-warning/5",
+          border: "border-warning/20",
+          badge: "bg-warning/10 text-warning border-warning/20",
+          icon: DollarSign,
+          iconBg: "bg-warning/10",
+          iconColor: "text-warning",
+          label: "Invoice",
+          amountColor: "text-warning"
+        };
       case "estimate":
-        return "border-l-green-500";
-    }
-  };
-
-  const getJobLabel = (type: JobType) => {
-    switch (type) {
-      case "agreement":
-        return { label: "Agreement Amount", color: "text-blue-600" };
-      case "invoice":
-        return { label: "Invoice Amount", color: "text-orange-600" };
-      case "estimate":
-        return { label: "Estimate Amount", color: "text-green-600" };
+        return {
+          gradient: "from-success/10 to-success/5",
+          border: "border-success/20",
+          badge: "bg-success/10 text-success border-success/20",
+          icon: FileText,
+          iconBg: "bg-success/10",
+          iconColor: "text-success",
+          label: "Estimate",
+          amountColor: "text-success"
+        };
     }
   };
 
@@ -140,29 +169,118 @@ const Jobs = () => {
     setCurrentMonth(newMonth);
   };
 
+  // Calculate stats
+  const totalJobs = filteredJobs.length;
+  const totalRevenue = filteredJobs.reduce((sum, job) => sum + job.amount, 0);
+  const jobsByType = {
+    agreement: filteredJobs.filter(j => j.type === "agreement").length,
+    invoice: filteredJobs.filter(j => j.type === "invoice").length,
+    estimate: filteredJobs.filter(j => j.type === "estimate").length,
+  };
+
   return (
     <div className="flex-1">
       <AppHeader searchPlaceholder="Search jobs..." onSearchChange={setSearchQuery} />
 
-      <main className="px-4 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6 animate-fade-in">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Job Dashboard</h1>
-            <p className="text-sm sm:text-base text-muted-foreground">
-              View all agreements, estimates, and invoices
-            </p>
+      <main className="px-4 sm:px-6 py-4 sm:py-6 space-y-6 animate-fade-in">
+        {/* Header */}
+        <div className="app-card p-4 sm:p-6 bg-gradient-to-br from-accent/5 via-primary/5 to-transparent relative overflow-hidden">
+          <div className="gradient-mesh absolute inset-0 opacity-50"></div>
+          <div className="relative z-10">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div>
+                <h1 className="text-2xl sm:text-3xl font-bold font-display mb-1">
+                  <span className="text-gradient">Job Dashboard</span>
+                </h1>
+                <p className="text-sm text-muted-foreground">Manage all agreements, estimates, and invoices</p>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  variant={viewMode === "list" ? "default" : "outline"}
+                  onClick={() => setViewMode("list")}
+                  size="sm"
+                  className={cn(
+                    "touch-target",
+                    viewMode === "list" && "gradient-primary"
+                  )}
+                >
+                  <List className="h-4 w-4 mr-2" />
+                  List
+                </Button>
+                <Button
+                  variant={viewMode === "calendar" ? "default" : "outline"}
+                  onClick={() => setViewMode("calendar")}
+                  size="sm"
+                  className={cn(
+                    "touch-target",
+                    viewMode === "calendar" && "gradient-primary"
+                  )}
+                >
+                  <CalendarIcon className="h-4 w-4 mr-2" />
+                  Calendar
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Filters and View Controls */}
-        <div className="flex flex-col gap-4">
-          {/* Date Range and Employee Filters */}
-          <div className="flex flex-col sm:flex-row gap-3">
-            <div className="flex-1">
-              <label className="text-sm text-muted-foreground mb-1.5 block">From Date</label>
+        {/* Quick Stats */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          <div className="app-card p-4 card-shine">
+            <div className="flex items-center justify-between mb-2">
+              <div className="p-2.5 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 shadow-sm">
+                <Briefcase className="h-4 w-4 text-primary" />
+              </div>
+              <TrendingUp className="h-4 w-4 text-success animate-float" />
+            </div>
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Total Jobs</p>
+            <p className="text-2xl sm:text-3xl font-bold text-foreground font-display">{totalJobs}</p>
+          </div>
+
+          <div className="app-card p-4 card-shine">
+            <div className="flex items-center justify-between mb-2">
+              <div className="p-2.5 rounded-xl bg-gradient-to-br from-success/10 to-success/5 shadow-sm">
+                <DollarSign className="h-4 w-4 text-success" />
+              </div>
+            </div>
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Total Revenue</p>
+            <p className="text-2xl sm:text-3xl font-bold text-foreground font-display">${totalRevenue.toLocaleString()}</p>
+          </div>
+
+          <div className="app-card p-4 card-shine">
+            <div className="flex items-center justify-between mb-2">
+              <div className="p-2.5 rounded-xl bg-gradient-to-br from-info/10 to-info/5 shadow-sm">
+                <FileText className="h-4 w-4 text-info" />
+              </div>
+            </div>
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Agreements</p>
+            <p className="text-2xl sm:text-3xl font-bold text-foreground font-display">{jobsByType.agreement}</p>
+          </div>
+
+          <div className="app-card p-4 card-shine">
+            <div className="flex items-center justify-between mb-2">
+              <div className="p-2.5 rounded-xl bg-gradient-to-br from-warning/10 to-warning/5 shadow-sm">
+                <FileText className="h-4 w-4 text-warning" />
+              </div>
+            </div>
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Invoices</p>
+            <p className="text-2xl sm:text-3xl font-bold text-foreground font-display">{jobsByType.invoice}</p>
+          </div>
+        </div>
+
+        {/* Filters */}
+        <div className="app-card p-4 sm:p-6 space-y-4">
+          <div className="flex items-center gap-2 mb-2">
+            <SlidersHorizontal className="h-5 w-5 text-primary" />
+            <h3 className="font-bold text-lg">Filters</h3>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <Label className="text-sm font-medium mb-2 block">From Date</Label>
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" className="w-full justify-start text-left">
+                  <Button variant="outline" className="w-full justify-start">
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {dateFrom ? format(dateFrom, "PPP") : "Select date"}
                   </Button>
@@ -172,11 +290,12 @@ const Jobs = () => {
                 </PopoverContent>
               </Popover>
             </div>
-            <div className="flex-1">
-              <label className="text-sm text-muted-foreground mb-1.5 block">To Date</label>
+
+            <div>
+              <Label className="text-sm font-medium mb-2 block">To Date</Label>
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" className="w-full justify-start text-left">
+                  <Button variant="outline" className="w-full justify-start">
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {dateTo ? format(dateTo, "PPP") : "Select date"}
                   </Button>
@@ -186,8 +305,9 @@ const Jobs = () => {
                 </PopoverContent>
               </Popover>
             </div>
-            <div className="flex-1">
-              <label className="text-sm text-muted-foreground mb-1.5 block">Employee</label>
+
+            <div>
+              <Label className="text-sm font-medium mb-2 block">Employee</Label>
               <Select value={selectedEmployee} onValueChange={setSelectedEmployee}>
                 <SelectTrigger>
                   <SelectValue placeholder="All Employees" />
@@ -204,72 +324,31 @@ const Jobs = () => {
             </div>
           </div>
 
-          {/* Time Filter and View Mode Controls */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
-            {/* Time Filter Buttons */}
-            <div className="flex gap-2">
-              <Button
-                variant={timeFilter === "day" ? "default" : "outline"}
-                onClick={() => setTimeFilter("day")}
-                className={cn(
-                  "flex-1 sm:flex-none",
-                  timeFilter === "day" && "bg-cyan-500 hover:bg-cyan-600 text-white"
-                )}
-              >
-                Day
-              </Button>
-              <Button
-                variant={timeFilter === "week" ? "default" : "outline"}
-                onClick={() => setTimeFilter("week")}
-                className={cn(
-                  "flex-1 sm:flex-none",
-                  timeFilter === "week" && "bg-cyan-500 hover:bg-cyan-600 text-white"
-                )}
-              >
-                Week
-              </Button>
-              <Button
-                variant={timeFilter === "month" ? "default" : "outline"}
-                onClick={() => setTimeFilter("month")}
-                className={cn(
-                  "flex-1 sm:flex-none",
-                  timeFilter === "month" && "bg-cyan-500 hover:bg-cyan-600 text-white"
-                )}
-              >
-                Month
-              </Button>
-            </div>
-
-            {/* View Mode Buttons */}
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                className="flex-1 sm:flex-none gap-2 bg-orange-500 hover:bg-orange-600 text-white border-0"
-              >
-                <SlidersHorizontal className="h-4 w-4" />
-                Apply Filter
-              </Button>
-              <Button
-                variant={viewMode === "list" ? "default" : "outline"}
-                onClick={() => setViewMode("list")}
-                className={cn(
-                  "flex-1 sm:flex-none",
-                  viewMode === "list" && "bg-cyan-500 hover:bg-cyan-600 text-white"
-                )}
-              >
-                <List className="h-5 w-5" />
-              </Button>
-              <Button
-                variant={viewMode === "calendar" ? "default" : "outline"}
-                onClick={() => setViewMode("calendar")}
-                className={cn(
-                  "flex-1 sm:flex-none",
-                  viewMode === "calendar" && "bg-cyan-500 hover:bg-cyan-600 text-white"
-                )}
-              >
-                <CalendarIcon className="h-5 w-5" />
-              </Button>
-            </div>
+          <div className="flex gap-2 pt-2">
+            <Button
+              variant={timeFilter === "day" ? "default" : "outline"}
+              onClick={() => setTimeFilter("day")}
+              size="sm"
+              className={timeFilter === "day" ? "gradient-primary" : ""}
+            >
+              Day
+            </Button>
+            <Button
+              variant={timeFilter === "week" ? "default" : "outline"}
+              onClick={() => setTimeFilter("week")}
+              size="sm"
+              className={timeFilter === "week" ? "gradient-primary" : ""}
+            >
+              Week
+            </Button>
+            <Button
+              variant={timeFilter === "month" ? "default" : "outline"}
+              onClick={() => setTimeFilter("month")}
+              size="sm"
+              className={timeFilter === "month" ? "gradient-primary" : ""}
+            >
+              Month
+            </Button>
           </div>
         </div>
 
@@ -279,62 +358,68 @@ const Jobs = () => {
             {Object.entries(groupedJobs).map(([date, jobs]) => (
               <div key={date} className="space-y-3">
                 {/* Date Header */}
-                <div className="inline-block bg-cyan-500 text-white px-6 py-2 rounded-full font-semibold">
-                  {date}
+                <div className="inline-flex items-center gap-2 px-6 py-2 rounded-full bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/20">
+                  <CalendarIcon className="h-4 w-4 text-primary" />
+                  <span className="font-semibold text-foreground">{date}</span>
                 </div>
 
                 {/* Jobs for this date */}
-                <div className="space-y-3">
+                <div className="grid gap-3">
                   {jobs.map((job) => {
-                    const jobInfo = getJobLabel(job.type);
+                    const config = getJobConfig(job.type);
+                    const JobIcon = config.icon;
+                    
                     return (
-                      <Card
+                      <div
                         key={job.id}
-                        className={cn(
-                          "border-0 shadow-md border-l-4 transition-all hover:shadow-lg",
-                          getJobColor(job.type)
-                        )}
+                        className="app-card p-4 sm:p-6 hover:scale-[1.01] transition-all duration-300 cursor-pointer border"
                       >
-                        <div className="p-4 sm:p-6">
-                          <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
-                            {/* Left side - Job Details */}
-                            <div className="flex-1 space-y-3 min-w-0">
-                              <div className="flex items-center gap-3">
-                                <div className="flex items-center gap-2">
-                                  <span className="text-sm text-muted-foreground">Order Id</span>
-                                  <Eye className="h-4 w-4 text-muted-foreground cursor-pointer hover:text-foreground" />
-                                </div>
-                              </div>
-                              <p className="text-lg sm:text-xl font-semibold text-cyan-600 break-all">
-                                {job.orderId}
-                              </p>
-
-                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
-                                <div>
-                                  <span className="text-muted-foreground">Employee Name</span>
-                                  <p className="font-medium text-foreground truncate">{job.employeeName}</p>
-                                </div>
-                                <div>
-                                  <span className="text-muted-foreground">Customer Name</span>
-                                  <p className="font-medium text-foreground truncate underline cursor-pointer">
-                                    {job.customerName}
-                                  </p>
-                                </div>
-                              </div>
+                        <div className="flex flex-col sm:flex-row items-start gap-4">
+                          {/* Left side - Icon and Type */}
+                          <div className="flex items-start gap-4 flex-1 min-w-0">
+                            <div className={cn("p-3 rounded-xl shadow-sm", config.iconBg)}>
+                              <JobIcon className={cn("h-5 w-5", config.iconColor)} />
                             </div>
 
-                            {/* Right side - Amount */}
-                            <div className="flex flex-col items-end gap-1 min-w-fit">
-                              <span className={cn("text-sm font-medium", jobInfo.color)}>
-                                {jobInfo.label}
-                              </span>
-                              <p className="text-3xl sm:text-4xl font-bold text-foreground">
-                                ${job.amount.toFixed(2)}
-                              </p>
+                            <div className="flex-1 min-w-0 space-y-2">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <Badge variant="outline" className={cn("border", config.badge)}>
+                                  {config.label}
+                                </Badge>
+                                <span className="font-mono font-bold text-lg">{job.orderId}</span>
+                                <Eye className="h-4 w-4 text-muted-foreground hover:text-primary cursor-pointer transition-colors" />
+                              </div>
+
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                                <div className="flex items-center gap-2">
+                                  <User className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                                  <div className="min-w-0">
+                                    <p className="text-xs text-muted-foreground">Employee</p>
+                                    <p className="font-medium truncate">{job.employeeName}</p>
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <User className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                                  <div className="min-w-0">
+                                    <p className="text-xs text-muted-foreground">Customer</p>
+                                    <p className="font-medium truncate underline cursor-pointer hover:text-primary">
+                                      {job.customerName}
+                                    </p>
+                                  </div>
+                                </div>
+                              </div>
                             </div>
                           </div>
+
+                          {/* Right side - Amount */}
+                          <div className="flex flex-col items-end justify-center gap-1 min-w-fit">
+                            <p className="text-xs text-muted-foreground uppercase tracking-wide">Amount</p>
+                            <p className={cn("text-3xl sm:text-4xl font-bold font-display", config.amountColor)}>
+                              ${job.amount.toFixed(2)}
+                            </p>
+                          </div>
                         </div>
-                      </Card>
+                      </div>
                     );
                   })}
                 </div>
@@ -342,8 +427,10 @@ const Jobs = () => {
             ))}
 
             {Object.keys(groupedJobs).length === 0 && (
-              <div className="text-center py-12 text-muted-foreground">
-                No jobs found matching your search
+              <div className="app-card p-12 text-center">
+                <Briefcase className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" />
+                <p className="text-muted-foreground font-medium">No jobs found matching your filters</p>
+                <p className="text-sm text-muted-foreground mt-2">Try adjusting your search or date range</p>
               </div>
             )}
           </div>
@@ -351,25 +438,25 @@ const Jobs = () => {
 
         {/* Calendar View */}
         {viewMode === "calendar" && (
-          <div className="bg-card rounded-lg shadow-md p-6">
+          <div className="app-card p-4 sm:p-6">
             {/* Calendar Header */}
             <div className="flex items-center justify-between mb-6">
               <Button
-                variant="ghost"
+                variant="outline"
                 size="icon"
                 onClick={() => navigateMonth('prev')}
-                className="hover:bg-muted"
+                className="hover:bg-primary/10 hover:text-primary hover:border-primary"
               >
                 <ChevronLeft className="h-5 w-5" />
               </Button>
-              <h2 className="text-xl font-semibold text-cyan-500">
+              <h2 className="text-xl sm:text-2xl font-bold text-gradient">
                 {format(currentMonth, "MMMM, yyyy")}
               </h2>
               <Button
-                variant="ghost"
+                variant="outline"
                 size="icon"
                 onClick={() => navigateMonth('next')}
-                className="hover:bg-muted"
+                className="hover:bg-primary/10 hover:text-primary hover:border-primary"
               >
                 <ChevronRight className="h-5 w-5" />
               </Button>
@@ -379,7 +466,7 @@ const Jobs = () => {
             <div className="grid grid-cols-7 gap-2">
               {/* Day Headers */}
               {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
-                <div key={day} className="text-center font-medium text-muted-foreground py-2">
+                <div key={day} className="text-center font-bold text-sm text-muted-foreground py-3">
                   {day}
                 </div>
               ))}
@@ -398,29 +485,27 @@ const Jobs = () => {
                   <div
                     key={day.toISOString()}
                     className={cn(
-                      "aspect-square border rounded-lg p-2 relative",
-                      isCurrentMonth ? "bg-background" : "bg-muted/20",
-                      isToday && "bg-cyan-500 text-white font-bold"
+                      "aspect-square border-2 rounded-xl p-2 relative transition-all hover:scale-105 cursor-pointer",
+                      isCurrentMonth ? "bg-card border-border hover:border-primary/30" : "bg-muted/20 border-transparent",
+                      isToday && "bg-gradient-to-br from-primary to-accent text-white font-bold border-primary shadow-lg"
                     )}
                   >
-                    <div className="text-sm sm:text-base text-center mb-1">
+                    <div className={cn("text-sm sm:text-base text-center mb-1 font-semibold", isToday && "text-white")}>
                       {format(day, "d")}
                     </div>
                     {dayJobs.length > 0 && (
-                      <div className="absolute bottom-1 left-1 right-1 flex gap-0.5 justify-center flex-wrap">
-                        {dayJobs.slice(0, 3).map((job) => (
-                          <div
-                            key={job.id}
-                            className={cn(
-                              "w-1.5 h-1.5 rounded-full",
-                              job.type === "agreement" && "bg-blue-500",
-                              job.type === "invoice" && "bg-orange-500",
-                              job.type === "estimate" && "bg-green-500"
-                            )}
-                          />
-                        ))}
+                      <div className="absolute bottom-2 left-2 right-2 flex gap-1 justify-center flex-wrap">
+                        {dayJobs.slice(0, 3).map((job) => {
+                          const config = getJobConfig(job.type);
+                          return (
+                            <div
+                              key={job.id}
+                              className={cn("w-2 h-2 rounded-full", config.iconColor.replace('text-', 'bg-'))}
+                            />
+                          );
+                        })}
                         {dayJobs.length > 3 && (
-                          <div className="text-[8px] text-muted-foreground">+{dayJobs.length - 3}</div>
+                          <span className="text-[10px] font-bold">+{dayJobs.length - 3}</span>
                         )}
                       </div>
                     )}
@@ -434,5 +519,9 @@ const Jobs = () => {
     </div>
   );
 };
+
+const Label = ({ children, className }: { children: React.ReactNode; className?: string }) => (
+  <label className={className}>{children}</label>
+);
 
 export default Jobs;
