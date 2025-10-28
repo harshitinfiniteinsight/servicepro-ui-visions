@@ -9,6 +9,7 @@ import { SendEmailModal } from "@/components/modals/SendEmailModal";
 import { SendSMSModal } from "@/components/modals/SendSMSModal";
 import { PayCashModal } from "@/components/modals/PayCashModal";
 import { EstimateFormModal } from "@/components/modals/EstimateFormModal";
+import { InvoicePaymentModal } from "@/components/modals/InvoicePaymentModal";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -35,6 +36,8 @@ const Estimates = () => {
   const [selectedEmployee, setSelectedEmployee] = useState("");
   const [payCashModalOpen, setPayCashModalOpen] = useState(false);
   const [estimateFormOpen, setEstimateFormOpen] = useState(false);
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+  const [selectedEstimateForPayment, setSelectedEstimateForPayment] = useState<any>(null);
   const { toast } = useToast();
 
   const filteredEstimates = mockEstimates.filter((estimate) => {
@@ -93,10 +96,8 @@ const Estimates = () => {
   };
 
   const handlePayEstimate = (estimate: any) => {
-    toast({
-      title: "Payment Processing",
-      description: `Processing payment for ${estimate.id}`,
-    });
+    setSelectedEstimateForPayment(estimate);
+    setPaymentModalOpen(true);
   };
 
   const handlePayCash = (estimate: any) => {
@@ -446,6 +447,12 @@ const Estimates = () => {
             </div>
           </DialogContent>
         </Dialog>
+
+        <InvoicePaymentModal
+          open={paymentModalOpen}
+          onOpenChange={setPaymentModalOpen}
+          invoice={selectedEstimateForPayment}
+        />
       </main>
     </div>
   );

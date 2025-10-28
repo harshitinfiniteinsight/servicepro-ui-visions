@@ -4,6 +4,7 @@ import { AppHeader } from "@/components/AppHeader";
 import { InvoiceFormModal } from "@/components/modals/InvoiceFormModal";
 import { SendEmailModal } from "@/components/modals/SendEmailModal";
 import { SendSMSModal } from "@/components/modals/SendSMSModal";
+import { InvoicePaymentModal } from "@/components/modals/InvoicePaymentModal";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -27,6 +28,8 @@ const Invoices = () => {
   const [emailModalOpen, setEmailModalOpen] = useState(false);
   const [smsModalOpen, setSmsModalOpen] = useState(false);
   const [selectedInvoiceForContact, setSelectedInvoiceForContact] = useState<any>(null);
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+  const [selectedInvoiceForPayment, setSelectedInvoiceForPayment] = useState<any>(null);
 
   const filterInvoices = (type: "single" | "recurring" | "deactivated") => {
     return mockInvoices.filter((invoice) => {
@@ -98,6 +101,11 @@ const Invoices = () => {
   const handleSendSMS = (invoice: any) => {
     setSelectedInvoiceForContact(invoice);
     setSmsModalOpen(true);
+  };
+
+  const handlePayNow = (invoice: any) => {
+    setSelectedInvoiceForPayment(invoice);
+    setPaymentModalOpen(true);
   };
 
   const renderSingleInvoiceTable = (invoices: any[]) => (
@@ -200,7 +208,7 @@ const Invoices = () => {
                             <FileText className="h-4 w-4" />
                             Doc History
                           </DropdownMenuItem>
-                          <DropdownMenuItem className="gap-2">
+                          <DropdownMenuItem className="gap-2" onClick={() => handlePayNow(invoice)}>
                             <CreditCard className="h-4 w-4" />
                             Pay Now
                           </DropdownMenuItem>
@@ -324,7 +332,7 @@ const Invoices = () => {
                             <FileText className="h-4 w-4" />
                             Doc History
                           </DropdownMenuItem>
-                          <DropdownMenuItem className="gap-2">
+                          <DropdownMenuItem className="gap-2" onClick={() => handlePayNow(invoice)}>
                             <CreditCard className="h-4 w-4" />
                             Pay Now
                           </DropdownMenuItem>
@@ -556,6 +564,12 @@ const Invoices = () => {
           onOpenChange={setSmsModalOpen}
           customerName={selectedInvoiceForContact?.customerName || ""}
           phoneNumber=""
+        />
+
+        <InvoicePaymentModal
+          open={paymentModalOpen}
+          onOpenChange={setPaymentModalOpen}
+          invoice={selectedInvoiceForPayment}
         />
       </main>
     </div>
