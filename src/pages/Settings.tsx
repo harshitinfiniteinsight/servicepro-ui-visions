@@ -9,7 +9,8 @@ import {
   Languages, 
   HelpCircle, 
   LogOut,
-  ChevronRight
+  ChevronRight,
+  CreditCard
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -49,6 +50,14 @@ const Settings = () => {
       onClick: () => navigate("/settings/business-policies"),
       color: "text-secondary",
       bg: "bg-secondary/10"
+    },
+    {
+      icon: CreditCard,
+      label: "Payment Settings",
+      description: "Configure payment methods and options",
+      onClick: () => navigate("/settings/payment-methods"),
+      color: "text-warning",
+      bg: "bg-warning/10"
     },
     {
       icon: Languages,

@@ -31,6 +31,7 @@ import Help from "./pages/Help";
 import TermsConditions from "./pages/TermsConditions";
 import ReturnPolicy from "./pages/ReturnPolicy";
 import BusinessPolicies from "./pages/BusinessPolicies";
+import PaymentMethods from "./pages/PaymentMethods";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -71,6 +72,7 @@ const App = () => (
                 <Route path="/settings/terms" element={<TermsConditions />} />
                 <Route path="/settings/return-policy" element={<ReturnPolicy />} />
                 <Route path="/settings/business-policies" element={<BusinessPolicies />} />
+                <Route path="/settings/payment-methods" element={<PaymentMethods />} />
                 <Route path="/settings/language" element={<ChangeLanguage />} />
                 <Route path="/settings/help" element={<Help />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
