@@ -20,6 +20,8 @@ import LowInventoryAlertSettings from "./pages/LowInventoryAlertSettings";
 import ManageAppointments from "./pages/ManageAppointments";
 import AddAppointment from "./pages/AddAppointment";
 import Reports from "./pages/Reports";
+import InvoiceReport from "./pages/InvoiceReport";
+import EstimateReport from "./pages/EstimateReport";
 import Settings from "./pages/Settings";
 import Profile from "./pages/Profile";
 import ChangePassword from "./pages/ChangePassword";
@@ -60,6 +62,8 @@ const App = () => (
                 <Route path="/inventory" element={<Inventory />} />
                 <Route path="/inventory/alert-settings" element={<LowInventoryAlertSettings />} />
                 <Route path="/reports" element={<Reports />} />
+                <Route path="/reports/invoice" element={<InvoiceReport />} />
+                <Route path="/reports/estimate" element={<EstimateReport />} />
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/settings/profile" element={<Profile />} />
                 <Route path="/settings/change-password" element={<ChangePassword />} />
