@@ -3,31 +3,76 @@ import { AppHeader } from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, FileText, Calendar, Eye } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { Plus, FileText, Calendar as CalendarIcon, Eye, Mail, MessageSquare, Edit, DollarSign, Wallet, CalendarRange } from "lucide-react";
 import { mockAgreements } from "@/data/mockData";
 import { AddAgreementModal } from "@/components/modals/AddAgreementModal";
+import { SendEmailModal } from "@/components/modals/SendEmailModal";
+import { SendSMSModal } from "@/components/modals/SendSMSModal";
+import { PayCashModal } from "@/components/modals/PayCashModal";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 const Agreements = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [addAgreementOpen, setAddAgreementOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("all");
+  const [dateRange, setDateRange] = useState<{ from: Date | undefined; to: Date | undefined }>({
+    from: undefined,
+    to: undefined,
+  });
+  const [sendEmailOpen, setSendEmailOpen] = useState(false);
+  const [sendSMSOpen, setSendSMSOpen] = useState(false);
+  const [payCashOpen, setPayCashOpen] = useState(false);
+  const [selectedAgreement, setSelectedAgreement] = useState<any>(null);
+  const [editAgreementOpen, setEditAgreementOpen] = useState(false);
 
-  const filteredAgreements = mockAgreements.filter((agreement) =>
-    agreement.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    agreement.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    agreement.title.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredAgreements = mockAgreements.filter((agreement) => {
+    const matchesSearch = agreement.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      agreement.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      agreement.title.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const matchesTab = activeTab === "all" || agreement.status === activeTab;
+    
+    const agreementDate = new Date(agreement.startDate);
+    const matchesDateRange = 
+      (!dateRange.from || agreementDate >= dateRange.from) &&
+      (!dateRange.to || agreementDate <= dateRange.to);
+    
+    return matchesSearch && matchesTab && matchesDateRange;
+  });
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "Active":
+      case "Paid":
         return "bg-success/10 text-success border-success/20";
-      case "Expired":
-        return "bg-destructive/10 text-destructive border-destructive/20";
-      case "Pending":
-        return "bg-warning/10 text-warning border-warning/20";
+      case "Open":
+        return "bg-primary/10 text-primary border-primary/20";
       default:
         return "bg-muted text-muted-foreground";
     }
+  };
+
+  const handleSendEmail = (agreement: any) => {
+    setSelectedAgreement(agreement);
+    setSendEmailOpen(true);
+  };
+
+  const handleSendSMS = (agreement: any) => {
+    setSelectedAgreement(agreement);
+    setSendSMSOpen(true);
+  };
+
+  const handlePayCash = (agreement: any) => {
+    setSelectedAgreement(agreement);
+    setPayCashOpen(true);
+  };
+
+  const handleUpdateAgreement = (agreement: any) => {
+    setSelectedAgreement(agreement);
+    setEditAgreementOpen(true);
   };
 
   return (
@@ -35,81 +80,212 @@ const Agreements = () => {
       <AppHeader searchPlaceholder="Search agreements..." onSearchChange={setSearchQuery} />
 
       <main className="px-6 py-6 space-y-6 animate-fade-in">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">Agreements</h1>
-              <p className="text-muted-foreground">Manage service contracts and agreements</p>
-            </div>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground">Agreements</h1>
+            <p className="text-muted-foreground">Manage service contracts and agreements</p>
+          </div>
+          <div className="flex gap-3">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className="gap-2">
+                  <CalendarRange className="h-4 w-4" />
+                  {dateRange.from ? (
+                    dateRange.to ? (
+                      <>
+                        {format(dateRange.from, "MMM dd, yyyy")} - {format(dateRange.to, "MMM dd, yyyy")}
+                      </>
+                    ) : (
+                      format(dateRange.from, "MMM dd, yyyy")
+                    )
+                  ) : (
+                    "Date Range"
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="end">
+                <div className="p-3 space-y-3">
+                  <div>
+                    <p className="text-sm font-medium mb-2">From Date</p>
+                    <Calendar
+                      mode="single"
+                      selected={dateRange.from}
+                      onSelect={(date) => setDateRange({ ...dateRange, from: date })}
+                      className="pointer-events-auto"
+                    />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium mb-2">To Date</p>
+                    <Calendar
+                      mode="single"
+                      selected={dateRange.to}
+                      onSelect={(date) => setDateRange({ ...dateRange, to: date })}
+                      disabled={(date) => dateRange.from ? date < dateRange.from : false}
+                      className="pointer-events-auto"
+                    />
+                  </div>
+                  {(dateRange.from || dateRange.to) && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full"
+                      onClick={() => setDateRange({ from: undefined, to: undefined })}
+                    >
+                      Clear Filter
+                    </Button>
+                  )}
+                </div>
+              </PopoverContent>
+            </Popover>
             <Button className="gap-2" onClick={() => setAddAgreementOpen(true)}>
               <Plus className="h-5 w-5" />
               New Agreement
             </Button>
           </div>
-
-        <div className="grid gap-4">
-          {filteredAgreements.map((agreement) => (
-            <Card key={agreement.id} className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-              <CardHeader className="pb-4 bg-gradient-to-r from-card to-success/5">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <CardTitle className="text-xl mb-1">{agreement.title}</CardTitle>
-                    <p className="text-sm text-muted-foreground">
-                      {agreement.id} • {agreement.customerName}
-                    </p>
-                  </div>
-                  <div className="flex gap-2">
-                    <Badge variant="outline" className="border-border">{agreement.type}</Badge>
-                    <Badge className={getStatusColor(agreement.status)} variant="outline">{agreement.status}</Badge>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4 pt-4">
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
-                  <div className="bg-muted/30 p-3 rounded-lg">
-                    <p className="text-muted-foreground text-xs flex items-center gap-1">
-                      <Calendar className="h-3 w-3" />
-                      Start Date
-                    </p>
-                    <p className="font-medium mt-1">{new Date(agreement.startDate).toLocaleDateString()}</p>
-                  </div>
-                  <div className="bg-muted/30 p-3 rounded-lg">
-                    <p className="text-muted-foreground text-xs flex items-center gap-1">
-                      <Calendar className="h-3 w-3" />
-                      End Date
-                    </p>
-                    <p className="font-medium mt-1">{new Date(agreement.endDate).toLocaleDateString()}</p>
-                  </div>
-                  <div className="bg-primary/5 p-3 rounded-lg border border-primary/20">
-                    <p className="text-primary text-xs">Annual Value</p>
-                    <p className="text-2xl font-bold text-primary">${agreement.amount.toLocaleString()}</p>
-                  </div>
-                </div>
-
-                <div className="border-t pt-4 bg-muted/10 -mx-6 px-6 py-3 rounded-b-lg">
-                  <p className="text-sm font-medium mb-2 flex items-center gap-2">
-                    <FileText className="h-4 w-4" />
-                    Terms & Conditions:
-                  </p>
-                  <div className="bg-card p-4 rounded-lg border border-border/50 text-sm">
-                    {agreement.terms}
-                  </div>
-                </div>
-
-                <div className="flex gap-2 pt-2">
-                  <Button variant="outline" size="sm" className="gap-2 hover:bg-primary/5 hover:text-primary hover:border-primary">
-                    <Eye className="h-4 w-4" />
-                    View Details
-                  </Button>
-                  <Button variant="outline" size="sm">Renew</Button>
-                  <Button size="sm" className="ml-auto">Edit Agreement</Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
         </div>
+
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList>
+            <TabsTrigger value="all">All</TabsTrigger>
+            <TabsTrigger value="Paid">Paid</TabsTrigger>
+            <TabsTrigger value="Open">Open</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value={activeTab} className="mt-6">
+
+            <div className="grid gap-4">
+              {filteredAgreements.map((agreement) => (
+                <Card key={agreement.id} className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                  <CardHeader className="pb-4 bg-gradient-to-r from-card to-success/5">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <CardTitle className="text-xl mb-1">{agreement.title}</CardTitle>
+                        <p className="text-sm text-muted-foreground">
+                          {agreement.id} • {agreement.customerName}
+                        </p>
+                      </div>
+                      <div className="flex gap-2">
+                        <Badge variant="outline" className="border-border">{agreement.type}</Badge>
+                        <Badge className={getStatusColor(agreement.status)} variant="outline">{agreement.status}</Badge>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-4 pt-4">
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+                      <div className="bg-muted/30 p-3 rounded-lg">
+                        <p className="text-muted-foreground text-xs flex items-center gap-1">
+                          <CalendarIcon className="h-3 w-3" />
+                          Start Date
+                        </p>
+                        <p className="font-medium mt-1">{new Date(agreement.startDate).toLocaleDateString()}</p>
+                      </div>
+                      <div className="bg-muted/30 p-3 rounded-lg">
+                        <p className="text-muted-foreground text-xs flex items-center gap-1">
+                          <CalendarIcon className="h-3 w-3" />
+                          End Date
+                        </p>
+                        <p className="font-medium mt-1">{new Date(agreement.endDate).toLocaleDateString()}</p>
+                      </div>
+                      <div className="bg-primary/5 p-3 rounded-lg border border-primary/20">
+                        <p className="text-primary text-xs">Annual Value</p>
+                        <p className="text-2xl font-bold text-primary">${agreement.amount.toLocaleString()}</p>
+                      </div>
+                    </div>
+
+                    <div className="border-t pt-4 bg-muted/10 -mx-6 px-6 py-3 rounded-b-lg">
+                      <p className="text-sm font-medium mb-2 flex items-center gap-2">
+                        <FileText className="h-4 w-4" />
+                        Terms & Conditions:
+                      </p>
+                      <div className="bg-card p-4 rounded-lg border border-border/50 text-sm">
+                        {agreement.terms}
+                      </div>
+                    </div>
+
+                    <div className="flex flex-wrap gap-2 pt-2">
+                      <Button variant="outline" size="sm" className="gap-2 hover:bg-primary/5 hover:text-primary hover:border-primary">
+                        <Eye className="h-4 w-4" />
+                        Preview Agreement
+                      </Button>
+                      
+                      {agreement.status === "Open" && (
+                        <>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="gap-2"
+                            onClick={() => handleSendEmail(agreement)}
+                          >
+                            <Mail className="h-4 w-4" />
+                            Send Email
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="gap-2"
+                            onClick={() => handleSendSMS(agreement)}
+                          >
+                            <MessageSquare className="h-4 w-4" />
+                            Send SMS
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="gap-2"
+                            onClick={() => handleUpdateAgreement(agreement)}
+                          >
+                            <Edit className="h-4 w-4" />
+                            Update Agreement
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            className="gap-2"
+                          >
+                            <DollarSign className="h-4 w-4" />
+                            Pay Now
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            className="gap-2"
+                            onClick={() => handlePayCash(agreement)}
+                          >
+                            <Wallet className="h-4 w-4" />
+                            Pay Cash
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </TabsContent>
+        </Tabs>
       </main>
 
       <AddAgreementModal open={addAgreementOpen} onOpenChange={setAddAgreementOpen} />
+      <AddAgreementModal 
+        open={editAgreementOpen} 
+        onOpenChange={setEditAgreementOpen}
+        existingAgreement={selectedAgreement}
+      />
+      <SendEmailModal
+        open={sendEmailOpen}
+        onOpenChange={setSendEmailOpen}
+        customerEmail={selectedAgreement?.customerEmail || ""}
+      />
+      <SendSMSModal
+        open={sendSMSOpen}
+        onOpenChange={setSendSMSOpen}
+        customerName={selectedAgreement?.customerName || ""}
+        phoneNumber={selectedAgreement?.customerPhone || ""}
+      />
+      <PayCashModal
+        open={payCashOpen}
+        onOpenChange={setPayCashOpen}
+        orderAmount={selectedAgreement?.amount || 0}
+        orderId={selectedAgreement?.id || ""}
+      />
     </div>
   );
 };

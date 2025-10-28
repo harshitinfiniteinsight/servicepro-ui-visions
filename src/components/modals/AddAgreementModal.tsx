@@ -20,9 +20,10 @@ import { cn } from "@/lib/utils";
 interface AddAgreementModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  existingAgreement?: any;
 }
 
-export function AddAgreementModal({ open, onOpenChange }: AddAgreementModalProps) {
+export function AddAgreementModal({ open, onOpenChange, existingAgreement }: AddAgreementModalProps) {
   const { toast } = useToast();
   const [step, setStep] = useState(1);
   const [quickAddCustomerOpen, setQuickAddCustomerOpen] = useState(false);
