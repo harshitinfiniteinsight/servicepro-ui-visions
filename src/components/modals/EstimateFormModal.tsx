@@ -94,7 +94,7 @@ export const EstimateFormModal = ({ open, onOpenChange, estimate, mode }: Estima
             <DialogTitle className="flex items-center justify-between text-2xl">
               <span className="flex items-center gap-2">
                 <FileText className="h-6 w-6" />
-                Service Pro911 - {mode === "create" ? "New Estimate" : "Edit Estimate"}
+                Add new estimate
               </span>
             </DialogTitle>
           </DialogHeader>
@@ -427,7 +427,7 @@ export const EstimateFormModal = ({ open, onOpenChange, estimate, mode }: Estima
                 Cancel
               </Button>
               <Button type="submit" disabled={items.length === 0 || !formData.customerId} className="min-w-[180px] h-11 shadow-lg hover:shadow-xl transition-all">
-                {mode === "create" ? "CREATE ESTIMATE" : "SAVE CHANGES"}
+                CREATE ESTIMATE
               </Button>
             </DialogFooter>
           </form>

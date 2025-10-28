@@ -414,6 +414,7 @@ const Estimates = () => {
         <EstimateFormModal
           open={estimateFormOpen}
           onOpenChange={setEstimateFormOpen}
+          mode="create"
         />
 
         <Dialog open={reassignModalOpen} onOpenChange={setReassignModalOpen}>
