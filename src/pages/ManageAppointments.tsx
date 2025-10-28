@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { AddNoteModal } from "@/components/modals/AddNoteModal";
 import { ShareAppointmentModal } from "@/components/modals/ShareAppointmentModal";
 import { AppointmentDetailsModal } from "@/components/modals/AppointmentDetailsModal";
+import { EditAppointmentModal } from "@/components/modals/EditAppointmentModal";
 import { useToast } from "@/hooks/use-toast";
 
 const ManageAppointments = () => {
@@ -24,6 +25,7 @@ const ManageAppointments = () => {
   const [addNoteOpen, setAddNoteOpen] = useState(false);
   const [shareAppointmentOpen, setShareAppointmentOpen] = useState(false);
   const [appointmentDetailsOpen, setAppointmentDetailsOpen] = useState(false);
+  const [editAppointmentOpen, setEditAppointmentOpen] = useState(false);
   const [currentAppointmentId, setCurrentAppointmentId] = useState("");
   const [selectedAppointment, setSelectedAppointment] = useState<any>(null);
   const [editAppointmentData, setEditAppointmentData] = useState<any>(null);
@@ -130,6 +132,15 @@ const ManageAppointments = () => {
   const handleAppointmentClick = (appointment: any) => {
     setSelectedAppointment(appointment);
     setAppointmentDetailsOpen(true);
+  };
+
+  const handleEditAppointment = (appointmentId: string, data: any) => {
+    setAppointments(appointments.map(apt => {
+      if (apt.id === appointmentId) {
+        return { ...apt, ...data };
+      }
+      return apt;
+    }));
   };
 
   return (
@@ -464,7 +475,7 @@ const ManageAppointments = () => {
                             className="gap-2"
                             onClick={() => {
                               setEditAppointmentData(apt);
-                              navigate("/appointments/add", { state: { appointment: apt } });
+                              setEditAppointmentOpen(true);
                             }}
                           >
                             <Edit className="h-4 w-4" />
@@ -482,7 +493,7 @@ const ManageAppointments = () => {
                             <StickyNote className="h-4 w-4" />
                             Add Note
                           </Button>
-                          {apt.status === "Active" && (
+                          {apt.status === "Active" ? (
                             <>
                               <Button
                                 variant="outline"
@@ -502,9 +513,18 @@ const ManageAppointments = () => {
                                 className="gap-2"
                                 onClick={() => handleToggleAppointmentStatus(apt.id)}
                               >
-                                {apt.status === "Active" ? "Deactivate" : "Activate"}
+                                Deactivate
                               </Button>
                             </>
+                          ) : (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="gap-2"
+                              onClick={() => handleToggleAppointmentStatus(apt.id)}
+                            >
+                              Activate
+                            </Button>
                           )}
                         </div>
                       </div>
@@ -534,6 +554,23 @@ const ManageAppointments = () => {
         onOpenChange={setAppointmentDetailsOpen}
         appointment={selectedAppointment}
         onToggleStatus={handleToggleAppointmentStatus}
+        onEdit={(apt) => {
+          setEditAppointmentData(apt);
+          setEditAppointmentOpen(true);
+          setAppointmentDetailsOpen(false);
+        }}
+        onAddNote={(apt) => {
+          setCurrentAppointmentId(apt.id);
+          setAddNoteOpen(true);
+          setAppointmentDetailsOpen(false);
+        }}
+      />
+
+      <EditAppointmentModal
+        open={editAppointmentOpen}
+        onOpenChange={setEditAppointmentOpen}
+        appointment={editAppointmentData}
+        onSave={handleEditAppointment}
       />
     </div>
   );

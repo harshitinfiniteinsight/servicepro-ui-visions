@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Edit, Trash2, Link2, FileText, Receipt, Users } from "lucide-react";
+import { Edit, StickyNote, Link2, FileText, Receipt, Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 interface AppointmentDetailsModalProps {
@@ -28,6 +28,8 @@ interface AppointmentDetailsModalProps {
     status: "Active" | "Deactivated";
   } | null;
   onToggleStatus: (appointmentId: string) => void;
+  onEdit: (appointment: any) => void;
+  onAddNote: (appointment: any) => void;
 }
 
 export const AppointmentDetailsModal = ({
@@ -35,6 +37,8 @@ export const AppointmentDetailsModal = ({
   onOpenChange,
   appointment,
   onToggleStatus,
+  onEdit,
+  onAddNote,
 }: AppointmentDetailsModalProps) => {
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -51,26 +55,29 @@ export const AppointmentDetailsModal = ({
   };
 
   const handleCreateEstimate = () => {
-    navigate("/estimates");
+    navigate("/estimates", { state: { customer: appointment.customerName, employee: appointment.employee } });
+    onOpenChange(false);
     toast({
       title: "Create Estimate",
-      description: "Redirecting to estimates page...",
+      description: "Opening estimate form with pre-selected customer and employee",
     });
   };
 
   const handleCreateInvoice = () => {
-    navigate("/invoices");
+    navigate("/invoices", { state: { customer: appointment.customerName, employee: appointment.employee } });
+    onOpenChange(false);
     toast({
       title: "Create Invoice",
-      description: "Redirecting to invoices page...",
+      description: "Opening invoice form with pre-selected customer and employee",
     });
   };
 
   const handleViewCustomer = () => {
-    navigate("/customers");
+    navigate(`/customers/${appointment.customerName}`);
+    onOpenChange(false);
     toast({
       title: "View Customer",
-      description: "Redirecting to customer details...",
+      description: `Opening details for ${appointment.customerName}`,
     });
   };
 
@@ -87,11 +94,21 @@ export const AppointmentDetailsModal = ({
               >
                 {appointment.status}
               </Badge>
-              <Button variant="ghost" size="icon" className="h-8 w-8">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="h-8 w-8"
+                onClick={() => onEdit(appointment)}
+              >
                 <Edit className="h-4 w-4" />
               </Button>
-              <Button variant="ghost" size="icon" className="h-8 w-8">
-                <Trash2 className="h-4 w-4" />
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="h-8 w-8"
+                onClick={() => onAddNote(appointment)}
+              >
+                <StickyNote className="h-4 w-4" />
               </Button>
               <Button variant="ghost" size="icon" className="h-8 w-8">
                 <Link2 className="h-4 w-4" />
