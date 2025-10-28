@@ -36,6 +36,7 @@ import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import Walkthrough from "./pages/Walkthrough";
 import NotFound from "./pages/NotFound";
+import { AIChatWidget } from "./components/AIChatWidget";
 
 const queryClient = new QueryClient();
 
@@ -47,6 +48,7 @@ const AppContent = () => {
     <div className="flex min-h-screen w-full bg-muted/30">
       {!isAuthPage && <AppSidebar />}
       <div className="flex-1">
+        {!isAuthPage && <AIChatWidget />}
         <Routes>
           <Route path="/signin" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
