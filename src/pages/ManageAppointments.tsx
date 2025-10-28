@@ -12,6 +12,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { AddNoteModal } from "@/components/modals/AddNoteModal";
 import { ShareAppointmentModal } from "@/components/modals/ShareAppointmentModal";
+import { AppointmentDetailsModal } from "@/components/modals/AppointmentDetailsModal";
 import { useToast } from "@/hooks/use-toast";
 
 const ManageAppointments = () => {
@@ -22,7 +23,9 @@ const ManageAppointments = () => {
   const [selectedAppointments, setSelectedAppointments] = useState<string[]>([]);
   const [addNoteOpen, setAddNoteOpen] = useState(false);
   const [shareAppointmentOpen, setShareAppointmentOpen] = useState(false);
+  const [appointmentDetailsOpen, setAppointmentDetailsOpen] = useState(false);
   const [currentAppointmentId, setCurrentAppointmentId] = useState("");
+  const [selectedAppointment, setSelectedAppointment] = useState<any>(null);
   const [editAppointmentData, setEditAppointmentData] = useState<any>(null);
 
   const initialAppointments = [
@@ -110,14 +113,23 @@ const ManageAppointments = () => {
 
   const [appointments, setAppointments] = useState(initialAppointments);
 
-  const handleDeactivateAppointment = (appointmentId: string) => {
-    setAppointments(appointments.map(apt => 
-      apt.id === appointmentId ? { ...apt, status: "Deactivated" as const } : apt
-    ));
-    toast({
-      title: "Appointment Deactivated",
-      description: "The appointment has been deactivated successfully.",
-    });
+  const handleToggleAppointmentStatus = (appointmentId: string) => {
+    setAppointments(appointments.map(apt => {
+      if (apt.id === appointmentId) {
+        const newStatus = apt.status === "Active" ? "Deactivated" : "Active";
+        toast({
+          title: `Appointment ${newStatus}`,
+          description: `The appointment has been ${newStatus.toLowerCase()} successfully.`,
+        });
+        return { ...apt, status: newStatus as "Active" | "Deactivated" };
+      }
+      return apt;
+    }));
+  };
+
+  const handleAppointmentClick = (appointment: any) => {
+    setSelectedAppointment(appointment);
+    setAppointmentDetailsOpen(true);
   };
 
   return (
@@ -234,7 +246,11 @@ const ManageAppointments = () => {
                             {cellDate.getDate()}
                           </div>
                           {dayAppointments.slice(0, 3).map((apt) => (
-                            <div key={apt.id} className="text-xs p-1 mb-1 bg-primary/10 rounded border border-primary/20 truncate hover:bg-primary/20">
+                            <div 
+                              key={apt.id} 
+                              className="text-xs p-1 mb-1 bg-primary/10 rounded border border-primary/20 truncate hover:bg-primary/20 cursor-pointer transition-colors"
+                              onClick={() => handleAppointmentClick(apt)}
+                            >
                               <div className="font-medium">{apt.startTime}</div>
                               <div className="truncate text-muted-foreground">{apt.subject}</div>
                             </div>
@@ -276,7 +292,11 @@ const ManageAppointments = () => {
                           <div className="space-y-2">
                             {dayAppointments.length > 0 ? (
                               dayAppointments.map((apt) => (
-                                <div key={apt.id} className="p-2 bg-primary/10 rounded-lg border border-primary/20 hover:bg-primary/20 transition-colors cursor-pointer">
+                                <div 
+                                  key={apt.id} 
+                                  className="p-2 bg-primary/10 rounded-lg border border-primary/20 hover:bg-primary/20 transition-colors cursor-pointer"
+                                  onClick={() => handleAppointmentClick(apt)}
+                                >
                                   <div className="text-xs font-bold text-primary mb-1">{apt.startTime}</div>
                                   <div className="text-xs font-semibold text-foreground truncate">{apt.subject}</div>
                                   <div className="text-xs text-muted-foreground truncate">{apt.customerName}</div>
@@ -325,7 +345,11 @@ const ManageAppointments = () => {
                           <div className="flex-1 space-y-2">
                             {hourAppointments.length > 0 ? (
                               hourAppointments.map((apt) => (
-                                <div key={apt.id} className="p-3 bg-primary/10 rounded-lg border border-primary/30 hover:bg-primary/20 transition-colors cursor-pointer">
+                                <div 
+                                  key={apt.id} 
+                                  className="p-3 bg-primary/10 rounded-lg border border-primary/30 hover:bg-primary/20 transition-colors cursor-pointer"
+                                  onClick={() => handleAppointmentClick(apt)}
+                                >
                                   <div className="flex items-start justify-between">
                                     <div className="flex-1">
                                       <p className="font-bold text-foreground">{apt.subject}</p>
@@ -476,9 +500,9 @@ const ManageAppointments = () => {
                                 variant="outline"
                                 size="sm"
                                 className="gap-2"
-                                onClick={() => handleDeactivateAppointment(apt.id)}
+                                onClick={() => handleToggleAppointmentStatus(apt.id)}
                               >
-                                Deactivate
+                                {apt.status === "Active" ? "Deactivate" : "Activate"}
                               </Button>
                             </>
                           )}
@@ -503,6 +527,13 @@ const ManageAppointments = () => {
         open={shareAppointmentOpen}
         onOpenChange={setShareAppointmentOpen}
         selectedAppointments={selectedAppointments}
+      />
+
+      <AppointmentDetailsModal
+        open={appointmentDetailsOpen}
+        onOpenChange={setAppointmentDetailsOpen}
+        appointment={selectedAppointment}
+        onToggleStatus={handleToggleAppointmentStatus}
       />
     </div>
   );
