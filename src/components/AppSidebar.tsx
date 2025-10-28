@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { Home, Users, Briefcase, FileText, FileCheck, ClipboardList, UserCheck, Settings, BarChart3, Package, ChevronDown, DollarSign, Calendar, MapPinned, Clock } from "lucide-react";
+import { Home, Users, Briefcase, FileText, FileCheck, ClipboardList, UserCheck, Settings, BarChart3, Package, ChevronDown, DollarSign, Calendar, MapPinned, Clock, ArrowUpCircle, RotateCcw } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -40,9 +40,14 @@ const employeeItems = [
   { title: "Tracking", url: "/employees/tracking", icon: MapPinned },
 ];
 
+const inventoryItems = [
+  { title: "Inventory List", url: "/inventory", icon: Package },
+  { title: "Stock In/Out", url: "/inventory/stock-in-out", icon: ArrowUpCircle },
+  { title: "Refunds", url: "/inventory/refunds", icon: RotateCcw },
+];
+
 const mainItems = [
   { title: "Customers", url: "/customers", icon: Users },
-  { title: "Inventory/Services", url: "/inventory", icon: Package },
   { title: "Reports", url: "/reports", icon: BarChart3 },
   { title: "Settings", url: "/settings", icon: Settings },
 ];
@@ -53,6 +58,7 @@ export function AppSidebar() {
   const [salesOpen, setSalesOpen] = useState(true);
   const [appointmentsOpen, setAppointmentsOpen] = useState(true);
   const [employeesOpen, setEmployeesOpen] = useState(true);
+  const [inventoryOpen, setInventoryOpen] = useState(true);
 
   const getNavClass = (path: string) => {
     const isActive = location.pathname === path;
@@ -64,6 +70,7 @@ export function AppSidebar() {
   const isSalesActive = salesItems.some(item => location.pathname === item.url);
   const isAppointmentsActive = appointmentItems.some(item => location.pathname === item.url);
   const isEmployeesActive = employeeItems.some(item => location.pathname === item.url);
+  const isInventoryActive = inventoryItems.some(item => location.pathname === item.url);
 
   return (
     <Sidebar className="border-r border-border">
@@ -155,6 +162,33 @@ export function AppSidebar() {
                   <CollapsibleContent>
                     <SidebarMenuSub>
                       {employeeItems.map((item) => (
+                        <SidebarMenuSubItem key={item.title}>
+                          <SidebarMenuSubButton asChild>
+                            <NavLink to={item.url} className={getNavClass(item.url)}>
+                              <item.icon className="h-4 w-4" />
+                              <span>{item.title}</span>
+                            </NavLink>
+                          </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                      ))}
+                    </SidebarMenuSub>
+                  </CollapsibleContent>
+                </SidebarMenuItem>
+              </Collapsible>
+
+              {/* Inventory Collapsible Group */}
+              <Collapsible open={inventoryOpen} onOpenChange={setInventoryOpen} className="group/collapsible">
+                <SidebarMenuItem>
+                  <CollapsibleTrigger asChild>
+                    <SidebarMenuButton className={isInventoryActive ? "bg-primary/10 text-primary" : ""}>
+                      <Package className="h-5 w-5" />
+                      <span>Inventory</span>
+                      <ChevronDown className="ml-auto h-4 w-4 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-180" />
+                    </SidebarMenuButton>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <SidebarMenuSub>
+                      {inventoryItems.map((item) => (
                         <SidebarMenuSubItem key={item.title}>
                           <SidebarMenuSubButton asChild>
                             <NavLink to={item.url} className={getNavClass(item.url)}>

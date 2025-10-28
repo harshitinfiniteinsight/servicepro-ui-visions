@@ -61,7 +61,7 @@ const Inventory = () => {
         </div>
 
         <Tabs value={selectedTab} onValueChange={setSelectedTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 h-auto p-1 bg-muted">
+          <TabsList className="grid w-full grid-cols-3 h-auto p-1 bg-muted">
             <TabsTrigger value="inventory" className="gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm py-2.5">
               <Package className="h-4 w-4" />
               <span className="text-xs sm:text-sm">Inventory</span>
@@ -69,10 +69,6 @@ const Inventory = () => {
             <TabsTrigger value="agreement-inventory" className="gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm py-2.5">
               <FileText className="h-4 w-4" />
               <span className="text-xs sm:text-sm">Agreement</span>
-            </TabsTrigger>
-            <TabsTrigger value="discounts" className="gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm py-2.5">
-              <Tags className="h-4 w-4" />
-              <span className="text-xs sm:text-sm">Discounts</span>
             </TabsTrigger>
             <TabsTrigger value="equipment" className="gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm py-2.5">
               <Wrench className="h-4 w-4" />
@@ -90,6 +86,14 @@ const Inventory = () => {
                 </Button>
                 <Button variant="outline" className="gap-2 shadow-sm hover:shadow-md hover:bg-muted transition-all">
                   <span className="text-sm">Generate Report</span>
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="gap-2 shadow-sm hover:shadow-md hover:bg-muted transition-all"
+                  onClick={() => navigate("/inventory/discounts")}
+                >
+                  <Tags className="h-4 w-4" />
+                  <span className="text-sm">Discounts</span>
                 </Button>
               </div>
               
@@ -358,73 +362,6 @@ const Inventory = () => {
                 ))}
               </CardContent>
             </Card>
-          </TabsContent>
-
-          {/* Discounts Tab */}
-          <TabsContent value="discounts" className="space-y-4 mt-6">
-            <div className="flex justify-end">
-              <Button 
-                onClick={() => setDiscountModalOpen(true)} 
-                className="gap-2 shadow-md hover:shadow-lg transition-all"
-              >
-                <Plus className="h-4 w-4" />
-                <span className="text-sm">Add Discount</span>
-              </Button>
-            </div>
-
-            <div className="grid gap-4">
-              {mockDiscounts.map((discount) => (
-                <Card 
-                  key={discount.id} 
-                  className="border border-border bg-card shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden"
-                >
-                  <CardContent className="p-5 sm:p-6">
-                    <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
-                      <div className="flex-1">
-                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-3">
-                          <h3 className="font-bold text-lg text-foreground">{discount.name}</h3>
-                          {discount.isDefault && (
-                            <Badge variant="outline" className="w-fit bg-primary/15 text-primary border-primary/40 font-semibold px-3 py-1 shadow-sm">
-                              Default
-                            </Badge>
-                          )}
-                        </div>
-                        <div className="flex flex-wrap gap-3 sm:gap-4">
-                          <div className="px-4 py-2 bg-accent/10 rounded-lg border border-accent/20">
-                            <span className="text-xs text-muted-foreground block">Value</span>
-                            <span className="font-bold text-xl text-accent">{discount.value}{discount.type}</span>
-                          </div>
-                          <div className="px-4 py-2 bg-muted rounded-lg border border-border">
-                            <span className="text-xs text-muted-foreground block">Type</span>
-                            <span className="font-semibold text-sm text-foreground">
-                              {discount.type === "%" ? "Percentage" : "Fixed Amount"}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex gap-2 w-full lg:w-auto">
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="gap-2 flex-1 lg:flex-initial hover:bg-primary/10 hover:text-primary hover:border-primary transition-all font-medium"
-                        >
-                          <Edit className="h-4 w-4" />
-                          <span className="text-sm">Edit</span>
-                        </Button>
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="gap-2 flex-1 lg:flex-initial text-destructive hover:bg-destructive/10 hover:text-destructive hover:border-destructive transition-all font-medium"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                          <span className="text-sm">Delete</span>
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
           </TabsContent>
 
           {/* Equipment Tab */}

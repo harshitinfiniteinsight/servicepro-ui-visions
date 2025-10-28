@@ -19,6 +19,9 @@ import EmployeeSchedule from "./pages/EmployeeSchedule";
 import EmployeeTracking from "./pages/EmployeeTracking";
 import Inventory from "./pages/Inventory";
 import LowInventoryAlertSettings from "./pages/LowInventoryAlertSettings";
+import InventoryStockInOut from "./pages/InventoryStockInOut";
+import InventoryRefund from "./pages/InventoryRefund";
+import Discounts from "./pages/Discounts";
 import ManageAppointments from "./pages/ManageAppointments";
 import AddAppointment from "./pages/AddAppointment";
 import Reports from "./pages/Reports";
@@ -72,6 +75,9 @@ const AppContent = () => {
           <Route path="/employees/tracking" element={<EmployeeTracking />} />
           <Route path="/inventory" element={<Inventory />} />
           <Route path="/inventory/alert-settings" element={<LowInventoryAlertSettings />} />
+          <Route path="/inventory/stock-in-out" element={<InventoryStockInOut />} />
+          <Route path="/inventory/refunds" element={<InventoryRefund />} />
+          <Route path="/inventory/discounts" element={<Discounts />} />
           <Route path="/reports" element={<Reports />} />
           <Route path="/reports/invoice" element={<InvoiceReport />} />
           <Route path="/reports/estimate" element={<EstimateReport />} />
