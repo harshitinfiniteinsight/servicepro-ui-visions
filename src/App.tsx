@@ -21,6 +21,13 @@ import ManageAppointments from "./pages/ManageAppointments";
 import AddAppointment from "./pages/AddAppointment";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
+import Profile from "./pages/Profile";
+import ChangePassword from "./pages/ChangePassword";
+import PermissionSettings from "./pages/PermissionSettings";
+import ChangeLanguage from "./pages/ChangeLanguage";
+import Help from "./pages/Help";
+import TermsConditions from "./pages/TermsConditions";
+import ReturnPolicy from "./pages/ReturnPolicy";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -53,6 +60,13 @@ const App = () => (
                 <Route path="/inventory/alert-settings" element={<LowInventoryAlertSettings />} />
                 <Route path="/reports" element={<Reports />} />
                 <Route path="/settings" element={<Settings />} />
+                <Route path="/settings/profile" element={<Profile />} />
+                <Route path="/settings/change-password" element={<ChangePassword />} />
+                <Route path="/settings/permissions" element={<PermissionSettings />} />
+                <Route path="/settings/terms" element={<TermsConditions />} />
+                <Route path="/settings/return-policy" element={<ReturnPolicy />} />
+                <Route path="/settings/language" element={<ChangeLanguage />} />
+                <Route path="/settings/help" element={<Help />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
