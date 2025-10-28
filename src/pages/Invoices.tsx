@@ -5,13 +5,14 @@ import { InvoiceFormModal } from "@/components/modals/InvoiceFormModal";
 import { SendEmailModal } from "@/components/modals/SendEmailModal";
 import { SendSMSModal } from "@/components/modals/SendSMSModal";
 import { InvoicePaymentModal } from "@/components/modals/InvoicePaymentModal";
+import { LinkModulesModal } from "@/components/modals/LinkModulesModal";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Plus, Eye, Mail, MessageSquare, Edit, UserCog, FileText, CreditCard, Banknote, MoreVertical, Trash2, Check, X, CheckCircle2, Bell, Settings } from "lucide-react";
+import { Plus, Eye, Mail, MessageSquare, Edit, UserCog, FileText, CreditCard, Banknote, MoreVertical, Trash2, Check, X, CheckCircle2, Bell, Settings, FileCheck, RotateCcw } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { mockInvoices } from "@/data/mockData";
 import { toast } from "sonner";
@@ -30,6 +31,9 @@ const Invoices = () => {
   const [selectedInvoiceForContact, setSelectedInvoiceForContact] = useState<any>(null);
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const [selectedInvoiceForPayment, setSelectedInvoiceForPayment] = useState<any>(null);
+  const [linkModalOpen, setLinkModalOpen] = useState(false);
+  const [linkTargetModule, setLinkTargetModule] = useState<"estimate" | "agreement">("estimate");
+  const [selectedInvoiceForLink, setSelectedInvoiceForLink] = useState<any>(null);
 
   const filterInvoices = (type: "single" | "recurring" | "deactivated") => {
     return mockInvoices.filter((invoice) => {
@@ -106,6 +110,12 @@ const Invoices = () => {
   const handlePayNow = (invoice: any) => {
     setSelectedInvoiceForPayment(invoice);
     setPaymentModalOpen(true);
+  };
+
+  const handleLinkModule = (invoice: any, targetModule: "estimate" | "agreement") => {
+    setSelectedInvoiceForLink(invoice);
+    setLinkTargetModule(targetModule);
+    setLinkModalOpen(true);
   };
 
   const renderSingleInvoiceTable = (invoices: any[]) => (
@@ -185,6 +195,14 @@ const Invoices = () => {
                       <DropdownMenuItem className="gap-2" onClick={() => handleSendSMS(invoice)}>
                         <MessageSquare className="h-4 w-4" />
                         Send sms
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleLinkModule(invoice, "estimate")} className="gap-2">
+                        <FileText className="h-4 w-4" />
+                        Link Estimate
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleLinkModule(invoice, "agreement")} className="gap-2">
+                        <FileCheck className="h-4 w-4" />
+                        Link Agreement
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem 
@@ -307,6 +325,14 @@ const Invoices = () => {
                         <MessageSquare className="h-4 w-4" />
                         Send sms
                       </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleLinkModule(invoice, "estimate")} className="gap-2">
+                        <FileText className="h-4 w-4" />
+                        Link Estimate
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleLinkModule(invoice, "agreement")} className="gap-2">
+                        <FileCheck className="h-4 w-4" />
+                        Link Agreement
+                      </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem 
                         className="gap-2"
@@ -422,6 +448,14 @@ const Invoices = () => {
                       <DropdownMenuItem className="gap-2">
                         <Eye className="h-4 w-4" />
                         Preview invoice
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleLinkModule(invoice, "estimate")} className="gap-2">
+                        <FileText className="h-4 w-4" />
+                        Link Estimate
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleLinkModule(invoice, "agreement")} className="gap-2">
+                        <FileCheck className="h-4 w-4" />
+                        Link Agreement
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem 

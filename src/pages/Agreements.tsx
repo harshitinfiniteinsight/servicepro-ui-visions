@@ -13,6 +13,7 @@ import { AddAgreementModal } from "@/components/modals/AddAgreementModal";
 import { SendEmailModal } from "@/components/modals/SendEmailModal";
 import { SendSMSModal } from "@/components/modals/SendSMSModal";
 import { PayCashModal } from "@/components/modals/PayCashModal";
+import { LinkModulesModal } from "@/components/modals/LinkModulesModal";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 
@@ -31,6 +32,9 @@ const Agreements = () => {
   const [selectedAgreement, setSelectedAgreement] = useState<any>(null);
   const [editAgreementOpen, setEditAgreementOpen] = useState(false);
   const [agreements, setAgreements] = useState(mockAgreements);
+  const [linkModalOpen, setLinkModalOpen] = useState(false);
+  const [linkTargetModule, setLinkTargetModule] = useState<"estimate" | "invoice">("estimate");
+  const [selectedAgreementForLink, setSelectedAgreementForLink] = useState<any>(null);
 
   const filteredAgreements = agreements.filter((agreement) => {
     const matchesSearch = agreement.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -88,6 +92,12 @@ const Agreements = () => {
         ) as typeof mockAgreements
       );
     }
+  };
+
+  const handleLinkModule = (agreement: any, targetModule: "estimate" | "invoice") => {
+    setSelectedAgreementForLink(agreement);
+    setLinkTargetModule(targetModule);
+    setLinkModalOpen(true);
   };
 
   return (
@@ -261,6 +271,24 @@ const Agreements = () => {
                             Update Agreement
                           </Button>
                           <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="gap-2"
+                            onClick={() => handleLinkModule(agreement, "estimate")}
+                          >
+                            <FileText className="h-4 w-4" />
+                            Link Estimate
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="gap-2"
+                            onClick={() => handleLinkModule(agreement, "invoice")}
+                          >
+                            <DollarSign className="h-4 w-4" />
+                            Link Invoice
+                          </Button>
+                          <Button 
                             size="sm" 
                             className="gap-2"
                           >
@@ -309,6 +337,14 @@ const Agreements = () => {
         orderAmount={selectedAgreement?.amount || 0}
         orderId={selectedAgreement?.id || ""}
         onPaymentComplete={handlePaymentComplete}
+      />
+      <LinkModulesModal
+        open={linkModalOpen}
+        onOpenChange={setLinkModalOpen}
+        sourceModule="agreement"
+        sourceId={selectedAgreementForLink?.id || ""}
+        sourceName={selectedAgreementForLink?.title || ""}
+        targetModule={linkTargetModule}
       />
     </div>
   );
