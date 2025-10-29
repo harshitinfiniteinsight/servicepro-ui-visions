@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Trash2, UserPlus, Repeat, FileText, Minus, Tag, X, Percent, DollarSign, Upload, Image as ImageIcon } from "lucide-react";
+import { Plus, Trash2, UserPlus, Repeat, FileText, Minus, Tag, X, Percent, DollarSign, Upload, Image as ImageIcon, Camera } from "lucide-react";
 import { mockCustomers, mockJobs, mockEmployees, mockDiscounts } from "@/data/mockData";
 import { DiscountFormModal } from "./DiscountFormModal";
 import { QuickAddCustomerModal } from "./QuickAddCustomerModal";
@@ -526,61 +526,58 @@ export const InvoiceFormModal = ({ open, onOpenChange, invoice, mode }: InvoiceF
               {/* Memo Field */}
               <div className="space-y-3">
                 <Label htmlFor="memo">Memo</Label>
-                <Input
-                  id="memo"
-                  value={formData.memo}
-                  onChange={(e) => setFormData({ ...formData, memo: e.target.value })}
-                  placeholder="Add a memo or note..."
-                  className="glass-effect"
-                />
-                
-                {/* Attachment Section */}
-                <div className="space-y-2">
-                  <Label className="text-sm text-muted-foreground">Attach Image/Document (Optional)</Label>
-                  {!memoAttachment ? (
-                    <div className="border-2 border-dashed border-border rounded-lg p-4 hover:border-primary/50 transition-colors">
-                      <label htmlFor="memo-attachment" className="cursor-pointer flex flex-col items-center gap-2">
-                        <Upload className="h-8 w-8 text-muted-foreground" />
-                        <span className="text-sm font-medium">Click to upload file</span>
-                        <span className="text-xs text-muted-foreground">Image or Document</span>
-                      </label>
-                      <input
-                        id="memo-attachment"
-                        type="file"
-                        accept="image/*,.pdf,.doc,.docx"
-                        onChange={handleMemoAttachmentChange}
-                        className="hidden"
-                      />
-                    </div>
-                  ) : (
-                    <Card className="border-primary/20">
-                      <CardContent className="p-4">
-                        <div className="flex items-center gap-3">
-                          {memoAttachmentPreview ? (
-                            <img src={memoAttachmentPreview} alt="Preview" className="h-16 w-16 object-cover rounded border" />
-                          ) : (
-                            <div className="h-16 w-16 bg-muted rounded flex items-center justify-center">
-                              <FileText className="h-8 w-8 text-muted-foreground" />
-                            </div>
-                          )}
-                          <div className="flex-1">
-                            <p className="font-medium text-sm">{memoAttachment.name}</p>
-                            <p className="text-xs text-muted-foreground">{(memoAttachment.size / 1024).toFixed(2)} KB</p>
-                          </div>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            onClick={removeMemoAttachment}
-                            className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                          >
-                            <X className="h-5 w-5" />
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  )}
+                <div className="relative">
+                  <Input
+                    id="memo"
+                    value={formData.memo}
+                    onChange={(e) => setFormData({ ...formData, memo: e.target.value })}
+                    placeholder="Add a memo or note..."
+                    className="glass-effect pr-12"
+                  />
+                  <label
+                    htmlFor="memo-attachment"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer hover:bg-muted rounded-md p-2 transition-colors"
+                  >
+                    <Camera className="h-5 w-5 text-muted-foreground" />
+                  </label>
+                  <input
+                    id="memo-attachment"
+                    type="file"
+                    accept="image/*,.pdf,.doc,.docx"
+                    onChange={handleMemoAttachmentChange}
+                    className="hidden"
+                  />
                 </div>
+
+                {/* Attachment Preview */}
+                {memoAttachment && (
+                  <Card className="border-primary/20">
+                    <CardContent className="p-3">
+                      <div className="flex items-center gap-3">
+                        {memoAttachmentPreview ? (
+                          <img src={memoAttachmentPreview} alt="Preview" className="h-12 w-12 object-cover rounded border" />
+                        ) : (
+                          <div className="h-12 w-12 bg-muted rounded flex items-center justify-center">
+                            <FileText className="h-6 w-6 text-muted-foreground" />
+                          </div>
+                        )}
+                        <div className="flex-1">
+                          <p className="font-medium text-sm">{memoAttachment.name}</p>
+                          <p className="text-xs text-muted-foreground">{(memoAttachment.size / 1024).toFixed(2)} KB</p>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={removeMemoAttachment}
+                          className="text-destructive hover:text-destructive hover:bg-destructive/10 h-8 w-8"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
               </div>
 
               {/* Terms & Cancellation Section */}

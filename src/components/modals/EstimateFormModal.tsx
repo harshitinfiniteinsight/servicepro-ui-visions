@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Trash2, UserPlus, FileText, Minus, Tag, X, Percent, DollarSign } from "lucide-react";
+import { Plus, Trash2, UserPlus, FileText, Minus, Tag, X, Percent, DollarSign, Camera } from "lucide-react";
 import { mockCustomers, mockEmployees, mockDiscounts } from "@/data/mockData";
 import { QuickAddCustomerModal } from "./QuickAddCustomerModal";
 import { AddItemModal } from "./AddItemModal";
@@ -41,6 +41,8 @@ export const EstimateFormModal = ({ open, onOpenChange, estimate, mode }: Estima
   const [selectedDiscount, setSelectedDiscount] = useState<any>(estimate?.discount || null);
   const [showDiscountModal, setShowDiscountModal] = useState(false);
   const [discountError, setDiscountError] = useState("");
+  const [memoAttachment, setMemoAttachment] = useState<File | null>(null);
+  const [memoAttachmentPreview, setMemoAttachmentPreview] = useState<string>("");
 
   const handleAddItem = (newItem: any) => {
     setItems([...items, newItem]);
@@ -69,6 +71,27 @@ export const EstimateFormModal = ({ open, onOpenChange, estimate, mode }: Estima
   
   const total = subtotal + taxAmount - discountAmount;
 
+  const handleMemoAttachmentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setMemoAttachment(file);
+      if (file.type.startsWith("image/")) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setMemoAttachmentPreview(reader.result as string);
+        };
+        reader.readAsDataURL(file);
+      } else {
+        setMemoAttachmentPreview("");
+      }
+    }
+  };
+
+  const removeMemoAttachment = () => {
+    setMemoAttachment(null);
+    setMemoAttachmentPreview("");
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const estimateData = {
@@ -77,6 +100,7 @@ export const EstimateFormModal = ({ open, onOpenChange, estimate, mode }: Estima
       amount: total,
       termsConditions: showTerms ? termsConditions : "",
       cancellationPolicy: showTerms ? cancellationPolicy : "",
+      memoAttachment: memoAttachment,
     };
     console.log("Form submitted:", estimateData);
     toast({
@@ -367,15 +391,60 @@ export const EstimateFormModal = ({ open, onOpenChange, estimate, mode }: Estima
               </div>
 
               {/* Memo Field */}
-              <div className="grid gap-2">
+              <div className="space-y-3">
                 <Label htmlFor="memo">Memo</Label>
-                <Input
-                  id="memo"
-                  value={formData.memo}
-                  onChange={(e) => setFormData({ ...formData, memo: e.target.value })}
-                  placeholder="Add a memo or note..."
-                  className="glass-effect"
-                />
+                <div className="relative">
+                  <Input
+                    id="memo"
+                    value={formData.memo}
+                    onChange={(e) => setFormData({ ...formData, memo: e.target.value })}
+                    placeholder="Add a memo or note..."
+                    className="glass-effect pr-12"
+                  />
+                  <label
+                    htmlFor="memo-attachment"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer hover:bg-muted rounded-md p-2 transition-colors"
+                  >
+                    <Camera className="h-5 w-5 text-muted-foreground" />
+                  </label>
+                  <input
+                    id="memo-attachment"
+                    type="file"
+                    accept="image/*,.pdf,.doc,.docx"
+                    onChange={handleMemoAttachmentChange}
+                    className="hidden"
+                  />
+                </div>
+
+                {/* Attachment Preview */}
+                {memoAttachment && (
+                  <Card className="border-primary/20">
+                    <CardContent className="p-3">
+                      <div className="flex items-center gap-3">
+                        {memoAttachmentPreview ? (
+                          <img src={memoAttachmentPreview} alt="Preview" className="h-12 w-12 object-cover rounded border" />
+                        ) : (
+                          <div className="h-12 w-12 bg-muted rounded flex items-center justify-center">
+                            <FileText className="h-6 w-6 text-muted-foreground" />
+                          </div>
+                        )}
+                        <div className="flex-1">
+                          <p className="font-medium text-sm">{memoAttachment.name}</p>
+                          <p className="text-xs text-muted-foreground">{(memoAttachment.size / 1024).toFixed(2)} KB</p>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={removeMemoAttachment}
+                          className="text-destructive hover:text-destructive hover:bg-destructive/10 h-8 w-8"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
               </div>
 
               {/* Terms & Cancellation Section */}

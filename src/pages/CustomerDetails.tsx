@@ -37,7 +37,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Calendar } from "@/components/ui/calendar";
-import { 
+import {
   ArrowLeft, 
   Edit, 
   Calendar as CalendarIcon,
@@ -46,7 +46,8 @@ import {
   FileSignature,
   Upload,
   Save,
-  X
+  X,
+  Camera
 } from "lucide-react";
 import { mockCustomers, mockJobs } from "@/data/mockData";
 import { format } from "date-fns";
@@ -63,6 +64,8 @@ const CustomerDetails = () => {
     to: undefined,
   });
   const [memo, setMemo] = useState("");
+  const [memoAttachment, setMemoAttachment] = useState<File | null>(null);
+  const [memoAttachmentPreview, setMemoAttachmentPreview] = useState<string>("");
   const [isEditing, setIsEditing] = useState(false);
   const [estimateModalOpen, setEstimateModalOpen] = useState(false);
   const [invoiceModalOpen, setInvoiceModalOpen] = useState(false);
@@ -99,6 +102,27 @@ const CustomerDetails = () => {
       });
     }
   });
+
+  const handleMemoAttachmentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setMemoAttachment(file);
+      if (file.type.startsWith("image/")) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setMemoAttachmentPreview(reader.result as string);
+        };
+        reader.readAsDataURL(file);
+      } else {
+        setMemoAttachmentPreview("");
+      }
+    }
+  };
+
+  const removeMemoAttachment = () => {
+    setMemoAttachment(null);
+    setMemoAttachmentPreview("");
+  };
 
   const handleSaveEdit = () => {
     // Save logic here
@@ -323,14 +347,59 @@ const CustomerDetails = () => {
                   )}
                 </div>
 
-                <div>
+                <div className="space-y-3">
                   <label className="text-muted-foreground mb-2 block">Memo</label>
-                  <Textarea
-                    placeholder="Add a memo about this customer..."
-                    value={memo}
-                    onChange={(e) => setMemo(e.target.value)}
-                    className="min-h-[100px]"
-                  />
+                  <div className="relative">
+                    <Textarea
+                      placeholder="Add a memo about this customer..."
+                      value={memo}
+                      onChange={(e) => setMemo(e.target.value)}
+                      className="min-h-[100px] pr-12"
+                    />
+                    <label
+                      htmlFor="customer-memo-attachment"
+                      className="absolute right-2 top-2 cursor-pointer hover:bg-muted rounded-md p-2 transition-colors"
+                    >
+                      <Camera className="h-5 w-5 text-muted-foreground" />
+                    </label>
+                    <input
+                      id="customer-memo-attachment"
+                      type="file"
+                      accept="image/*,.pdf,.doc,.docx"
+                      onChange={handleMemoAttachmentChange}
+                      className="hidden"
+                    />
+                  </div>
+
+                  {/* Attachment Preview */}
+                  {memoAttachment && (
+                    <Card className="border-primary/20">
+                      <CardContent className="p-3">
+                        <div className="flex items-center gap-3">
+                          {memoAttachmentPreview ? (
+                            <img src={memoAttachmentPreview} alt="Preview" className="h-12 w-12 object-cover rounded border" />
+                          ) : (
+                            <div className="h-12 w-12 bg-muted rounded flex items-center justify-center">
+                              <FileText className="h-6 w-6 text-muted-foreground" />
+                            </div>
+                          )}
+                          <div className="flex-1">
+                            <p className="font-medium text-sm">{memoAttachment.name}</p>
+                            <p className="text-xs text-muted-foreground">{(memoAttachment.size / 1024).toFixed(2)} KB</p>
+                          </div>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={removeMemoAttachment}
+                            className="text-destructive hover:text-destructive hover:bg-destructive/10 h-8 w-8"
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
                 </div>
               </div>
             </CardContent>
