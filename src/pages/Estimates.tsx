@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { AppHeader } from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,6 +8,7 @@ import { Plus, Eye, Mail, MessageSquare, DollarSign, Banknote, MapPin, UserCog, 
 import { mockEstimates, mockEmployees } from "@/data/mockData";
 import { SendEmailModal } from "@/components/modals/SendEmailModal";
 import { SendSMSModal } from "@/components/modals/SendSMSModal";
+import { ShareAddressModal } from "@/components/modals/ShareAddressModal";
 import { PayCashModal } from "@/components/modals/PayCashModal";
 import { EstimateFormModal } from "@/components/modals/EstimateFormModal";
 import { InvoicePaymentModal } from "@/components/modals/InvoicePaymentModal";
@@ -23,10 +25,12 @@ import {
 import { useToast } from "@/hooks/use-toast";
 
 const Estimates = () => {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("active");
   const [emailModalOpen, setEmailModalOpen] = useState(false);
   const [smsModalOpen, setSmsModalOpen] = useState(false);
+  const [shareAddressModalOpen, setShareAddressModalOpen] = useState(false);
   const [reassignModalOpen, setReassignModalOpen] = useState(false);
   const [selectedEstimate, setSelectedEstimate] = useState<any>(null);
   const [selectedEmployee, setSelectedEmployee] = useState("");
@@ -96,10 +100,8 @@ const Estimates = () => {
   };
 
   const handleShareAddress = (estimate: any) => {
-    toast({
-      title: "Address Shared",
-      description: `Job address shared for ${estimate.id}`,
-    });
+    setSelectedEstimate(estimate);
+    setShareAddressModalOpen(true);
   };
 
   const handlePreview = (estimate: any) => {
@@ -129,10 +131,8 @@ const Estimates = () => {
   };
 
   const handleDocHistory = (estimate: any) => {
-    toast({
-      title: "Document History",
-      description: `Viewing history for ${estimate.id}`,
-    });
+    // Navigate to customer details page
+    navigate(`/customers/${estimate.customerId || '1'}`);
   };
 
   return (
@@ -356,6 +356,13 @@ const Estimates = () => {
         onOpenChange={setSmsModalOpen}
         customerName={selectedEstimate?.customerName || ""}
         phoneNumber={selectedEstimate?.customerPhone || ""}
+      />
+
+      <ShareAddressModal
+        open={shareAddressModalOpen}
+        onOpenChange={setShareAddressModalOpen}
+        jobAddress={selectedEstimate?.address || "123 Main Street, City, State"}
+        jobId={selectedEstimate?.id || ""}
       />
 
       <PayCashModal
