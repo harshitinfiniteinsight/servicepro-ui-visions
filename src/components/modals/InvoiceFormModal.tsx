@@ -4,11 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Trash2, UserPlus, Repeat, FileText, Minus, Tag, X, Percent, DollarSign } from "lucide-react";
+import { Plus, Trash2, UserPlus, Repeat, FileText, Minus, Tag, X, Percent, DollarSign, Upload, Image as ImageIcon } from "lucide-react";
 import { mockCustomers, mockJobs, mockEmployees, mockDiscounts } from "@/data/mockData";
 import { DiscountFormModal } from "./DiscountFormModal";
 import { QuickAddCustomerModal } from "./QuickAddCustomerModal";
 import { AddItemModal } from "./AddItemModal";
+import { FollowUpAppointmentModal } from "./FollowUpAppointmentModal";
+import { AddAppointmentModal } from "./AddAppointmentModal";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
@@ -33,6 +35,11 @@ export const InvoiceFormModal = ({ open, onOpenChange, invoice, mode }: InvoiceF
     invoiceType: invoice?.invoiceType || "single",
     memo: invoice?.memo || "",
   });
+
+  const [memoAttachment, setMemoAttachment] = useState<File | null>(null);
+  const [memoAttachmentPreview, setMemoAttachmentPreview] = useState<string>("");
+  const [showFollowUpDialog, setShowFollowUpDialog] = useState(false);
+  const [showAppointmentModal, setShowAppointmentModal] = useState(false);
 
   const [items, setItems] = useState(invoice?.items || []);
   const [showAddCustomerModal, setShowAddCustomerModal] = useState(false);
@@ -87,9 +94,34 @@ export const InvoiceFormModal = ({ open, onOpenChange, invoice, mode }: InvoiceF
       amount: total,
       termsConditions: showTerms ? termsConditions : "",
       cancellationPolicy: showTerms ? cancellationPolicy : "",
+      memoAttachment: memoAttachment,
     };
     console.log("Form submitted:", invoiceData);
     onOpenChange(false);
+    // Show follow-up appointment dialog after invoice is created
+    setShowFollowUpDialog(true);
+  };
+
+  const handleMemoAttachmentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setMemoAttachment(file);
+      // Create preview for images
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setMemoAttachmentPreview(reader.result as string);
+        };
+        reader.readAsDataURL(file);
+      } else {
+        setMemoAttachmentPreview("");
+      }
+    }
+  };
+
+  const removeMemoAttachment = () => {
+    setMemoAttachment(null);
+    setMemoAttachmentPreview("");
   };
 
   return (
@@ -492,7 +524,7 @@ export const InvoiceFormModal = ({ open, onOpenChange, invoice, mode }: InvoiceF
               </div>
 
               {/* Memo Field */}
-              <div className="grid gap-2">
+              <div className="space-y-3">
                 <Label htmlFor="memo">Memo</Label>
                 <Input
                   id="memo"
@@ -501,6 +533,54 @@ export const InvoiceFormModal = ({ open, onOpenChange, invoice, mode }: InvoiceF
                   placeholder="Add a memo or note..."
                   className="glass-effect"
                 />
+                
+                {/* Attachment Section */}
+                <div className="space-y-2">
+                  <Label className="text-sm text-muted-foreground">Attach Image/Document (Optional)</Label>
+                  {!memoAttachment ? (
+                    <div className="border-2 border-dashed border-border rounded-lg p-4 hover:border-primary/50 transition-colors">
+                      <label htmlFor="memo-attachment" className="cursor-pointer flex flex-col items-center gap-2">
+                        <Upload className="h-8 w-8 text-muted-foreground" />
+                        <span className="text-sm font-medium">Click to upload file</span>
+                        <span className="text-xs text-muted-foreground">Image or Document</span>
+                      </label>
+                      <input
+                        id="memo-attachment"
+                        type="file"
+                        accept="image/*,.pdf,.doc,.docx"
+                        onChange={handleMemoAttachmentChange}
+                        className="hidden"
+                      />
+                    </div>
+                  ) : (
+                    <Card className="border-primary/20">
+                      <CardContent className="p-4">
+                        <div className="flex items-center gap-3">
+                          {memoAttachmentPreview ? (
+                            <img src={memoAttachmentPreview} alt="Preview" className="h-16 w-16 object-cover rounded border" />
+                          ) : (
+                            <div className="h-16 w-16 bg-muted rounded flex items-center justify-center">
+                              <FileText className="h-8 w-8 text-muted-foreground" />
+                            </div>
+                          )}
+                          <div className="flex-1">
+                            <p className="font-medium text-sm">{memoAttachment.name}</p>
+                            <p className="text-xs text-muted-foreground">{(memoAttachment.size / 1024).toFixed(2)} KB</p>
+                          </div>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={removeMemoAttachment}
+                            className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                          >
+                            <X className="h-5 w-5" />
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+                </div>
               </div>
 
               {/* Terms & Cancellation Section */}
@@ -717,6 +797,22 @@ export const InvoiceFormModal = ({ open, onOpenChange, invoice, mode }: InvoiceF
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <FollowUpAppointmentModal
+        open={showFollowUpDialog}
+        onOpenChange={setShowFollowUpDialog}
+        onScheduleAppointment={() => setShowAppointmentModal(true)}
+      />
+
+      <AddAppointmentModal
+        open={showAppointmentModal}
+        onOpenChange={setShowAppointmentModal}
+        prefilledData={{
+          subject: "Follow Up",
+          customerId: formData.customerId,
+          employeeId: formData.employeeId,
+        }}
+      />
     </>
   );
 };
