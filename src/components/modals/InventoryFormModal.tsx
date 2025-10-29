@@ -12,9 +12,10 @@ interface InventoryFormModalProps {
   onOpenChange: (open: boolean) => void;
   mode: "create" | "edit";
   inventory?: any;
+  onInventoryAdded?: (inventory: any) => void;
 }
 
-export function InventoryFormModal({ open, onOpenChange, mode, inventory }: InventoryFormModalProps) {
+export function InventoryFormModal({ open, onOpenChange, mode, inventory, onInventoryAdded }: InventoryFormModalProps) {
   const { toast } = useToast();
   const [formData, setFormData] = useState({
     name: "",
@@ -67,6 +68,21 @@ export function InventoryFormModal({ open, onOpenChange, mode, inventory }: Inve
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (mode === "create" && onInventoryAdded) {
+      const newInventory = {
+        id: Date.now().toString(),
+        name: formData.name,
+        type: formData.type,
+        price: parseFloat(formData.price) || 0,
+        itemUnit: formData.itemUnit,
+        sku: formData.sku,
+        stockQuantity: parseFloat(formData.stockQuantity) || 0,
+        image: imagePreview,
+      };
+      onInventoryAdded(newInventory);
+    }
+    
     toast({
       title: mode === "create" ? "Inventory Added" : "Inventory Updated",
       description: `${formData.name} has been ${mode === "create" ? "added" : "updated"} successfully.`,
