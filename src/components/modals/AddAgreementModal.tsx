@@ -10,10 +10,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { QuickAddCustomerModal } from "./QuickAddCustomerModal";
+import { AddAgreementInventoryModal } from "./AddAgreementInventoryModal";
+import { FollowUpAppointmentModal } from "./FollowUpAppointmentModal";
+import { AddAppointmentModal } from "./AddAppointmentModal";
 import { useToast } from "@/hooks/use-toast";
 import { mockCustomers, mockEmployees, mockInventory } from "@/data/mockData";
-import { CalendarIcon, Plus, Search } from "lucide-react";
+import { CalendarIcon, Plus, Search, Check } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 
@@ -27,6 +31,10 @@ export function AddAgreementModal({ open, onOpenChange, existingAgreement }: Add
   const { toast } = useToast();
   const [step, setStep] = useState(1);
   const [quickAddCustomerOpen, setQuickAddCustomerOpen] = useState(false);
+  const [agreementInventoryOpen, setAgreementInventoryOpen] = useState(false);
+  const [followUpOpen, setFollowUpOpen] = useState(false);
+  const [appointmentOpen, setAppointmentOpen] = useState(false);
+  const [customerSearchOpen, setCustomerSearchOpen] = useState(false);
   const [customerSearch, setCustomerSearch] = useState("");
   const [serviceSearch, setServiceSearch] = useState("");
 
@@ -111,6 +119,7 @@ export function AddAgreementModal({ open, onOpenChange, existingAgreement }: Add
     });
     onOpenChange(false);
     resetForm();
+    setFollowUpOpen(true);
   };
 
   const resetForm = () => {
@@ -165,24 +174,49 @@ export function AddAgreementModal({ open, onOpenChange, existingAgreement }: Add
               <div className="space-y-2">
                 <Label>Select Customer *</Label>
                 <div className="space-y-2">
-                  <Input
-                    placeholder="Search customers..."
-                    value={customerSearch}
-                    onChange={(e) => setCustomerSearch(e.target.value)}
-                    className="mb-2"
-                  />
-                  <Select value={selectedCustomer} onValueChange={setSelectedCustomer}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Choose a customer" />
-                    </SelectTrigger>
-                    <SelectContent className="z-50 bg-popover">
-                      {filteredCustomers.map((customer) => (
-                        <SelectItem key={customer.id} value={customer.id}>
-                          {customer.name} - {customer.email}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Popover open={customerSearchOpen} onOpenChange={setCustomerSearchOpen}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={customerSearchOpen}
+                        className="w-full justify-between"
+                      >
+                        {selectedCustomer
+                          ? mockCustomers.find((c) => c.id === selectedCustomer)?.name
+                          : "Choose a customer"}
+                        <Search className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-full p-0 z-50 bg-popover" align="start">
+                      <Command>
+                        <CommandInput placeholder="Search customers..." />
+                        <CommandList>
+                          <CommandEmpty>No customer found.</CommandEmpty>
+                          <CommandGroup>
+                            {filteredCustomers.map((customer) => (
+                              <CommandItem
+                                key={customer.id}
+                                value={customer.id}
+                                onSelect={() => {
+                                  setSelectedCustomer(customer.id);
+                                  setCustomerSearchOpen(false);
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    selectedCustomer === customer.id ? "opacity-100" : "opacity-0"
+                                  )}
+                                />
+                                {customer.name} - {customer.email}
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                   <Button
                     type="button"
                     variant="outline"
@@ -317,7 +351,11 @@ export function AddAgreementModal({ open, onOpenChange, existingAgreement }: Add
                     className="pl-10"
                   />
                 </div>
-                <Button variant="outline" size="icon">
+                <Button 
+                  variant="outline" 
+                  size="icon"
+                  onClick={() => setAgreementInventoryOpen(true)}
+                >
                   <Plus className="h-4 w-4" />
                 </Button>
               </div>
@@ -401,6 +439,27 @@ export function AddAgreementModal({ open, onOpenChange, existingAgreement }: Add
       <QuickAddCustomerModal
         open={quickAddCustomerOpen}
         onOpenChange={setQuickAddCustomerOpen}
+      />
+      
+      <AddAgreementInventoryModal
+        open={agreementInventoryOpen}
+        onOpenChange={setAgreementInventoryOpen}
+      />
+
+      <FollowUpAppointmentModal
+        open={followUpOpen}
+        onOpenChange={setFollowUpOpen}
+        onScheduleAppointment={() => setAppointmentOpen(true)}
+      />
+
+      <AddAppointmentModal
+        open={appointmentOpen}
+        onOpenChange={setAppointmentOpen}
+        prefilledData={{
+          subject: "Follow Up",
+          customerId: selectedCustomer,
+          employeeId: selectedEmployee,
+        }}
       />
     </>
   );

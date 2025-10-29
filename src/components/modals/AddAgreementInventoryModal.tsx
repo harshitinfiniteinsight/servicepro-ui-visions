@@ -18,7 +18,9 @@ export function AddAgreementInventoryModal({ open, onOpenChange }: AddAgreementI
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
 
-  const variableInventories = mockInventory.filter(item => item.type === "Variable");
+  const variableInventories = mockInventory.filter(
+    item => item.type === "Variable" && !(item as any).isAgreementInventory
+  );
   const filteredInventories = variableInventories.filter(item =>
     item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     item.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
