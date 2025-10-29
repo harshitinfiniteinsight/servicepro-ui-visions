@@ -16,12 +16,13 @@ import {
   User,
   TrendingUp
 } from "lucide-react";
-import { mockAgreements, mockEstimates, mockInvoices, mockEmployees } from "@/data/mockData";
+import { mockAgreements, mockEstimates, mockInvoices, mockEmployees, mockCustomers } from "@/data/mockData";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isSameMonth } from "date-fns";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 
 type ViewMode = "list" | "calendar";
 type TimeFilter = "day" | "week" | "month";
@@ -42,6 +43,8 @@ const Jobs = () => {
   const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [timeFilter, setTimeFilter] = useState<TimeFilter>("day");
   const [selectedEmployee, setSelectedEmployee] = useState<string>("all");
+  const [selectedJobType, setSelectedJobType] = useState<string>("all");
+  const [selectedCustomer, setSelectedCustomer] = useState<string>("all");
   const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined);
   const [dateTo, setDateTo] = useState<Date | undefined>(undefined);
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -86,12 +89,14 @@ const Jobs = () => {
         job.employeeName.toLowerCase().includes(searchQuery.toLowerCase());
       
       const matchesEmployee = selectedEmployee === "all" || job.employeeName === selectedEmployee;
+      const matchesJobType = selectedJobType === "all" || job.type === selectedJobType;
+      const matchesCustomer = selectedCustomer === "all" || job.customerName === selectedCustomer;
       
       const jobDate = new Date(job.date);
       const matchesDateFrom = !dateFrom || jobDate >= dateFrom;
       const matchesDateTo = !dateTo || jobDate <= dateTo;
       
-      return matchesSearch && matchesEmployee && matchesDateFrom && matchesDateTo;
+      return matchesSearch && matchesEmployee && matchesJobType && matchesCustomer && matchesDateFrom && matchesDateTo;
     })
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
@@ -190,7 +195,7 @@ const Jobs = () => {
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div>
                 <h1 className="text-2xl sm:text-3xl font-bold font-display mb-1">
-                  <span className="text-gradient">Job Dashboard</span>
+                  <span className="text-gradient">Job Board</span>
                 </h1>
                 <p className="text-sm text-muted-foreground">Manage all agreements, estimates, and invoices</p>
               </div>
@@ -204,8 +209,7 @@ const Jobs = () => {
                     viewMode === "list" && "gradient-primary"
                   )}
                 >
-                  <List className="h-4 w-4 mr-2" />
-                  List
+                  <List className="h-4 w-4" />
                 </Button>
                 <Button
                   variant={viewMode === "calendar" ? "default" : "outline"}
@@ -216,8 +220,7 @@ const Jobs = () => {
                     viewMode === "calendar" && "gradient-primary"
                   )}
                 >
-                  <CalendarIcon className="h-4 w-4 mr-2" />
-                  Calendar
+                  <CalendarIcon className="h-4 w-4" />
                 </Button>
               </div>
             </div>
@@ -275,7 +278,7 @@ const Jobs = () => {
             <h3 className="font-bold text-lg">Filters</h3>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
             <div>
               <Label className="text-sm font-medium mb-2 block">From Date</Label>
               <Popover>
@@ -304,6 +307,38 @@ const Jobs = () => {
                   <Calendar mode="single" selected={dateTo} onSelect={setDateTo} />
                 </PopoverContent>
               </Popover>
+            </div>
+
+            <div>
+              <Label className="text-sm font-medium mb-2 block">Job Type</Label>
+              <Select value={selectedJobType} onValueChange={setSelectedJobType}>
+                <SelectTrigger>
+                  <SelectValue placeholder="All" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem value="invoice">Invoices</SelectItem>
+                  <SelectItem value="estimate">Estimates</SelectItem>
+                  <SelectItem value="agreement">Agreements</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label className="text-sm font-medium mb-2 block">Customer</Label>
+              <Select value={selectedCustomer} onValueChange={setSelectedCustomer}>
+                <SelectTrigger>
+                  <SelectValue placeholder="All Customers" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Customers</SelectItem>
+                  {mockCustomers.map((customer) => (
+                    <SelectItem key={customer.id} value={customer.name}>
+                      {customer.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div>
@@ -519,9 +554,5 @@ const Jobs = () => {
     </div>
   );
 };
-
-const Label = ({ children, className }: { children: React.ReactNode; className?: string }) => (
-  <label className={className}>{children}</label>
-);
 
 export default Jobs;
