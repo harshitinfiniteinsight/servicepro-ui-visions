@@ -18,7 +18,7 @@ interface AddItemModalProps {
 
 export const AddItemModal = ({ open, onOpenChange, onAddItem }: AddItemModalProps) => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [showCustomForm, setShowCustomForm] = useState(false);
+  const [showCustomItemModal, setShowCustomItemModal] = useState(false);
   const [showInventoryModal, setShowInventoryModal] = useState(false);
   const [selectedInventory, setSelectedInventory] = useState<any>(null);
   const [customPrice, setCustomPrice] = useState("");
@@ -26,9 +26,7 @@ export const AddItemModal = ({ open, onOpenChange, onAddItem }: AddItemModalProp
   const [customItem, setCustomItem] = useState({
     name: "",
     price: 0,
-    image: null as File | null,
   });
-  const [customItemImagePreview, setCustomItemImagePreview] = useState<string>("");
 
   const filteredInventory = mockInventory.filter((item) =>
     item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -44,21 +42,10 @@ export const AddItemModal = ({ open, onOpenChange, onAddItem }: AddItemModalProp
         rate: customItem.price,
         amount: customItem.price,
         type: "custom",
-        image: customItemImagePreview,
       });
+      setShowCustomItemModal(false);
+      setCustomItem({ name: "", price: 0 });
       resetModal();
-    }
-  };
-
-  const handleCustomItemImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setCustomItem({ ...customItem, image: file });
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setCustomItemImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
     }
   };
 
@@ -110,11 +97,10 @@ export const AddItemModal = ({ open, onOpenChange, onAddItem }: AddItemModalProp
   };
 
   const resetModal = () => {
-    setShowCustomForm(false);
+    setShowCustomItemModal(false);
     setSelectedInventory(null);
     setCustomPrice("");
-    setCustomItem({ name: "", price: 0, image: null });
-    setCustomItemImagePreview("");
+    setCustomItem({ name: "", price: 0 });
     setSearchQuery("");
     onOpenChange(false);
   };
@@ -135,12 +121,12 @@ export const AddItemModal = ({ open, onOpenChange, onAddItem }: AddItemModalProp
           </DialogDescription>
         </DialogHeader>
 
-        {!showCustomForm && !selectedInventory && (
+        {!selectedInventory && (
           <div className="space-y-4 py-4">
             {/* Action Buttons */}
             <div className="grid grid-cols-2 gap-3">
               <Button
-                onClick={() => setShowCustomForm(true)}
+                onClick={() => setShowCustomItemModal(true)}
                 variant="outline"
                 className="h-14 gap-2"
               >
@@ -219,63 +205,6 @@ export const AddItemModal = ({ open, onOpenChange, onAddItem }: AddItemModalProp
           </div>
         )}
 
-        {showCustomForm && (
-          <div className="space-y-4 py-4">
-            <div className="grid gap-2">
-              <Label htmlFor="customName">Custom Inventory Name *</Label>
-              <Input
-                id="customName"
-                value={customItem.name}
-                onChange={(e) => setCustomItem({ ...customItem, name: e.target.value })}
-                placeholder="Enter custom inventory name"
-                className="glass-effect"
-              />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="customPrice">Price ($) *</Label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
-                <Input
-                  id="customPrice"
-                  type="number"
-                  value={customItem.price}
-                  onChange={(e) => setCustomItem({ ...customItem, price: parseFloat(e.target.value) })}
-                  min="0"
-                  step="0.01"
-                  placeholder="0.00"
-                  className="glass-effect pl-7"
-                />
-              </div>
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="customImage">Upload Image (Optional)</Label>
-              <Input
-                id="customImage"
-                type="file"
-                accept="image/*"
-                onChange={handleCustomItemImageChange}
-                className="glass-effect"
-              />
-              {customItemImagePreview && (
-                <div className="relative w-full h-32 rounded-lg overflow-hidden border border-border">
-                  <img
-                    src={customItemImagePreview}
-                    alt="Item preview"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              )}
-            </div>
-            <div className="flex gap-2 pt-4">
-              <Button variant="outline" onClick={() => setShowCustomForm(false)} className="flex-1">
-                Back
-              </Button>
-              <Button onClick={handleAddCustomItem} className="flex-1" disabled={!customItem.name || customItem.price <= 0}>
-                Create Custom Item
-              </Button>
-            </div>
-          </div>
-        )}
 
 
         {selectedInventory && (
@@ -324,6 +253,43 @@ export const AddItemModal = ({ open, onOpenChange, onAddItem }: AddItemModalProp
         mode="create"
         onInventoryAdded={handleInventoryAdded}
       />
+
+      {/* Custom Item Modal */}
+      <Dialog open={showCustomItemModal} onOpenChange={setShowCustomItemModal}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Add Custom Item</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="customItemName">Custom Item Name</Label>
+              <Input
+                id="customItemName"
+                value={customItem.name}
+                onChange={(e) => setCustomItem({ ...customItem, name: e.target.value })}
+                placeholder="Enter item name"
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="customItemPrice">Price</Label>
+              <Input
+                id="customItemPrice"
+                type="number"
+                value={customItem.price || ""}
+                onChange={(e) => setCustomItem({ ...customItem, price: parseFloat(e.target.value) || 0 })}
+                min="0"
+                step="0.01"
+                placeholder="0.00"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button onClick={handleAddCustomItem} disabled={!customItem.name || customItem.price <= 0}>
+              Add Custom Item
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Dialog>
   );
 };
