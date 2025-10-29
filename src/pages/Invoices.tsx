@@ -207,13 +207,16 @@ const Invoices = () => {
                       <DropdownMenuSeparator />
                       <DropdownMenuItem 
                         className="gap-2"
+                        disabled={invoice.status === "Paid"}
                         onClick={() => {
-                          setSelectedInvoice(invoice);
-                          setModalOpen(true);
+                          if (invoice.status !== "Paid") {
+                            setSelectedInvoice(invoice);
+                            setModalOpen(true);
+                          }
                         }}
                       >
                         <Edit className="h-4 w-4" />
-                        Edit Invoice
+                        Edit Invoice {invoice.status === "Paid" && "(Disabled)"}
                       </DropdownMenuItem>
                       <DropdownMenuItem className="gap-2">
                         <UserCog className="h-4 w-4" />
@@ -244,6 +247,12 @@ const Invoices = () => {
                           </DropdownMenuItem>
                         </>
                       )}
+                      {invoice.status === "Paid" && (
+                        <DropdownMenuItem className="gap-2 text-warning focus:text-warning">
+                          <RotateCcw className="h-4 w-4" />
+                          Refund
+                        </DropdownMenuItem>
+                      )}
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>
@@ -261,7 +270,7 @@ const Invoices = () => {
         <TableHeader>
           <TableRow className="bg-muted/50">
             <TableHead className="font-semibold">Date</TableHead>
-            <TableHead className="font-semibold">OrderID</TableHead>
+            <TableHead className="font-semibold">Job ID</TableHead>
             <TableHead className="font-semibold">Customer Name</TableHead>
             <TableHead className="font-semibold">Occurrence</TableHead>
             <TableHead className="font-semibold">Order Amount</TableHead>
@@ -284,7 +293,7 @@ const Invoices = () => {
                   {new Date(invoice.issueDate).toLocaleDateString()}
                 </TableCell>
                 <TableCell className="text-primary font-mono text-sm">
-                  {invoice.orderId}
+                  {invoice.jobId}
                 </TableCell>
                 <TableCell className="text-info font-medium">
                   {invoice.customerName}
@@ -526,10 +535,9 @@ const Invoices = () => {
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="all">All</SelectItem>
               <SelectItem value="paid">Paid</SelectItem>
               <SelectItem value="open">Open</SelectItem>
-              <SelectItem value="overdue">Overdue</SelectItem>
             </SelectContent>
           </Select>
         </div>
