@@ -26,7 +26,9 @@ export const AddItemModal = ({ open, onOpenChange, onAddItem }: AddItemModalProp
     description: "",
     quantity: 1,
     rate: 0,
+    image: null as File | null,
   });
+  const [customItemImagePreview, setCustomItemImagePreview] = useState<string>("");
 
   const filteredInventory = mockInventory.filter((item) =>
     item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -42,8 +44,21 @@ export const AddItemModal = ({ open, onOpenChange, onAddItem }: AddItemModalProp
         rate: customItem.rate,
         amount: customItem.quantity * customItem.rate,
         type: "custom",
+        image: customItemImagePreview,
       });
       resetModal();
+    }
+  };
+
+  const handleCustomItemImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setCustomItem({ ...customItem, image: file });
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setCustomItemImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -84,7 +99,8 @@ export const AddItemModal = ({ open, onOpenChange, onAddItem }: AddItemModalProp
     setShowCustomForm(false);
     setSelectedInventory(null);
     setCustomPrice("");
-    setCustomItem({ description: "", quantity: 1, rate: 0 });
+    setCustomItem({ description: "", quantity: 1, rate: 0, image: null });
+    setCustomItemImagePreview("");
     setSearchQuery("");
     onOpenChange(false);
   };
@@ -195,18 +211,20 @@ export const AddItemModal = ({ open, onOpenChange, onAddItem }: AddItemModalProp
         {showCustomForm && (
           <div className="space-y-4 py-4">
             <div className="grid gap-2">
-              <Label>Description *</Label>
+              <Label htmlFor="customDescription">Name *</Label>
               <Input
+                id="customDescription"
                 value={customItem.description}
                 onChange={(e) => setCustomItem({ ...customItem, description: e.target.value })}
-                placeholder="Enter item description"
+                placeholder="Enter item name"
                 className="glass-effect"
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
-                <Label>Quantity *</Label>
+                <Label htmlFor="customQuantity">Quantity *</Label>
                 <Input
+                  id="customQuantity"
                   type="number"
                   value={customItem.quantity}
                   onChange={(e) => setCustomItem({ ...customItem, quantity: parseFloat(e.target.value) })}
@@ -215,17 +233,40 @@ export const AddItemModal = ({ open, onOpenChange, onAddItem }: AddItemModalProp
                 />
               </div>
               <div className="grid gap-2">
-                <Label>Rate ($) *</Label>
-                <Input
-                  type="number"
-                  value={customItem.rate}
-                  onChange={(e) => setCustomItem({ ...customItem, rate: parseFloat(e.target.value) })}
-                  min="0"
-                  step="0.01"
-                  placeholder="0.00"
-                  className="glass-effect"
-                />
+                <Label htmlFor="customRate">Price ($) *</Label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
+                  <Input
+                    id="customRate"
+                    type="number"
+                    value={customItem.rate}
+                    onChange={(e) => setCustomItem({ ...customItem, rate: parseFloat(e.target.value) })}
+                    min="0"
+                    step="0.01"
+                    placeholder="0.00"
+                    className="glass-effect pl-7"
+                  />
+                </div>
               </div>
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="customImage">Item Image (Optional)</Label>
+              <Input
+                id="customImage"
+                type="file"
+                accept="image/*"
+                onChange={handleCustomItemImageChange}
+                className="glass-effect"
+              />
+              {customItemImagePreview && (
+                <div className="relative w-full h-32 rounded-lg overflow-hidden border border-border">
+                  <img
+                    src={customItemImagePreview}
+                    alt="Item preview"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              )}
             </div>
             <div className="flex gap-2 pt-4">
               <Button variant="outline" onClick={() => setShowCustomForm(false)} className="flex-1">

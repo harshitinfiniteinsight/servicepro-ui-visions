@@ -140,18 +140,28 @@ const Inventory = () => {
                   <CardContent className="p-5 sm:p-6">
                     <div className="flex flex-col gap-4">
                       <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
-                        <div className="flex-1 space-y-3">
-                          <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-                            <h3 className="font-bold text-base sm:text-lg text-foreground">
-                              {item.name}
-                            </h3>
-                            <Badge 
-                              variant="outline" 
-                              className="w-fit bg-primary/5 text-primary border-primary/30 font-semibold px-3 py-1"
-                            >
-                              {getTypeLabel(item.type)}
-                            </Badge>
-                          </div>
+                        <div className="flex gap-4 flex-1">
+                          {item.image && (
+                            <div className="flex-shrink-0">
+                              <img
+                                src={item.image}
+                                alt={item.name}
+                                className="w-24 h-24 rounded-lg object-cover border border-border"
+                              />
+                            </div>
+                          )}
+                          <div className="flex-1 space-y-3">
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                              <h3 className="font-bold text-base sm:text-lg text-foreground">
+                                {item.name}
+                              </h3>
+                              <Badge 
+                                variant="outline" 
+                                className="w-fit bg-primary/5 text-primary border-primary/30 font-semibold px-3 py-1"
+                              >
+                                {getTypeLabel(item.type)}
+                              </Badge>
+                            </div>
                           
                           <div className="flex flex-wrap gap-3 sm:gap-4">
                             <div className="px-3 py-1.5 bg-muted rounded-md">
@@ -189,6 +199,7 @@ const Inventory = () => {
                               <span className="font-bold text-xl text-primary">${item.price}</span>
                             </div>
                           </div>
+                        </div>
                         </div>
                       </div>
                       
@@ -256,9 +267,17 @@ const Inventory = () => {
                     className="border border-border bg-card shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden group"
                   >
                     <div className="aspect-square bg-gradient-to-br from-primary/10 to-accent/10 relative overflow-hidden">
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <Package className="h-20 w-20 text-primary/30" />
-                      </div>
+                      {item.image ? (
+                        <img
+                          src={item.image}
+                          alt={item.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <Package className="h-20 w-20 text-primary/30" />
+                        </div>
+                      )}
                       {item.stockQuantity <= item.lowStockAlert && item.stockQuantity > 0 && (
                         <Badge className="absolute top-2 right-2 bg-warning text-warning-foreground">
                           Low Stock

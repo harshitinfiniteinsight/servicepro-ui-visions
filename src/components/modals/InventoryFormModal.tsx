@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, X } from "lucide-react";
 
 interface InventoryFormModalProps {
   open: boolean;
@@ -23,7 +23,9 @@ export function InventoryFormModal({ open, onOpenChange, mode, inventory }: Inve
     itemUnit: "",
     sku: "",
     stockQuantity: "",
+    image: null as File | null,
   });
+  const [imagePreview, setImagePreview] = useState<string>("");
 
   useEffect(() => {
     if (open) {
@@ -35,7 +37,9 @@ export function InventoryFormModal({ open, onOpenChange, mode, inventory }: Inve
           itemUnit: inventory.itemUnit || "",
           sku: inventory.sku || "",
           stockQuantity: inventory.stockQuantity?.toString() || "",
+          image: null,
         });
+        setImagePreview(inventory.image || "");
       } else if (mode === "create") {
         setFormData({
           name: "",
@@ -44,7 +48,9 @@ export function InventoryFormModal({ open, onOpenChange, mode, inventory }: Inve
           itemUnit: "",
           sku: "",
           stockQuantity: "",
+          image: null,
         });
+        setImagePreview("");
         generateSKU();
       }
     }
@@ -66,6 +72,23 @@ export function InventoryFormModal({ open, onOpenChange, mode, inventory }: Inve
       description: `${formData.name} has been ${mode === "create" ? "added" : "updated"} successfully.`,
     });
     onOpenChange(false);
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setFormData({ ...formData, image: file });
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeImage = () => {
+    setFormData({ ...formData, image: null });
+    setImagePreview("");
   };
 
   return (
@@ -162,6 +185,35 @@ export function InventoryFormModal({ open, onOpenChange, mode, inventory }: Inve
               onChange={(e) => setFormData({ ...formData, stockQuantity: e.target.value })}
               required
             />
+          </div>
+
+          <div>
+            <Label htmlFor="inventoryImage">Inventory Image (Optional)</Label>
+            <Input
+              id="inventoryImage"
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              className="cursor-pointer"
+            />
+            {imagePreview && (
+              <div className="relative mt-3 w-full h-48 rounded-lg overflow-hidden border border-border">
+                <img
+                  src={imagePreview}
+                  alt="Inventory preview"
+                  className="w-full h-full object-cover"
+                />
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="icon"
+                  className="absolute top-2 right-2 h-8 w-8"
+                  onClick={removeImage}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
           </div>
 
           <div className="flex gap-2 pt-4">

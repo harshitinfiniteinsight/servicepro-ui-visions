@@ -512,6 +512,7 @@ export const mockInventory = [
     stockQuantity: 150,
     lowStockAlert: 20,
     category: "HVAC",
+    image: "https://images.unsplash.com/photo-1635925854688-e2c227ecad7e?w=400&h=400&fit=crop",
   },
   {
     id: "INV-002",
@@ -523,6 +524,7 @@ export const mockInventory = [
     stockQuantity: 85,
     lowStockAlert: 30,
     category: "Plumbing",
+    image: "https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?w=400&h=400&fit=crop",
   },
   {
     id: "INV-003",
@@ -533,6 +535,7 @@ export const mockInventory = [
     stockQuantity: 0,
     lowStockAlert: 0,
     category: "Service",
+    image: "https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=400&h=400&fit=crop",
   },
   {
     id: "INV-004",
@@ -544,6 +547,7 @@ export const mockInventory = [
     stockQuantity: 0,
     lowStockAlert: 0,
     category: "Labor",
+    image: "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=400&h=400&fit=crop",
   },
   {
     id: "INV-005",
@@ -555,6 +559,7 @@ export const mockInventory = [
     stockQuantity: 42,
     lowStockAlert: 15,
     category: "Electrical",
+    image: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=400&h=400&fit=crop",
   },
 ];
 
