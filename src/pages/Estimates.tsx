@@ -345,7 +345,10 @@ const Estimates = () => {
                           <p className="text-sm text-muted-foreground">Amount</p>
                           <p className="font-medium text-lg">${estimate.amount.toLocaleString()}</p>
                         </div>
-                        <div className="flex items-center justify-end gap-2">
+                        <div className="flex items-center justify-between gap-2">
+                          <Badge variant="outline" className="text-muted-foreground">
+                            Deactivated
+                          </Badge>
                           <Button
                             variant="outline"
                             size="sm"
