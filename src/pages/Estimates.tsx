@@ -117,9 +117,24 @@ const Estimates = () => {
   };
 
   const handleDeactivate = (estimate: any) => {
+    if (estimate.status !== "Open") {
+      toast({
+        title: "Cannot Deactivate",
+        description: "Only open estimates can be deactivated.",
+        variant: "destructive",
+      });
+      return;
+    }
     toast({
       title: "Estimate Deactivated",
       description: `${estimate.id} has been deactivated.`,
+    });
+  };
+
+  const handleActivate = (estimate: any) => {
+    toast({
+      title: "Estimate Activated",
+      description: `${estimate.id} has been reactivated.`,
     });
   };
 
@@ -330,10 +345,17 @@ const Estimates = () => {
                           <p className="text-sm text-muted-foreground">Amount</p>
                           <p className="font-medium text-lg">${estimate.amount.toLocaleString()}</p>
                         </div>
-                        <div className="flex items-center justify-end">
+                        <div className="flex items-center justify-between gap-2">
                           <Badge variant="outline" className="text-muted-foreground">
                             Deactivated
                           </Badge>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleActivate(estimate)}
+                          >
+                            Activate
+                          </Button>
                         </div>
                       </div>
                     </CardContent>
