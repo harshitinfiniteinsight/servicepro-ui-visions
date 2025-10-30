@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Upload, X } from "lucide-react";
 
 interface CustomerFormModalProps {
   open: boolean;
@@ -19,7 +21,27 @@ export const CustomerFormModal = ({ open, onOpenChange, customer, mode }: Custom
     phone: customer?.phone || "",
     address: customer?.address || "",
     gender: customer?.gender || "M",
+    profilePicture: customer?.avatar || "",
   });
+  const [previewImage, setPreviewImage] = useState<string>(customer?.avatar || "");
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const result = reader.result as string;
+        setPreviewImage(result);
+        setFormData({ ...formData, profilePicture: result });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setPreviewImage("");
+    setFormData({ ...formData, profilePicture: "" });
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,6 +60,46 @@ export const CustomerFormModal = ({ open, onOpenChange, customer, mode }: Custom
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label>Profile Picture</Label>
+              <div className="flex items-center gap-4">
+                <Avatar className="h-20 w-20">
+                  <AvatarImage src={previewImage} />
+                  <AvatarFallback className="bg-primary/10 text-primary">
+                    {formData.name ? formData.name.split(" ").map(n => n[0]).join("").toUpperCase() : "UP"}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => document.getElementById('profile-upload')?.click()}
+                  >
+                    <Upload className="h-4 w-4 mr-2" />
+                    Upload
+                  </Button>
+                  {previewImage && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={handleRemoveImage}
+                    >
+                      <X className="h-4 w-4 mr-2" />
+                      Remove
+                    </Button>
+                  )}
+                  <input
+                    id="profile-upload"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleImageUpload}
+                  />
+                </div>
+              </div>
+            </div>
             <div className="grid gap-2">
               <Label htmlFor="name">Full Name *</Label>
               <Input

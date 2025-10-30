@@ -12,6 +12,8 @@ import {
 import { useNavigate } from "react-router-dom";
 import { SendSMSModal } from "./modals/SendSMSModal";
 import { SendEmailModal } from "./modals/SendEmailModal";
+import { CustomerNoteModal } from "./modals/CustomerNoteModal";
+import { AddAppointmentModal } from "./modals/AddAppointmentModal";
 
 interface CustomerCardProps {
   id: string;
@@ -28,6 +30,8 @@ export const CustomerCard = ({ id, name, email, phone, address, avatar, gender, 
   const navigate = useNavigate();
   const [isSMSModalOpen, setIsSMSModalOpen] = useState(false);
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
+  const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
+  const [isAppointmentModalOpen, setIsAppointmentModalOpen] = useState(false);
   
   const initials = name
     .split(" ")
@@ -77,11 +81,36 @@ export const CustomerCard = ({ id, name, email, phone, address, avatar, gender, 
                   >
                     Edit Customer
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="cursor-pointer">Create Invoice</DropdownMenuItem>
-                  <DropdownMenuItem className="cursor-pointer">Create Estimate</DropdownMenuItem>
-                  <DropdownMenuItem className="cursor-pointer">Create Agreement</DropdownMenuItem>
-                  <DropdownMenuItem className="cursor-pointer">Add Note</DropdownMenuItem>
-                  <DropdownMenuItem className="cursor-pointer">Set up Appointment</DropdownMenuItem>
+                  <DropdownMenuItem 
+                    className="cursor-pointer"
+                    onClick={() => navigate('/invoices', { state: { createNew: true, customerId: id } })}
+                  >
+                    Create Invoice
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    className="cursor-pointer"
+                    onClick={() => navigate('/estimates', { state: { createNew: true, customerId: id } })}
+                  >
+                    Create Estimate
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    className="cursor-pointer"
+                    onClick={() => navigate('/agreements', { state: { createNew: true, customerId: id } })}
+                  >
+                    Create Agreement
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    className="cursor-pointer"
+                    onClick={() => setIsNoteModalOpen(true)}
+                  >
+                    Add Note
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    className="cursor-pointer"
+                    onClick={() => setIsAppointmentModalOpen(true)}
+                  >
+                    Set up Appointment
+                  </DropdownMenuItem>
                   <DropdownMenuItem className="cursor-pointer text-destructive">
                     Deactivate
                   </DropdownMenuItem>
@@ -147,6 +176,19 @@ export const CustomerCard = ({ id, name, email, phone, address, avatar, gender, 
         open={isEmailModalOpen}
         onOpenChange={setIsEmailModalOpen}
         customerEmail={email}
+      />
+
+      <CustomerNoteModal
+        open={isNoteModalOpen}
+        onOpenChange={setIsNoteModalOpen}
+        customerId={id}
+        customerName={name}
+      />
+
+      <AddAppointmentModal
+        open={isAppointmentModalOpen}
+        onOpenChange={setIsAppointmentModalOpen}
+        prefilledData={{ customerId: id }}
       />
     </Card>
   );
