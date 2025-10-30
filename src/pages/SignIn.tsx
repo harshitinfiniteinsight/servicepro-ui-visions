@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { Eye, EyeOff, Lock, Mail, Wrench, Hammer, Zap, Wind } from "lucide-react";
 import { Logo } from "@/components/Logo";
+import { ForgotPasswordModal } from "@/components/modals/ForgotPasswordModal";
 
 const demoBusinesses = [
   {
@@ -46,6 +47,7 @@ const SignIn = () => {
   const [password, setPassword] = useState("demo123");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [forgotPasswordOpen, setForgotPasswordOpen] = useState(false);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -108,7 +110,16 @@ const SignIn = () => {
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="password">Password</Label>
+                <button
+                  type="button"
+                  onClick={() => setForgotPasswordOpen(true)}
+                  className="text-sm text-primary hover:underline font-medium"
+                >
+                  Forgot Password?
+                </button>
+              </div>
               <div className="relative">
                 <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -210,6 +221,7 @@ const SignIn = () => {
           </Tabs>
         </CardContent>
       </Card>
+      <ForgotPasswordModal open={forgotPasswordOpen} onOpenChange={setForgotPasswordOpen} />
     </div>
   );
 };
