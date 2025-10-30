@@ -14,6 +14,7 @@ import { SendEmailModal } from "@/components/modals/SendEmailModal";
 import { SendSMSModal } from "@/components/modals/SendSMSModal";
 import { PayCashModal } from "@/components/modals/PayCashModal";
 import { LinkModulesModal } from "@/components/modals/LinkModulesModal";
+import { AgreementSignModal } from "@/components/modals/AgreementSignModal";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 
@@ -35,6 +36,8 @@ const Agreements = () => {
   const [linkModalOpen, setLinkModalOpen] = useState(false);
   const [linkTargetModule, setLinkTargetModule] = useState<"estimate" | "invoice">("estimate");
   const [selectedAgreementForLink, setSelectedAgreementForLink] = useState<any>(null);
+  const [signModalOpen, setSignModalOpen] = useState(false);
+  const [selectedAgreementForSign, setSelectedAgreementForSign] = useState<any>(null);
 
   const filteredAgreements = agreements.filter((agreement) => {
     const matchesSearch = agreement.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -98,6 +101,11 @@ const Agreements = () => {
     setSelectedAgreementForLink(agreement);
     setLinkTargetModule(targetModule);
     setLinkModalOpen(true);
+  };
+
+  const handlePayNow = (agreement: any) => {
+    setSelectedAgreementForSign(agreement);
+    setSignModalOpen(true);
   };
 
   return (
@@ -291,6 +299,7 @@ const Agreements = () => {
                           <Button 
                             size="sm" 
                             className="gap-2"
+                            onClick={() => handlePayNow(agreement)}
                           >
                             <DollarSign className="h-4 w-4" />
                             Pay Now
@@ -345,6 +354,11 @@ const Agreements = () => {
         sourceId={selectedAgreementForLink?.id || ""}
         sourceName={selectedAgreementForLink?.title || ""}
         targetModule={linkTargetModule}
+      />
+      <AgreementSignModal
+        open={signModalOpen}
+        onOpenChange={setSignModalOpen}
+        agreementId={selectedAgreementForSign?.id || ""}
       />
     </div>
   );

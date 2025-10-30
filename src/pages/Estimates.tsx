@@ -4,7 +4,7 @@ import { AppHeader } from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Eye, Mail, MessageSquare, DollarSign, Banknote, MapPin, UserCog, FileText, XCircle, MoreVertical, RotateCcw, Edit, History } from "lucide-react";
+import { Plus, Eye, Mail, MessageSquare, DollarSign, Banknote, MapPin, UserCog, FileText, XCircle, MoreVertical, RotateCcw, Edit, History, CalendarRange, RefreshCw } from "lucide-react";
 import { mockEstimates, mockEmployees } from "@/data/mockData";
 import { SendEmailModal } from "@/components/modals/SendEmailModal";
 import { SendSMSModal } from "@/components/modals/SendSMSModal";
@@ -16,6 +16,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,11 +25,18 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 const Estimates = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("active");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [dateRange, setDateRange] = useState<{ from: Date | undefined; to: Date | undefined }>({
+    from: undefined,
+    to: undefined,
+  });
   const [emailModalOpen, setEmailModalOpen] = useState(false);
   const [smsModalOpen, setSmsModalOpen] = useState(false);
   const [shareAddressModalOpen, setShareAddressModalOpen] = useState(false);
@@ -51,7 +60,17 @@ const Estimates = () => {
       estimate.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       estimate.employeeName.toLowerCase().includes(searchQuery.toLowerCase());
     
-    return matchesActive && matchesSearch;
+    const matchesStatus = 
+      statusFilter === "all" || 
+      (statusFilter === "paid" && estimate.status === "Paid") ||
+      (statusFilter === "open" && estimate.status === "Open");
+    
+    const estimateDate = new Date(estimate.createdDate);
+    const matchesDateRange = 
+      (!dateRange.from || estimateDate >= dateRange.from) &&
+      (!dateRange.to || estimateDate <= dateRange.to);
+    
+    return matchesActive && matchesSearch && matchesStatus && matchesDateRange;
   });
 
   const getStatusColor = (status: string) => {
@@ -161,6 +180,67 @@ const Estimates = () => {
             <p className="text-muted-foreground">Manage service estimates and proposals</p>
           </div>
           <div className="flex gap-3">
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-[140px]">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="paid">Paid</SelectItem>
+                <SelectItem value="open">Open</SelectItem>
+              </SelectContent>
+            </Select>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className="gap-2">
+                  <CalendarRange className="h-4 w-4" />
+                  {dateRange.from ? (
+                    dateRange.to ? (
+                      <>
+                        {format(dateRange.from, "MMM dd")} - {format(dateRange.to, "MMM dd")}
+                      </>
+                    ) : (
+                      format(dateRange.from, "MMM dd, yyyy")
+                    )
+                  ) : (
+                    "Date Range"
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="end">
+                <div className="p-3 space-y-3">
+                  <div>
+                    <p className="text-sm font-medium mb-2">From Date</p>
+                    <Calendar
+                      mode="single"
+                      selected={dateRange.from}
+                      onSelect={(date) => setDateRange({ ...dateRange, from: date })}
+                      className="pointer-events-auto"
+                    />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium mb-2">To Date</p>
+                    <Calendar
+                      mode="single"
+                      selected={dateRange.to}
+                      onSelect={(date) => setDateRange({ ...dateRange, to: date })}
+                      disabled={(date) => dateRange.from ? date < dateRange.from : false}
+                      className="pointer-events-auto"
+                    />
+                  </div>
+                  {(dateRange.from || dateRange.to) && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full"
+                      onClick={() => setDateRange({ from: undefined, to: undefined })}
+                    >
+                      Clear Filter
+                    </Button>
+                  )}
+                </div>
+              </PopoverContent>
+            </Popover>
             <Button onClick={() => setEstimateFormOpen(true)} className="gap-2">
               <Plus className="h-5 w-5" />
               New Estimate
@@ -219,7 +299,7 @@ const Estimates = () => {
                 {filteredEstimates.map((estimate) => (
                   <Card key={estimate.id} className="shadow-sm hover:shadow-md transition-shadow">
                     <CardContent className="p-6">
-                      <div className="grid grid-cols-1 md:grid-cols-6 gap-4 items-center">
+                      <div className="grid grid-cols-1 md:grid-cols-7 gap-4 items-center">
                         <div>
                           <p className="text-sm text-muted-foreground">Created Date</p>
                           <p className="font-medium">{estimate.createdDate}</p>
@@ -239,6 +319,12 @@ const Estimates = () => {
                         <div>
                           <p className="text-sm text-muted-foreground">Amount</p>
                           <p className="font-medium text-lg">${estimate.amount.toLocaleString()}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Sync</p>
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                            <RefreshCw className="h-4 w-4" />
+                          </Button>
                         </div>
                         <div className="flex items-center justify-between gap-2">
                           <Badge className={getStatusColor(estimate.status)}>
@@ -324,7 +410,7 @@ const Estimates = () => {
                 {filteredEstimates.map((estimate) => (
                   <Card key={estimate.id} className="shadow-sm hover:shadow-md transition-shadow opacity-75">
                     <CardContent className="p-6">
-                      <div className="grid grid-cols-1 md:grid-cols-6 gap-4 items-center">
+                      <div className="grid grid-cols-1 md:grid-cols-7 gap-4 items-center">
                         <div>
                           <p className="text-sm text-muted-foreground">Created Date</p>
                           <p className="font-medium">{estimate.createdDate}</p>
@@ -344,6 +430,12 @@ const Estimates = () => {
                         <div>
                           <p className="text-sm text-muted-foreground">Amount</p>
                           <p className="font-medium text-lg">${estimate.amount.toLocaleString()}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Sync</p>
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                            <RefreshCw className="h-4 w-4" />
+                          </Button>
                         </div>
                         <div className="flex items-center justify-end gap-2">
                           <Button
