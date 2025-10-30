@@ -15,6 +15,7 @@ import { SendSMSModal } from "@/components/modals/SendSMSModal";
 import { PayCashModal } from "@/components/modals/PayCashModal";
 import { LinkModulesModal } from "@/components/modals/LinkModulesModal";
 import { AgreementSignModal } from "@/components/modals/AgreementSignModal";
+import { InvoicePaymentModal } from "@/components/modals/InvoicePaymentModal";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 
@@ -38,6 +39,8 @@ const Agreements = () => {
   const [selectedAgreementForLink, setSelectedAgreementForLink] = useState<any>(null);
   const [signModalOpen, setSignModalOpen] = useState(false);
   const [selectedAgreementForSign, setSelectedAgreementForSign] = useState<any>(null);
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+  const [selectedAgreementForPayment, setSelectedAgreementForPayment] = useState<any>(null);
 
   const filteredAgreements = agreements.filter((agreement) => {
     const matchesSearch = agreement.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -105,7 +108,12 @@ const Agreements = () => {
 
   const handlePayNow = (agreement: any) => {
     setSelectedAgreementForSign(agreement);
+    setSelectedAgreementForPayment(agreement);
     setSignModalOpen(true);
+  };
+
+  const handleSignComplete = () => {
+    setPaymentModalOpen(true);
   };
 
   return (
@@ -359,6 +367,12 @@ const Agreements = () => {
         open={signModalOpen}
         onOpenChange={setSignModalOpen}
         agreementId={selectedAgreementForSign?.id || ""}
+        onSignComplete={handleSignComplete}
+      />
+      <InvoicePaymentModal
+        open={paymentModalOpen}
+        onOpenChange={setPaymentModalOpen}
+        invoice={selectedAgreementForPayment}
       />
     </div>
   );

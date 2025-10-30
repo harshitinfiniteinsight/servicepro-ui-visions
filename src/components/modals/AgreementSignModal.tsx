@@ -17,10 +17,18 @@ interface AgreementSignModalProps {
   agreementId: string;
 }
 
+interface AgreementSignModalProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  agreementId: string;
+  onSignComplete?: () => void;
+}
+
 export const AgreementSignModal = ({
   open,
   onOpenChange,
   agreementId,
+  onSignComplete,
 }: AgreementSignModalProps) => {
   const [isDrawing, setIsDrawing] = useState(false);
   const [documentType, setDocumentType] = useState("");
@@ -74,6 +82,15 @@ export const AgreementSignModal = ({
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!documentType) {
+      toast({
+        title: "Document Type Required",
+        description: "Please select a document type before uploading.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
@@ -85,11 +102,34 @@ export const AgreementSignModal = ({
   };
 
   const handleSend = () => {
+    if (!documentType) {
+      toast({
+        title: "Document Type Required",
+        description: "Please select a document type before sending.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (!uploadedImage) {
+      toast({
+        title: "Document Required",
+        description: "Please upload a document before sending.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     toast({
       title: "Agreement Signed",
       description: "Agreement documents have been uploaded successfully.",
     });
     onOpenChange(false);
+    
+    // Trigger payment modal after a brief delay
+    setTimeout(() => {
+      onSignComplete?.();
+    }, 300);
   };
 
   return (
@@ -136,11 +176,10 @@ export const AgreementSignModal = ({
                   <SelectValue placeholder="Select Document Type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="agreement">Agreement</SelectItem>
-                  <SelectItem value="contract">Contract</SelectItem>
-                  <SelectItem value="terms">Terms & Conditions</SelectItem>
-                  <SelectItem value="authorization">Authorization Form</SelectItem>
-                  <SelectItem value="other">Other</SelectItem>
+                  <SelectItem value="driving-licence">Driving Licence</SelectItem>
+                  <SelectItem value="passport">Passport</SelectItem>
+                  <SelectItem value="social-security">Social Security card</SelectItem>
+                  <SelectItem value="real-id">REAL ID Act</SelectItem>
                 </SelectContent>
               </Select>
             </div>
