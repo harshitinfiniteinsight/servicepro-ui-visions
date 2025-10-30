@@ -14,6 +14,7 @@ interface EmployeeCardProps {
   hireDate: string;
   totalJobs: number;
   avatar?: string;
+  color?: string;
   onEdit?: () => void;
   onDeactivate?: () => void;
 }
@@ -28,6 +29,7 @@ export const EmployeeCard = ({
   hireDate,
   totalJobs,
   avatar,
+  color = "#3B82F6",
   onEdit,
   onDeactivate,
 }: EmployeeCardProps) => {
@@ -38,15 +40,25 @@ export const EmployeeCard = ({
     .toUpperCase();
 
   return (
-    <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+    <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 relative overflow-hidden">
+      <div 
+        className="absolute top-0 left-0 w-1 h-full" 
+        style={{ backgroundColor: color }}
+      />
       <CardContent className="p-6">
         <div className="flex items-start gap-4 mb-4">
-          <Avatar className="h-16 w-16 border-2 border-primary/20 shadow-md">
-            <AvatarImage src={avatar} alt={name} />
-            <AvatarFallback className="bg-gradient-to-br from-primary to-primary/70 text-white font-semibold text-lg">
-              {initials}
-            </AvatarFallback>
-          </Avatar>
+          <div className="relative">
+            <Avatar className="h-16 w-16 border-2 shadow-md" style={{ borderColor: color }}>
+              <AvatarImage src={avatar} alt={name} />
+              <AvatarFallback className="text-white font-semibold text-lg" style={{ backgroundColor: color }}>
+                {initials}
+              </AvatarFallback>
+            </Avatar>
+            <div 
+              className="absolute -bottom-1 -right-1 h-5 w-5 rounded-full border-2 border-background"
+              style={{ backgroundColor: color }}
+            />
+          </div>
           <div className="flex-1">
             <h3 className="font-semibold text-lg text-foreground">{name}</h3>
             <p className="text-sm text-muted-foreground">{id}</p>

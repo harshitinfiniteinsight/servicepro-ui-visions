@@ -71,6 +71,7 @@ const Employees = () => {
                   hireDate={employee.hireDate}
                   totalJobs={employee.totalJobs}
                   avatar={employee.avatar}
+                  color={employee.color}
                   onEdit={() => handleEdit(employee.id, employee.name)}
                   onDeactivate={() => handleDeactivate(employee.id, employee.name)}
                 />
