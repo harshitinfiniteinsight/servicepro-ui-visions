@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Eye, EyeOff, Lock, Mail, User, Building2 } from "lucide-react";
+import { Logo } from "@/components/Logo";
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -37,12 +38,10 @@ const SignUp = () => {
       <Card className="w-full max-w-md glass-effect">
         <CardHeader className="space-y-1 text-center">
           <div className="flex justify-center mb-4">
-            <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-              <Building2 className="h-8 w-8 text-white" />
-            </div>
+            <Logo size="lg" showText={true} />
           </div>
           <CardTitle className="text-3xl font-bold">Create Account</CardTitle>
-          <CardDescription>Get started with Service Pro911</CardDescription>
+          <CardDescription>Get started with ServicePro911</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSignUp} className="space-y-4">
