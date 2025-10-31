@@ -191,6 +191,57 @@ All colors MUST be HSL.
     @apply min-h-[44px] min-w-[44px] flex items-center justify-center;
   }
 
+  /* Tablet portrait optimizations */
+  @media (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
+    /* Improve spacing for tablet portrait */
+    .tablet-spacing {
+      @apply px-6 py-4;
+    }
+
+    /* Optimize font sizes for tablet */
+    .tablet-text-sm {
+      @apply text-sm;
+    }
+
+    .tablet-text-base {
+      @apply text-base;
+    }
+
+    /* Better touch targets for tablet */
+    .tablet-touch {
+      @apply min-h-[48px] min-w-[48px];
+    }
+
+    /* Optimize grid layouts for tablet portrait */
+    .tablet-grid-2 {
+      @apply grid-cols-2;
+    }
+
+    .tablet-grid-3 {
+      @apply grid-cols-3;
+    }
+
+    /* Better padding for main content on tablet */
+    main {
+      @apply px-6 py-6;
+    }
+
+    /* Optimize card spacing */
+    .app-card {
+      @apply p-6;
+    }
+
+    /* Better button sizes for tablet */
+    button {
+      @apply min-h-[48px];
+    }
+
+    /* Optimize input fields */
+    input, textarea, select {
+      @apply min-h-[48px] text-base;
+    }
+  }
+
   .floating {
     animation: float 3s ease-in-out infinite;
   }

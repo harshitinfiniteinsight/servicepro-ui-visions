@@ -50,9 +50,9 @@ const AppContent = () => {
   const isAuthPage = ['/signin', '/signup', '/walkthrough'].includes(location.pathname);
 
   return (
-    <div className="flex min-h-screen w-full bg-muted/30">
+    <div className="flex min-h-screen w-full bg-muted/30 flex-col md:flex-row">
       {!isAuthPage && <AppSidebar />}
-      <div className="flex-1">
+      <div className="flex-1 min-w-0 w-full md:w-auto">
         {!isAuthPage && <AIChatWidget />}
         <Routes>
           <Route path="/signin" element={<SignIn />} />
