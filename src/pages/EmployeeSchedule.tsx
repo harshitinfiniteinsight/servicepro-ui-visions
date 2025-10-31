@@ -96,6 +96,14 @@ const EmployeeSchedule = () => {
     setEditModalOpen(true);
   };
 
+  const handleEditModalClose = (open: boolean) => {
+    setEditModalOpen(open);
+    if (!open) {
+      // Reset selected schedule when modal closes
+      setSelectedSchedule(null);
+    }
+  };
+
   const handleUpdateSchedule = (updatedSchedule: Schedule) => {
     setSchedules((prev) =>
       prev.map((s) => (s.id === updatedSchedule.id ? updatedSchedule : s))
@@ -394,7 +402,7 @@ const EmployeeSchedule = () => {
         {/* Update Schedule Modal */}
         <UpdateScheduleModal
           open={editModalOpen}
-          onOpenChange={setEditModalOpen}
+          onOpenChange={handleEditModalClose}
           schedule={selectedSchedule}
           onUpdate={handleUpdateSchedule}
         />
