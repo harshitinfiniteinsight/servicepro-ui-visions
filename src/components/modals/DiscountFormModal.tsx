@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,6 +22,25 @@ export function DiscountFormModal({ open, onOpenChange, mode, discount }: Discou
     type: discount?.type || "%",
     isDefault: discount?.isDefault || false,
   });
+
+  // Update form data when discount prop changes
+  useEffect(() => {
+    if (discount && mode === "edit") {
+      setFormData({
+        name: discount.name || "",
+        value: discount.value !== undefined && discount.value !== null ? String(discount.value) : "",
+        type: discount.type || "%",
+        isDefault: discount.isDefault || false,
+      });
+    } else if (mode === "create") {
+      setFormData({
+        name: "",
+        value: "",
+        type: "%",
+        isDefault: false,
+      });
+    }
+  }, [discount, mode, open]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -93,7 +112,7 @@ export function DiscountFormModal({ open, onOpenChange, mode, discount }: Discou
               Cancel
             </Button>
             <Button type="submit" className="flex-1">
-              {mode === "create" ? "Add" : "Save"}
+              {mode === "create" ? "Add" : "Update"}
             </Button>
           </div>
         </form>

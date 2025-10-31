@@ -9,6 +9,27 @@ import { DiscountFormModal } from "@/components/modals/DiscountFormModal";
 
 const Discounts = () => {
   const [discountModalOpen, setDiscountModalOpen] = useState(false);
+  const [selectedDiscount, setSelectedDiscount] = useState<any>(null);
+  const [modalMode, setModalMode] = useState<"create" | "edit">("create");
+
+  const handleAddDiscount = () => {
+    setSelectedDiscount(null);
+    setModalMode("create");
+    setDiscountModalOpen(true);
+  };
+
+  const handleEditDiscount = (discount: any) => {
+    setSelectedDiscount(discount);
+    setModalMode("edit");
+    setDiscountModalOpen(true);
+  };
+
+  const handleModalClose = (open: boolean) => {
+    setDiscountModalOpen(open);
+    if (!open) {
+      setSelectedDiscount(null);
+    }
+  };
 
   return (
     <div className="flex-1">
@@ -27,7 +48,7 @@ const Discounts = () => {
             </div>
           </div>
           <Button 
-            onClick={() => setDiscountModalOpen(true)} 
+            onClick={handleAddDiscount} 
             className="gap-2 shadow-md hover:shadow-lg transition-all w-full sm:w-auto"
           >
             <Plus className="h-4 w-4" />
@@ -71,6 +92,7 @@ const Discounts = () => {
                       variant="outline" 
                       size="sm" 
                       className="gap-2 flex-1 lg:flex-initial hover:bg-primary/10 hover:text-primary hover:border-primary transition-all font-medium"
+                      onClick={() => handleEditDiscount(discount)}
                     >
                       <Edit className="h-4 w-4" />
                       <span className="text-sm">Edit</span>
@@ -92,7 +114,12 @@ const Discounts = () => {
       </main>
 
       {/* Modal */}
-      <DiscountFormModal open={discountModalOpen} onOpenChange={setDiscountModalOpen} mode="create" />
+      <DiscountFormModal 
+        open={discountModalOpen} 
+        onOpenChange={handleModalClose} 
+        mode={modalMode}
+        discount={selectedDiscount}
+      />
     </div>
   );
 };
