@@ -7,7 +7,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { Eye, EyeOff, Lock, Mail, Wrench, Hammer, Zap, Wind } from "lucide-react";
-import { Logo } from "@/components/Logo";
 import { ForgotPasswordModal } from "@/components/modals/ForgotPasswordModal";
 
 const demoBusinesses = [
@@ -79,9 +78,6 @@ const SignIn = () => {
     <div className="min-h-screen flex items-center justify-center p-4 gradient-mesh">
       <Card className="w-full max-w-2xl glass-effect">
         <CardHeader className="space-y-1 text-center">
-          <div className="flex justify-center mb-4">
-            <Logo size="lg" showText={true} />
-          </div>
           <CardTitle className="text-3xl font-bold">Welcome Back</CardTitle>
           <CardDescription>Sign in to your ServicePro911 account or try a demo</CardDescription>
         </CardHeader>
