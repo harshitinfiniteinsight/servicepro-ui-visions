@@ -90,7 +90,7 @@ const Inventory = () => {
                   <span className="text-sm">Current Report</span>
                 </Button>
                 <Button variant="outline" className="gap-2 shadow-sm hover:shadow-md hover:bg-muted transition-all">
-                  <span className="text-sm">Generate Report</span>
+                  <span className="text-sm">Stock In/Out Report</span>
                 </Button>
                 <Button 
                   variant="outline" 
