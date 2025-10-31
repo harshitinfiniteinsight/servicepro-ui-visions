@@ -36,6 +36,7 @@ export function UpdateScheduleModal({ open, onOpenChange, schedule, onUpdate }: 
   const [selectedEmployee, setSelectedEmployee] = useState("");
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [weekDays, setWeekDays] = useState<string[]>([]);
+  const [allDaysSelected, setAllDaysSelected] = useState(false);
   const [timeSlot, setTimeSlot] = useState("");
   const [timezone, setTimezone] = useState("");
   const [startTime, setStartTime] = useState("");
@@ -51,7 +52,11 @@ export function UpdateScheduleModal({ open, onOpenChange, schedule, onUpdate }: 
       setSelectedDate(scheduleDate);
       
       // Store weekDays as array of day labels
-      setWeekDays(schedule.weekDays || []);
+      const days = schedule.weekDays || [];
+      setWeekDays(days);
+      
+      // Check if all days are selected
+      setAllDaysSelected(days.length === 7);
       
       // Format time slot to match "X Min" format (e.g., "15 min" -> "15 Min")
       const timeInterval = schedule.timeInterval || "";
@@ -67,6 +72,7 @@ export function UpdateScheduleModal({ open, onOpenChange, schedule, onUpdate }: 
       setSelectedEmployee("");
       setSelectedDate(undefined);
       setWeekDays([]);
+      setAllDaysSelected(false);
       setTimeSlot("");
       setTimezone("");
       setStartTime("");
@@ -74,8 +80,20 @@ export function UpdateScheduleModal({ open, onOpenChange, schedule, onUpdate }: 
     }
   }, [schedule, open]);
 
+  const toggleAllDays = () => {
+    if (allDaysSelected) {
+      setWeekDays([]);
+      setAllDaysSelected(false);
+    } else {
+      setWeekDays(["S", "M", "T", "W", "T", "F", "S"]);
+      setAllDaysSelected(true);
+    }
+  };
+
   const toggleWeekDay = (day: string, index: number) => {
     setWeekDays((prev) => {
+      let newDays: string[];
+      
       if (day === "T") {
         // Handle duplicate "T": index 2 is Tuesday, index 4 is Thursday
         const tCount = prev.filter(d => d === "T").length;
@@ -85,10 +103,10 @@ export function UpdateScheduleModal({ open, onOpenChange, schedule, onUpdate }: 
           if (tCount >= 1) {
             // Remove first "T"
             const firstTIndex = prev.indexOf("T");
-            return prev.filter((_, i) => i !== firstTIndex);
+            newDays = prev.filter((_, i) => i !== firstTIndex);
           } else {
             // Add "T" for Tuesday
-            return [...prev, "T"].sort((a, b) => {
+            newDays = [...prev, "T"].sort((a, b) => {
               const order = ["S", "M", "T", "W", "T", "F", "S"];
               return order.indexOf(a) - order.indexOf(b);
             });
@@ -98,19 +116,25 @@ export function UpdateScheduleModal({ open, onOpenChange, schedule, onUpdate }: 
           if (tCount >= 2) {
             // Remove last "T"
             const lastTIndex = prev.lastIndexOf("T");
-            return prev.filter((_, i) => i !== lastTIndex);
+            newDays = prev.filter((_, i) => i !== lastTIndex);
           } else if (tCount === 1) {
             // Add second "T" for Thursday
-            return [...prev, "T"];
+            newDays = [...prev, "T"];
           } else {
             // If no T exists, add one (will be treated as Tuesday)
-            return [...prev, "T"];
+            newDays = [...prev, "T"];
           }
+        } else {
+          newDays = prev;
         }
+      } else {
+        // For non-duplicate days, simple toggle
+        newDays = prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day];
       }
       
-      // For non-duplicate days, simple toggle
-      return prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day];
+      // Update "All Days" state
+      setAllDaysSelected(newDays.length === 7);
+      return newDays;
     });
   };
 
@@ -146,24 +170,24 @@ export function UpdateScheduleModal({ open, onOpenChange, schedule, onUpdate }: 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[900px] max-h-[90vh] overflow-y-auto bg-gradient-to-br from-teal-50/50 via-cyan-50/30 to-transparent border-teal-200/50">
-        <DialogHeader className="pb-4">
-          <DialogTitle className="text-2xl font-bold text-center text-teal-700">
+      <DialogContent className="sm:max-w-[900px] max-h-[90vh] overflow-y-auto bg-gradient-to-br from-cyan-100/80 via-cyan-50/60 to-cyan-100/40 border-cyan-200">
+        <DialogHeader className="pb-2 border-b-2 border-cyan-500">
+          <DialogTitle className="text-2xl font-bold text-center text-gray-600">
             Update Schedule
           </DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <form onSubmit={handleSubmit} className="space-y-5 pt-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
             {/* Left Column */}
-            <div className="space-y-5">
+            <div className="space-y-4">
               {/* Select Employee */}
               <div>
-                <Label htmlFor="employee" className="text-sm font-semibold text-foreground mb-2 block">
+                <Label htmlFor="employee" className="text-sm text-gray-600 mb-2 block">
                   Select Employee
                 </Label>
                 <Select value={selectedEmployee} onValueChange={setSelectedEmployee}>
-                  <SelectTrigger className="w-full bg-white border-teal-200 focus:border-teal-400">
+                  <SelectTrigger className="w-full bg-white border-gray-300 focus:border-cyan-400 rounded-md">
                     <SelectValue placeholder="Choose employee" />
                   </SelectTrigger>
                   <SelectContent>
@@ -178,14 +202,14 @@ export function UpdateScheduleModal({ open, onOpenChange, schedule, onUpdate }: 
 
               {/* Select Schedule Date */}
               <div>
-                <Label className="text-sm font-semibold text-foreground mb-2 block">
+                <Label className="text-sm text-gray-600 mb-2 block">
                   Select Schedule Date
                 </Label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
-                      className="w-full justify-between bg-white border-teal-200 hover:border-teal-400 text-foreground"
+                      className="w-full justify-between bg-white border-gray-300 hover:border-cyan-400 text-foreground rounded-md"
                     >
                       <span className="text-sm flex items-center gap-2">
                         <CalendarIcon className="h-4 w-4" />
@@ -207,11 +231,11 @@ export function UpdateScheduleModal({ open, onOpenChange, schedule, onUpdate }: 
 
               {/* Select Time Slot */}
               <div>
-                <Label className="text-sm font-semibold text-foreground mb-2 block">
+                <Label className="text-sm text-gray-600 mb-2 block">
                   Select Time Slot
                 </Label>
                 <Select value={timeSlot} onValueChange={setTimeSlot}>
-                  <SelectTrigger className="w-full bg-white border-teal-200 focus:border-teal-400">
+                  <SelectTrigger className="w-full bg-white border-gray-300 focus:border-cyan-400 rounded-md">
                     <SelectValue placeholder="Select time slot" />
                   </SelectTrigger>
                   <SelectContent>
@@ -233,16 +257,16 @@ export function UpdateScheduleModal({ open, onOpenChange, schedule, onUpdate }: 
 
               {/* Start Time */}
               <div>
-                <Label className="text-sm font-semibold text-foreground mb-2 block">
+                <Label className="text-sm text-gray-600 mb-2 block">
                   Start Time
                 </Label>
                 <div className="relative">
-                  <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-teal-600" />
+                  <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                   <Input
                     type="time"
                     value={startTime}
                     onChange={(e) => setStartTime(e.target.value)}
-                    className="pl-10 bg-white border-teal-200 focus:border-teal-400"
+                    className="pl-10 bg-white border-gray-300 focus:border-cyan-400 rounded-md"
                     required
                   />
                 </div>
@@ -250,13 +274,13 @@ export function UpdateScheduleModal({ open, onOpenChange, schedule, onUpdate }: 
             </div>
 
             {/* Right Column */}
-            <div className="space-y-5">
+            <div className="space-y-4">
               {/* Select Weeks Days */}
               <div>
-                <Label className="text-sm font-semibold text-foreground mb-3 block">
+                <Label className="text-sm text-gray-600 mb-2 block">
                   Select Weeks Days
                 </Label>
-                <div className="flex gap-2 flex-wrap">
+                <div className="flex gap-2 flex-wrap mb-3">
                   {weekDaysLabels.map((day, index) => {
                     // Check if this day is selected
                     let isSelected = false;
@@ -280,8 +304,8 @@ export function UpdateScheduleModal({ open, onOpenChange, schedule, onUpdate }: 
                         onClick={() => toggleWeekDay(day, index)}
                         className={`h-12 w-12 rounded-full font-semibold text-sm transition-all ${
                           isSelected
-                            ? "bg-teal-500 text-white shadow-md hover:bg-teal-600"
-                            : "bg-white border-2 border-teal-200 text-teal-700 hover:border-teal-400"
+                            ? "bg-cyan-500 text-white shadow-md hover:bg-cyan-600"
+                            : "bg-white border-2 border-gray-300 text-gray-600 hover:border-cyan-400"
                         }`}
                       >
                         {day}
@@ -289,15 +313,28 @@ export function UpdateScheduleModal({ open, onOpenChange, schedule, onUpdate }: 
                     );
                   })}
                 </div>
+                {/* All Days Checkbox */}
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="allDays"
+                    checked={allDaysSelected}
+                    onChange={toggleAllDays}
+                    className="h-4 w-4 rounded border-gray-300 text-cyan-500 focus:ring-cyan-500"
+                  />
+                  <Label htmlFor="allDays" className="text-sm text-gray-600 cursor-pointer">
+                    All Days
+                  </Label>
+                </div>
               </div>
 
               {/* Select Timezone */}
               <div>
-                <Label className="text-sm font-semibold text-foreground mb-2 block">
+                <Label className="text-sm text-gray-600 mb-2 block">
                   Select Timezone
                 </Label>
                 <Select value={timezone} onValueChange={setTimezone}>
-                  <SelectTrigger className="w-full bg-white border-teal-200 focus:border-teal-400">
+                  <SelectTrigger className="w-full bg-white border-gray-300 focus:border-cyan-400 rounded-md">
                     <SelectValue placeholder="Choose timezone" />
                   </SelectTrigger>
                   <SelectContent>
@@ -313,16 +350,16 @@ export function UpdateScheduleModal({ open, onOpenChange, schedule, onUpdate }: 
 
               {/* End Time */}
               <div>
-                <Label className="text-sm font-semibold text-foreground mb-2 block">
+                <Label className="text-sm text-gray-600 mb-2 block">
                   End Time
                 </Label>
                 <div className="relative">
-                  <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-teal-600" />
+                  <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                   <Input
                     type="time"
                     value={endTime}
                     onChange={(e) => setEndTime(e.target.value)}
-                    className="pl-10 bg-white border-teal-200 focus:border-teal-400"
+                    className="pl-10 bg-white border-gray-300 focus:border-cyan-400 rounded-md"
                     required
                   />
                 </div>
@@ -331,10 +368,11 @@ export function UpdateScheduleModal({ open, onOpenChange, schedule, onUpdate }: 
           </div>
 
           {/* Update Button */}
-          <div className="pt-4">
+          <div className="pt-4 flex justify-center">
             <Button
               type="submit"
-              className="w-full bg-teal-500 hover:bg-teal-600 text-white text-lg font-semibold py-6 rounded-lg shadow-md hover:shadow-lg transition-all"
+              variant="outline"
+              className="px-24 py-6 bg-transparent border-2 border-cyan-500 text-cyan-500 hover:bg-cyan-50 text-lg font-semibold rounded-lg transition-all"
             >
               UPDATE
             </Button>

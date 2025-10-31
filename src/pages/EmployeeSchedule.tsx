@@ -81,6 +81,7 @@ const EmployeeSchedule = () => {
   const [selectedEmployee, setSelectedEmployee] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
   const [weekDays, setWeekDays] = useState<string[]>([]);
+  const [allDaysSelected, setAllDaysSelected] = useState(false);
   const [timeSlot, setTimeSlot] = useState("5");
   const [timezone, setTimezone] = useState("");
   const [startTime, setStartTime] = useState("");
@@ -126,10 +127,20 @@ const EmployeeSchedule = () => {
     setModalOpen(false);
   };
 
+  const toggleAllDays = () => {
+    if (allDaysSelected) {
+      setWeekDays([]);
+      setAllDaysSelected(false);
+    } else {
+      setWeekDays(["S", "M", "T", "W", "T", "F", "S"]);
+      setAllDaysSelected(true);
+    }
+  };
+
   const toggleWeekDay = (day: string) => {
-    setWeekDays(prev => 
-      prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day]
-    );
+    const newDays = weekDays.includes(day) ? weekDays.filter(d => d !== day) : [...weekDays, day];
+    setWeekDays(newDays);
+    setAllDaysSelected(newDays.length === 7);
   };
 
   const weekDaysLabels = ["S", "M", "T", "W", "T", "F", "S"];
@@ -270,7 +281,7 @@ const EmployeeSchedule = () => {
                 {/* Week Days */}
                 <div>
                   <Label className="text-sm font-medium mb-2 block">Select Weeks Days</Label>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 mb-3">
                     {weekDaysLabels.map((day) => (
                       <button
                         key={day}
@@ -285,6 +296,19 @@ const EmployeeSchedule = () => {
                         {day}
                       </button>
                     ))}
+                  </div>
+                  {/* All Days Checkbox */}
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="allDaysAdd"
+                      checked={allDaysSelected}
+                      onChange={toggleAllDays}
+                      className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                    />
+                    <Label htmlFor="allDaysAdd" className="text-sm cursor-pointer">
+                      All Days
+                    </Label>
                   </div>
                 </div>
               </div>
