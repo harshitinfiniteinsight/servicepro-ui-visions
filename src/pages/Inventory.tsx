@@ -16,6 +16,7 @@ import { EquipmentFormModal } from "@/components/modals/EquipmentFormModal";
 import { EquipmentAssignModal } from "@/components/modals/EquipmentAssignModal";
 import { EquipmentNotesModal } from "@/components/modals/EquipmentNotesModal";
 import { AddAgreementInventoryModal } from "@/components/modals/AddAgreementInventoryModal";
+import { SendCurrentReportModal } from "@/components/modals/SendCurrentReportModal";
 
 const Inventory = () => {
   const navigate = useNavigate();
@@ -28,6 +29,7 @@ const Inventory = () => {
   const [equipmentAssignModal, setEquipmentAssignModal] = useState<{ open: boolean; equipment: any }>({ open: false, equipment: null });
   const [equipmentNotesModal, setEquipmentNotesModal] = useState<{ open: boolean; equipment: any }>({ open: false, equipment: null });
   const [agreementInventoryModalOpen, setAgreementInventoryModalOpen] = useState(false);
+  const [sendCurrentReportModalOpen, setSendCurrentReportModalOpen] = useState(false);
   const [selectedTab, setSelectedTab] = useState("inventory");
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
 
@@ -80,7 +82,10 @@ const Inventory = () => {
           <TabsContent value="inventory" className="space-y-4 mt-6">
             <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 items-start sm:items-center justify-between">
               <div className="flex gap-2">
-                <Button className="gap-2 shadow-sm hover:shadow-md transition-shadow">
+                <Button 
+                  className="gap-2 shadow-sm hover:shadow-md transition-shadow"
+                  onClick={() => setSendCurrentReportModalOpen(true)}
+                >
                   <FileText className="h-4 w-4" />
                   <span className="text-sm">Current Report</span>
                 </Button>
@@ -521,6 +526,10 @@ const Inventory = () => {
         <AddAgreementInventoryModal
           open={agreementInventoryModalOpen}
           onOpenChange={setAgreementInventoryModalOpen}
+        />
+        <SendCurrentReportModal
+          open={sendCurrentReportModalOpen}
+          onOpenChange={setSendCurrentReportModalOpen}
         />
       </main>
     </div>
