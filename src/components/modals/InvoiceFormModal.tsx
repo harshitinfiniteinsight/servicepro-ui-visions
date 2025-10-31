@@ -253,15 +253,15 @@ export const InvoiceFormModal = ({ open, onOpenChange, invoice, mode }: InvoiceF
               {/* Recurring Invoice Options */}
               {formData.invoiceType === "recurring" && (
                 <div className="p-6 bg-gradient-to-br from-primary/5 via-accent/5 to-primary/5 rounded-xl border-2 border-primary/20 space-y-5 shadow-sm">
-                  <div className="flex items-start gap-4">
+                  <div className="flex items-center gap-3">
                     <Checkbox
                       id="recurring-enabled"
                       checked={recurringEnabled}
                       onCheckedChange={(checked) => setRecurringEnabled(checked as boolean)}
-                      className="mt-1 h-5 w-5"
+                      className="h-5 w-5 flex-shrink-0"
                     />
                     <div className="flex-1 flex items-center gap-2 flex-wrap">
-                      <Label htmlFor="recurring-enabled" className="text-sm font-medium cursor-pointer">
+                      <Label htmlFor="recurring-enabled" className="text-sm font-medium cursor-pointer leading-none">
                         Recurring invoicing automatically sends the invoice on
                       </Label>
                       <Select value={recurringInterval} onValueChange={setRecurringInterval}>
@@ -276,7 +276,7 @@ export const InvoiceFormModal = ({ open, onOpenChange, invoice, mode }: InvoiceF
                           <SelectItem value="yearly">Yearly</SelectItem>
                         </SelectContent>
                       </Select>
-                      <span className="text-sm font-medium">intervals.</span>
+                      <span className="text-sm font-medium leading-none">intervals.</span>
                     </div>
                   </div>
 

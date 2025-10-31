@@ -48,14 +48,14 @@ const Inventory = () => {
 
       <main className="px-4 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6 animate-fade-in">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div>
+          <div className="flex-1 min-w-0">
             <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Inventory & Services</h1>
             <p className="text-sm sm:text-base text-muted-foreground">Manage inventory, equipment, and discounts</p>
           </div>
           <Button
             onClick={() => navigate("/inventory/alert-settings")}
             variant="outline"
-            className="gap-2 shadow-sm hover:shadow-md transition-all"
+            className="gap-2 shadow-sm hover:shadow-md transition-all flex-shrink-0 whitespace-nowrap"
           >
             <Bell className="h-4 w-4" />
             <span className="text-sm">Alert Settings</span>
@@ -63,47 +63,49 @@ const Inventory = () => {
         </div>
 
         <Tabs value={selectedTab} onValueChange={setSelectedTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 h-auto p-1 bg-muted">
-            <TabsTrigger value="inventory" className="gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm py-2.5">
-              <Package className="h-4 w-4" />
-              <span className="text-xs sm:text-sm">Inventory</span>
+          <TabsList className="grid w-full grid-cols-3 h-auto p-1 bg-muted gap-1">
+            <TabsTrigger value="inventory" className="gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm py-2.5 text-xs sm:text-sm">
+              <Package className="h-4 w-4 flex-shrink-0" />
+              <span className="truncate">Inventory</span>
             </TabsTrigger>
-            <TabsTrigger value="agreement-inventory" className="gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm py-2.5">
-              <FileText className="h-4 w-4" />
-              <span className="text-xs sm:text-sm">Agreement</span>
+            <TabsTrigger value="agreement-inventory" className="gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm py-2.5 text-xs sm:text-sm">
+              <FileText className="h-4 w-4 flex-shrink-0" />
+              <span className="truncate">Agreement</span>
             </TabsTrigger>
-            <TabsTrigger value="equipment" className="gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm py-2.5">
-              <Wrench className="h-4 w-4" />
-              <span className="text-xs sm:text-sm">Equipment</span>
+            <TabsTrigger value="equipment" className="gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm py-2.5 text-xs sm:text-sm">
+              <Wrench className="h-4 w-4 flex-shrink-0" />
+              <span className="truncate">Equipment</span>
             </TabsTrigger>
           </TabsList>
 
           {/* Inventory Tab */}
           <TabsContent value="inventory" className="space-y-4 mt-6">
-            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 items-start sm:items-center justify-between">
-              <div className="flex gap-2">
+            <div className="flex flex-col gap-3 md:gap-4">
+              {/* Action Buttons Row */}
+              <div className="flex flex-wrap gap-2 sm:gap-3">
                 <Button 
-                  className="gap-2 shadow-sm hover:shadow-md transition-shadow"
+                  className="gap-2 shadow-sm hover:shadow-md transition-shadow flex-shrink-0"
                   onClick={() => setSendCurrentReportModalOpen(true)}
                 >
                   <FileText className="h-4 w-4" />
-                  <span className="text-sm">Current Report</span>
+                  <span className="text-sm whitespace-nowrap">Current Report</span>
                 </Button>
-                <Button variant="outline" className="gap-2 shadow-sm hover:shadow-md hover:bg-muted transition-all">
-                  <span className="text-sm">Stock In/Out Report</span>
+                <Button variant="outline" className="gap-2 shadow-sm hover:shadow-md hover:bg-muted transition-all flex-shrink-0">
+                  <span className="text-sm whitespace-nowrap">Stock In/Out Report</span>
                 </Button>
                 <Button 
                   variant="outline" 
-                  className="gap-2 shadow-sm hover:shadow-md hover:bg-muted transition-all"
+                  className="gap-2 shadow-sm hover:shadow-md hover:bg-muted transition-all flex-shrink-0"
                   onClick={() => navigate("/inventory/discounts")}
                 >
                   <Tags className="h-4 w-4" />
-                  <span className="text-sm">Discounts</span>
+                  <span className="text-sm whitespace-nowrap">Discounts</span>
                 </Button>
               </div>
               
-              <div className="flex gap-2 w-full sm:w-auto">
-                <div className="flex border rounded-lg overflow-hidden">
+              {/* View Controls and Add Button Row */}
+              <div className="flex flex-wrap gap-2 sm:gap-3 items-center">
+                <div className="flex border rounded-lg overflow-hidden flex-shrink-0">
                   <Button
                     variant={viewMode === "list" ? "default" : "ghost"}
                     size="sm"
@@ -126,10 +128,10 @@ const Inventory = () => {
                     setEditingInventory(null);
                     setInventoryModalOpen(true);
                   }} 
-                  className="gap-2 flex-1 sm:flex-initial shadow-md hover:shadow-lg transition-all"
+                  className="gap-2 shadow-md hover:shadow-lg transition-all flex-shrink-0"
                 >
                   <Plus className="h-4 w-4" />
-                  <span className="text-sm">Add Inventory</span>
+                  <span className="text-sm whitespace-nowrap">Add Inventory</span>
                 </Button>
               </div>
             </div>
