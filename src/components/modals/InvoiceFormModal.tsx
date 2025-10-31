@@ -345,17 +345,29 @@ export const InvoiceFormModal = ({ open, onOpenChange, invoice, mode }: InvoiceF
                       <Card key={index} className="border-border/50 hover:border-primary/30 transition-all duration-200">
                         <CardContent className="p-4">
                           <div className="flex items-center justify-between gap-4">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-1">
-                                <p className="font-semibold text-foreground">{item.description}</p>
-                                {item.sku && (
-                                  <Badge variant="outline" className="text-xs font-mono">{item.sku}</Badge>
-                                )}
-                              </div>
-                              <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                                <span>Rate: ${item.rate.toFixed(2)}</span>
-                                <span>×</span>
-                                <span>Quantity: {item.quantity}</span>
+                            <div className="flex items-start gap-3 flex-1">
+                              {item.imagePreview && (
+                                <img
+                                  src={item.imagePreview}
+                                  alt={item.description}
+                                  className="w-16 h-16 object-cover rounded-lg border border-border"
+                                />
+                              )}
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <p className="font-semibold text-foreground">{item.description}</p>
+                                  {item.type === "custom" && (
+                                    <Badge variant="outline" className="text-xs bg-primary/10 text-primary border-primary/20">Custom</Badge>
+                                  )}
+                                  {item.sku && (
+                                    <Badge variant="outline" className="text-xs font-mono">{item.sku}</Badge>
+                                  )}
+                                </div>
+                                <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                                  <span>Rate: ${item.rate.toFixed(2)}</span>
+                                  <span>×</span>
+                                  <span>Quantity: {item.quantity}</span>
+                                </div>
                               </div>
                             </div>
                             

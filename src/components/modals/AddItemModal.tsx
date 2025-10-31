@@ -14,9 +14,10 @@ interface AddItemModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onAddItem: (item: any) => void;
+  context?: "invoice" | "estimate"; // Context to determine title
 }
 
-export const AddItemModal = ({ open, onOpenChange, onAddItem }: AddItemModalProps) => {
+export const AddItemModal = ({ open, onOpenChange, onAddItem, context = "invoice" }: AddItemModalProps) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [showCustomItemForm, setShowCustomItemForm] = useState(false);
   const [showInventoryModal, setShowInventoryModal] = useState(false);
@@ -29,6 +30,10 @@ export const AddItemModal = ({ open, onOpenChange, onAddItem }: AddItemModalProp
     price: "",
     image: null as File | null,
     imagePreview: "",
+  });
+  const [validationErrors, setValidationErrors] = useState({
+    name: "",
+    price: "",
   });
 
   const filteredInventory = mockInventory.filter((item) =>
@@ -57,18 +62,40 @@ export const AddItemModal = ({ open, onOpenChange, onAddItem }: AddItemModalProp
 
   const handleAddCustomItem = () => {
     const priceValue = parseFloat(customItem.price.replace(/[^0-9.]/g, ""));
-    if (customItem.name && priceValue > 0) {
-      onAddItem({
-        description: customItem.name,
-        quantity: 1,
-        rate: priceValue,
-        amount: priceValue,
-        type: "custom",
-        image: customItem.image,
-        imagePreview: customItem.imagePreview,
-      });
-      resetModal();
+    
+    // Reset validation errors
+    setValidationErrors({ name: "", price: "" });
+    
+    // Validation
+    let hasErrors = false;
+    
+    if (!customItem.name.trim()) {
+      setValidationErrors(prev => ({ ...prev, name: "Custom Item Name is required" }));
+      hasErrors = true;
     }
+    
+    if (!customItem.price || priceValue <= 0) {
+      setValidationErrors(prev => ({ ...prev, price: "Price must be a positive number" }));
+      hasErrors = true;
+    }
+    
+    if (hasErrors) {
+      return;
+    }
+    
+    // Add custom item to the list
+    onAddItem({
+      description: customItem.name,
+      quantity: 1,
+      rate: priceValue,
+      amount: priceValue,
+      type: "custom",
+      image: customItem.image,
+      imagePreview: customItem.imagePreview,
+    });
+    
+    // Reset and close modal
+    resetModal();
   };
 
   const handleSelectInventory = (inventory: any) => {
@@ -123,6 +150,7 @@ export const AddItemModal = ({ open, onOpenChange, onAddItem }: AddItemModalProp
     setSelectedInventory(null);
     setCustomPrice("");
     setCustomItem({ name: "", price: "", image: null, imagePreview: "" });
+    setValidationErrors({ name: "", price: "" });
     setSearchQuery("");
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
@@ -141,7 +169,12 @@ export const AddItemModal = ({ open, onOpenChange, onAddItem }: AddItemModalProp
       <DialogContent className="sm:max-w-[600px] max-h-[85vh] overflow-hidden app-card">
         <DialogHeader>
           <DialogTitle className="text-gradient">
-            {showCustomItemForm ? "Add Custom Item" : "Add Item to Invoice"}
+            {showCustomItemForm 
+              ? "Add Custom Item" 
+              : context === "estimate" 
+                ? "Add Item to Estimate" 
+                : "Add Item to Invoice"
+            }
           </DialogTitle>
           <DialogDescription>
             {showCustomItemForm 
@@ -158,10 +191,18 @@ export const AddItemModal = ({ open, onOpenChange, onAddItem }: AddItemModalProp
               <Input
                 id="customItemName"
                 value={customItem.name}
-                onChange={(e) => setCustomItem({ ...customItem, name: e.target.value })}
+                onChange={(e) => {
+                  setCustomItem({ ...customItem, name: e.target.value });
+                  if (validationErrors.name) {
+                    setValidationErrors(prev => ({ ...prev, name: "" }));
+                  }
+                }}
                 placeholder="Enter item name"
-                className="touch-target"
+                className={`touch-target ${validationErrors.name ? "border-destructive" : ""}`}
               />
+              {validationErrors.name && (
+                <p className="text-sm text-destructive">{validationErrors.name}</p>
+              )}
             </div>
 
             <div className="grid gap-2">
@@ -175,11 +216,17 @@ export const AddItemModal = ({ open, onOpenChange, onAddItem }: AddItemModalProp
                   onChange={(e) => {
                     const value = e.target.value.replace(/[^0-9.]/g, "");
                     setCustomItem({ ...customItem, price: value });
+                    if (validationErrors.price) {
+                      setValidationErrors(prev => ({ ...prev, price: "" }));
+                    }
                   }}
                   placeholder="0.00"
-                  className="pl-8 touch-target"
+                  className={`pl-8 touch-target ${validationErrors.price ? "border-destructive" : ""}`}
                 />
               </div>
+              {validationErrors.price && (
+                <p className="text-sm text-destructive">{validationErrors.price}</p>
+              )}
             </div>
 
             <div className="grid gap-2">
