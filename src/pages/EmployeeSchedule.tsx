@@ -7,16 +7,27 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Clock, Calendar, MapPin, MoreVertical, Edit, Trash2 } from "lucide-react";
+import { Plus, Clock, Calendar, MapPin, Edit, Trash2 } from "lucide-react";
 import { mockEmployees } from "@/data/mockData";
 import { toast } from "sonner";
 import { format } from "date-fns";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { UpdateScheduleModal } from "@/components/modals/UpdateScheduleModal";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface Schedule {
   id: string;
   employeeName: string;
   scheduledDate: string;
+  scheduledDateEnd?: string;
   timezone: string;
   startTime: string;
   endTime: string;
@@ -29,6 +40,7 @@ const mockSchedules: Schedule[] = [
     id: "1",
     employeeName: "Harry Potter",
     scheduledDate: "2025-10-23",
+    scheduledDateEnd: "2025-10-31",
     timezone: "Asia/Kolkata",
     startTime: "10:00",
     endTime: "19:30",
@@ -39,6 +51,7 @@ const mockSchedules: Schedule[] = [
     id: "2",
     employeeName: "bruce wayne",
     scheduledDate: "2025-10-24",
+    scheduledDateEnd: "2025-10-31",
     timezone: "Asia/Kolkata",
     startTime: "10:00",
     endTime: "18:00",
@@ -49,6 +62,7 @@ const mockSchedules: Schedule[] = [
     id: "3",
     employeeName: "v developer",
     scheduledDate: "2025-09-16",
+    scheduledDateEnd: "2025-09-30",
     timezone: "Asia/Kolkata",
     startTime: "01:00",
     endTime: "23:00",
@@ -59,7 +73,11 @@ const mockSchedules: Schedule[] = [
 
 const EmployeeSchedule = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [schedules, setSchedules] = useState<Schedule[]>(mockSchedules);
   const [modalOpen, setModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedSchedule, setSelectedSchedule] = useState<Schedule | null>(null);
   const [selectedEmployee, setSelectedEmployee] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
   const [weekDays, setWeekDays] = useState<string[]>([]);
@@ -68,9 +86,36 @@ const EmployeeSchedule = () => {
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
 
-  const filteredSchedules = mockSchedules.filter((schedule) =>
+  const filteredSchedules = schedules.filter((schedule) =>
     schedule.employeeName.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const handleEditSchedule = (schedule: Schedule) => {
+    setSelectedSchedule(schedule);
+    setEditModalOpen(true);
+  };
+
+  const handleUpdateSchedule = (updatedSchedule: Schedule) => {
+    setSchedules((prev) =>
+      prev.map((s) => (s.id === updatedSchedule.id ? updatedSchedule : s))
+    );
+    setEditModalOpen(false);
+    setSelectedSchedule(null);
+  };
+
+  const handleDeleteClick = (schedule: Schedule) => {
+    setSelectedSchedule(schedule);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (selectedSchedule) {
+      setSchedules((prev) => prev.filter((s) => s.id !== selectedSchedule.id));
+      toast.success("Schedule deleted successfully");
+      setDeleteDialogOpen(false);
+      setSelectedSchedule(null);
+    }
+  };
 
   const handleAddSchedule = () => {
     if (!selectedEmployee || !startTime || !endTime) {
@@ -136,7 +181,11 @@ const EmployeeSchedule = () => {
                         {schedule.employeeName}
                       </span>
                     </td>
-                    <td className="px-4 py-4 text-muted-foreground">{schedule.scheduledDate}</td>
+                    <td className="px-4 py-4 text-muted-foreground">
+                      {schedule.scheduledDateEnd 
+                        ? `${schedule.scheduledDate} - ${schedule.scheduledDateEnd}`
+                        : schedule.scheduledDate}
+                    </td>
                     <td className="px-4 py-4 text-muted-foreground">{schedule.timezone}</td>
                     <td className="px-4 py-4 text-muted-foreground">{schedule.startTime}</td>
                     <td className="px-4 py-4 text-muted-foreground">{schedule.endTime}</td>
@@ -146,23 +195,26 @@ const EmployeeSchedule = () => {
                       </Badge>
                     </td>
                     <td className="px-4 py-4">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
-                            <MoreVertical className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem>
-                            <Edit className="h-4 w-4 mr-2" />
-                            Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="text-destructive">
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 hover:bg-primary/10 hover:text-primary"
+                          onClick={() => handleEditSchedule(schedule)}
+                          title="Edit schedule"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 hover:bg-destructive/10 hover:text-destructive"
+                          onClick={() => handleDeleteClick(schedule)}
+                          title="Delete schedule"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -314,6 +366,35 @@ const EmployeeSchedule = () => {
             </div>
           </DialogContent>
         </Dialog>
+
+        {/* Update Schedule Modal */}
+        <UpdateScheduleModal
+          open={editModalOpen}
+          onOpenChange={setEditModalOpen}
+          schedule={selectedSchedule}
+          onUpdate={handleUpdateSchedule}
+        />
+
+        {/* Delete Confirmation Dialog */}
+        <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete Schedule</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to delete this schedule? This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleDeleteConfirm}
+                className="bg-destructive hover:bg-destructive/90"
+              >
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </main>
     </div>
   );
