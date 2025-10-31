@@ -209,7 +209,8 @@ All colors MUST be HSL.
 
     /* Better touch targets for tablet */
     .tablet-touch {
-      @apply min-h-[48px] min-w-[48px];
+      min-height: 44px;
+      min-width: 44px;
     }
 
     /* Optimize grid layouts for tablet portrait */
@@ -221,24 +222,14 @@ All colors MUST be HSL.
       @apply grid-cols-3;
     }
 
-    /* Better padding for main content on tablet */
-    main {
-      @apply px-6 py-6;
+    /* Ensure sidebar wrapper doesn't break */
+    .group\/sidebar-wrapper {
+      flex-direction: row !important;
     }
 
-    /* Optimize card spacing */
-    .app-card {
-      @apply p-6;
-    }
-
-    /* Better button sizes for tablet */
-    button {
-      @apply min-h-[48px];
-    }
-
-    /* Optimize input fields */
-    input, textarea, select {
-      @apply min-h-[48px] text-base;
+    /* Prevent overflow issues */
+    .flex-1 {
+      overflow-x: hidden;
     }
   }
 

@@ -82,7 +82,7 @@ export function AppSidebar() {
   const isInventoryActive = inventoryItems.some(item => location.pathname === item.url);
 
   return (
-    <Sidebar className="border-r border-border w-full md:w-auto">
+    <Sidebar className="border-r border-border">
       <SidebarContent className="p-4 md:p-6">
         <div className="p-4 md:p-6 border-b border-border -mx-4 md:-mx-6">
           <Logo size={open ? "md" : "sm"} />
