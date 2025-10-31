@@ -111,9 +111,9 @@ export function InventoryFormModal({ open, onOpenChange, mode, inventory, onInve
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{mode === "create" ? "Add Inventory" : "Update Inventory"}</DialogTitle>
+          <DialogTitle className="text-2xl font-bold">{mode === "create" ? "Add Inventory" : "Update Inventory"}</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 py-4">
           <div>
             <Label htmlFor="name">Inventory Name *</Label>
             <Input
@@ -121,13 +121,15 @@ export function InventoryFormModal({ open, onOpenChange, mode, inventory, onInve
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               required
+              className="touch-target"
+              placeholder="Enter inventory name"
             />
           </div>
 
           <div>
             <Label htmlFor="type">Inventory Type *</Label>
             <Select value={formData.type} onValueChange={(value) => setFormData({ ...formData, type: value })}>
-              <SelectTrigger>
+              <SelectTrigger className="touch-target">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -142,7 +144,7 @@ export function InventoryFormModal({ open, onOpenChange, mode, inventory, onInve
             <div>
               <Label htmlFor="price">Price *</Label>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-medium">$</span>
                 <Input
                   id="price"
                   type="number"
@@ -150,7 +152,8 @@ export function InventoryFormModal({ open, onOpenChange, mode, inventory, onInve
                   value={formData.price}
                   onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                   required
-                  className="pl-7"
+                  className="pl-7 touch-target"
+                  placeholder="0.00"
                 />
               </div>
             </div>
@@ -165,6 +168,7 @@ export function InventoryFormModal({ open, onOpenChange, mode, inventory, onInve
                 value={formData.itemUnit}
                 onChange={(e) => setFormData({ ...formData, itemUnit: e.target.value })}
                 required
+                className="touch-target"
               />
             </div>
           )}
@@ -177,6 +181,7 @@ export function InventoryFormModal({ open, onOpenChange, mode, inventory, onInve
                 value={formData.sku}
                 onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
                 required
+                className="touch-target"
               />
               {mode === "create" && (
                 <Button
@@ -185,6 +190,7 @@ export function InventoryFormModal({ open, onOpenChange, mode, inventory, onInve
                   size="icon"
                   onClick={generateSKU}
                   title="Generate new SKU"
+                  className="touch-target"
                 >
                   <RefreshCw className="h-4 w-4" />
                 </Button>
@@ -200,6 +206,8 @@ export function InventoryFormModal({ open, onOpenChange, mode, inventory, onInve
               value={formData.stockQuantity}
               onChange={(e) => setFormData({ ...formData, stockQuantity: e.target.value })}
               required
+              className="touch-target"
+              placeholder="0"
             />
           </div>
 
@@ -210,7 +218,7 @@ export function InventoryFormModal({ open, onOpenChange, mode, inventory, onInve
               type="file"
               accept="image/*"
               onChange={handleImageChange}
-              className="cursor-pointer"
+              className="cursor-pointer touch-target"
             />
             {imagePreview && (
               <div className="relative mt-3 w-full h-48 rounded-lg overflow-hidden border border-border">
@@ -233,10 +241,10 @@ export function InventoryFormModal({ open, onOpenChange, mode, inventory, onInve
           </div>
 
           <div className="flex gap-2 pt-4">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="flex-1">
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="flex-1 touch-target">
               Cancel
             </Button>
-            <Button type="submit" className="flex-1">
+            <Button type="submit" className="flex-1 touch-target">
               Save
             </Button>
           </div>
