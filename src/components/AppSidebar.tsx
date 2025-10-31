@@ -53,12 +53,21 @@ const mainItems = [
 ];
 
 export function AppSidebar() {
-  const { open } = useSidebar();
+  const { open, setOpen, setOpenMobile, isMobile } = useSidebar();
   const location = useLocation();
   const [salesOpen, setSalesOpen] = useState(true);
   const [appointmentsOpen, setAppointmentsOpen] = useState(true);
   const [employeesOpen, setEmployeesOpen] = useState(true);
   const [inventoryOpen, setInventoryOpen] = useState(true);
+
+  // Handler to close sidebar when a menu item is clicked
+  const handleNavClick = () => {
+    if (isMobile) {
+      setOpenMobile(false);
+    } else {
+      setOpen(false);
+    }
+  };
 
   const getNavClass = (path: string) => {
     const isActive = location.pathname === path;
@@ -87,7 +96,7 @@ export function AppSidebar() {
               {topItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <NavLink to={item.url} end className={getNavClass(item.url)}>
+                    <NavLink to={item.url} end className={getNavClass(item.url)} onClick={handleNavClick}>
                       <item.icon className="h-5 w-5" />
                       <span>{item.title}</span>
                     </NavLink>
@@ -110,7 +119,7 @@ export function AppSidebar() {
                       {salesItems.map((item) => (
                         <SidebarMenuSubItem key={item.title}>
                           <SidebarMenuSubButton asChild>
-                            <NavLink to={item.url} className={getNavClass(item.url)}>
+                            <NavLink to={item.url} className={getNavClass(item.url)} onClick={handleNavClick}>
                               <item.icon className="h-4 w-4" />
                               <span>{item.title}</span>
                             </NavLink>
@@ -137,7 +146,7 @@ export function AppSidebar() {
                       {appointmentItems.map((item) => (
                         <SidebarMenuSubItem key={item.title}>
                           <SidebarMenuSubButton asChild>
-                            <NavLink to={item.url} className={getNavClass(item.url)}>
+                            <NavLink to={item.url} className={getNavClass(item.url)} onClick={handleNavClick}>
                               <item.icon className="h-4 w-4" />
                               <span>{item.title}</span>
                             </NavLink>
@@ -164,7 +173,7 @@ export function AppSidebar() {
                       {employeeItems.map((item) => (
                         <SidebarMenuSubItem key={item.title}>
                           <SidebarMenuSubButton asChild>
-                            <NavLink to={item.url} className={getNavClass(item.url)}>
+                            <NavLink to={item.url} className={getNavClass(item.url)} onClick={handleNavClick}>
                               <item.icon className="h-4 w-4" />
                               <span>{item.title}</span>
                             </NavLink>
@@ -191,7 +200,7 @@ export function AppSidebar() {
                       {inventoryItems.map((item) => (
                         <SidebarMenuSubItem key={item.title}>
                           <SidebarMenuSubButton asChild>
-                            <NavLink to={item.url} className={getNavClass(item.url)}>
+                            <NavLink to={item.url} className={getNavClass(item.url)} onClick={handleNavClick}>
                               <item.icon className="h-4 w-4" />
                               <span>{item.title}</span>
                             </NavLink>
@@ -207,7 +216,7 @@ export function AppSidebar() {
               {mainItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <NavLink to={item.url} end className={getNavClass(item.url)}>
+                    <NavLink to={item.url} end className={getNavClass(item.url)} onClick={handleNavClick}>
                       <item.icon className="h-5 w-5" />
                       <span>{item.title}</span>
                     </NavLink>
