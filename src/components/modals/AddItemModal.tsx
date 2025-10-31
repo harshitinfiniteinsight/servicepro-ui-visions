@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Package, Search } from "lucide-react";
+import { Plus, Package, Search, Upload, Camera, X, ArrowLeft } from "lucide-react";
 import { mockInventory } from "@/data/mockData";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -18,14 +18,17 @@ interface AddItemModalProps {
 
 export const AddItemModal = ({ open, onOpenChange, onAddItem }: AddItemModalProps) => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [showCustomItemModal, setShowCustomItemModal] = useState(false);
+  const [showCustomItemForm, setShowCustomItemForm] = useState(false);
   const [showInventoryModal, setShowInventoryModal] = useState(false);
   const [selectedInventory, setSelectedInventory] = useState<any>(null);
   const [customPrice, setCustomPrice] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [customItem, setCustomItem] = useState({
     name: "",
-    price: 0,
+    price: "",
+    image: null as File | null,
+    imagePreview: "",
   });
 
   const filteredInventory = mockInventory.filter((item) =>
@@ -34,17 +37,36 @@ export const AddItemModal = ({ open, onOpenChange, onAddItem }: AddItemModalProp
     item.category.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setCustomItem({ ...customItem, image: file, imagePreview: reader.result as string });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setCustomItem({ ...customItem, image: null, imagePreview: "" });
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
   const handleAddCustomItem = () => {
-    if (customItem.name && customItem.price > 0) {
+    const priceValue = parseFloat(customItem.price.replace(/[^0-9.]/g, ""));
+    if (customItem.name && priceValue > 0) {
       onAddItem({
         description: customItem.name,
         quantity: 1,
-        rate: customItem.price,
-        amount: customItem.price,
+        rate: priceValue,
+        amount: priceValue,
         type: "custom",
+        image: customItem.image,
+        imagePreview: customItem.imagePreview,
       });
-      setShowCustomItemModal(false);
-      setCustomItem({ name: "", price: 0 });
       resetModal();
     }
   };
@@ -97,11 +119,14 @@ export const AddItemModal = ({ open, onOpenChange, onAddItem }: AddItemModalProp
   };
 
   const resetModal = () => {
-    setShowCustomItemModal(false);
+    setShowCustomItemForm(false);
     setSelectedInventory(null);
     setCustomPrice("");
-    setCustomItem({ name: "", price: 0 });
+    setCustomItem({ name: "", price: "", image: null, imagePreview: "" });
     setSearchQuery("");
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
     onOpenChange(false);
   };
 
@@ -115,20 +140,126 @@ export const AddItemModal = ({ open, onOpenChange, onAddItem }: AddItemModalProp
     <Dialog open={open} onOpenChange={(open) => !open && resetModal()}>
       <DialogContent className="sm:max-w-[600px] max-h-[85vh] overflow-hidden app-card">
         <DialogHeader>
-          <DialogTitle className="text-gradient">Add Item to Invoice</DialogTitle>
+          <DialogTitle className="text-gradient">
+            {showCustomItemForm ? "Add Custom Item" : "Add Item to Invoice"}
+          </DialogTitle>
           <DialogDescription>
-            Search inventory or create custom line items
+            {showCustomItemForm 
+              ? "Create a custom line item with image"
+              : "Search inventory or create custom line items"
+            }
           </DialogDescription>
         </DialogHeader>
 
-        {!selectedInventory && (
+        {showCustomItemForm ? (
+          <div className="space-y-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="customItemName">Custom Item Name *</Label>
+              <Input
+                id="customItemName"
+                value={customItem.name}
+                onChange={(e) => setCustomItem({ ...customItem, name: e.target.value })}
+                placeholder="Enter item name"
+                className="touch-target"
+              />
+            </div>
+
+            <div className="grid gap-2">
+              <Label htmlFor="customItemPrice">Price *</Label>
+              <div className="relative">
+                <span className="absolute left-3 top-3 text-muted-foreground font-medium">$</span>
+                <Input
+                  id="customItemPrice"
+                  type="text"
+                  value={customItem.price}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/[^0-9.]/g, "");
+                    setCustomItem({ ...customItem, price: value });
+                  }}
+                  placeholder="0.00"
+                  className="pl-8 touch-target"
+                />
+              </div>
+            </div>
+
+            <div className="grid gap-2">
+              <Label>Upload Image (Optional)</Label>
+              <div
+                className="border-2 border-dashed border-muted rounded-lg p-6 flex flex-col items-center justify-center bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer min-h-[200px]"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                {customItem.imagePreview ? (
+                  <div className="relative w-full">
+                    <img
+                      src={customItem.imagePreview}
+                      alt="Preview"
+                      className="max-h-[180px] mx-auto object-contain rounded"
+                    />
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      className="absolute top-2 right-2 h-8 w-8"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRemoveImage();
+                      }}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ) : (
+                  <>
+                    <div className="relative mb-4">
+                      <Camera className="h-16 w-16 text-muted-foreground" />
+                      <div className="absolute -top-2 -right-2 bg-primary rounded-full p-2">
+                        <Upload className="h-5 w-5 text-primary-foreground" />
+                      </div>
+                    </div>
+                    <p className="text-sm text-muted-foreground text-center">
+                      Click to upload or drag and drop
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      PNG, JPG up to 10MB
+                    </p>
+                  </>
+                )}
+              </div>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="hidden"
+              />
+            </div>
+
+            <div className="flex gap-2 pt-4">
+              <Button
+                variant="outline"
+                onClick={() => setShowCustomItemForm(false)}
+                className="flex-1 touch-target"
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back
+              </Button>
+              <Button
+                onClick={handleAddCustomItem}
+                disabled={!customItem.name || !customItem.price || parseFloat(customItem.price.replace(/[^0-9.]/g, "")) <= 0}
+                className="flex-1 touch-target"
+              >
+                Add Custom Item
+              </Button>
+            </div>
+          </div>
+        ) : !selectedInventory && (
           <div className="space-y-4 py-4">
             {/* Action Buttons */}
             <div className="grid grid-cols-2 gap-3">
               <Button
-                onClick={() => setShowCustomItemModal(true)}
+                onClick={() => setShowCustomItemForm(true)}
                 variant="outline"
-                className="h-14 gap-2"
+                className="h-14 gap-2 touch-target"
               >
                 <Plus className="h-5 w-5" />
                 Add Custom Item
@@ -136,7 +267,7 @@ export const AddItemModal = ({ open, onOpenChange, onAddItem }: AddItemModalProp
               <Button
                 onClick={() => setShowInventoryModal(true)}
                 variant="outline"
-                className="h-14 gap-2"
+                className="h-14 gap-2 touch-target"
               >
                 <Package className="h-5 w-5" />
                 Add Inventory
@@ -253,43 +384,6 @@ export const AddItemModal = ({ open, onOpenChange, onAddItem }: AddItemModalProp
         mode="create"
         onInventoryAdded={handleInventoryAdded}
       />
-
-      {/* Custom Item Modal */}
-      <Dialog open={showCustomItemModal} onOpenChange={setShowCustomItemModal}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Add Custom Item</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="grid gap-2">
-              <Label htmlFor="customItemName">Custom Item Name</Label>
-              <Input
-                id="customItemName"
-                value={customItem.name}
-                onChange={(e) => setCustomItem({ ...customItem, name: e.target.value })}
-                placeholder="Enter item name"
-              />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="customItemPrice">Price</Label>
-              <Input
-                id="customItemPrice"
-                type="number"
-                value={customItem.price || ""}
-                onChange={(e) => setCustomItem({ ...customItem, price: parseFloat(e.target.value) || 0 })}
-                min="0"
-                step="0.01"
-                placeholder="0.00"
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button onClick={handleAddCustomItem} disabled={!customItem.name || customItem.price <= 0}>
-              Add Custom Item
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </Dialog>
   );
 };
