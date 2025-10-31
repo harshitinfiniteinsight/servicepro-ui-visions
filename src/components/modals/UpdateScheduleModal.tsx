@@ -6,9 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { Clock, ChevronDown } from "lucide-react";
+import { Clock, ChevronDown, CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
-import { DateRange } from "react-day-picker";
 import { mockEmployees } from "@/data/mockData";
 import { toast } from "sonner";
 
@@ -35,7 +34,7 @@ const weekDaysLabels = ["S", "M", "T", "W", "T", "F", "S"];
 
 export function UpdateScheduleModal({ open, onOpenChange, schedule, onUpdate }: UpdateScheduleModalProps) {
   const [selectedEmployee, setSelectedEmployee] = useState("");
-  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [weekDays, setWeekDays] = useState<string[]>([]);
   const [timeSlot, setTimeSlot] = useState("");
   const [timezone, setTimezone] = useState("");
@@ -47,27 +46,26 @@ export function UpdateScheduleModal({ open, onOpenChange, schedule, onUpdate }: 
     if (schedule && open) {
       setSelectedEmployee(schedule.employeeName);
       
-      // Parse date range
-      const startDate = schedule.scheduledDate ? new Date(schedule.scheduledDate) : undefined;
-      const endDate = schedule.scheduledDateEnd ? new Date(schedule.scheduledDateEnd) : startDate;
-      
-      if (startDate) {
-        setDateRange({
-          from: startDate,
-          to: endDate,
-        });
-      }
+      // Parse date - use scheduledDate for single date picker
+      const scheduleDate = schedule.scheduledDate ? new Date(schedule.scheduledDate) : undefined;
+      setSelectedDate(scheduleDate);
       
       // Store weekDays as array of day labels
       setWeekDays(schedule.weekDays || []);
-      setTimeSlot(schedule.timeInterval || "");
+      
+      // Format time slot to match "X Min" format (e.g., "15 min" -> "15 Min")
+      const timeInterval = schedule.timeInterval || "";
+      // Normalize the format: convert "15 min" to "15 Min" for display
+      const normalizedInterval = timeInterval.replace(/\s*min\s*/i, "").trim();
+      setTimeSlot(normalizedInterval ? `${normalizedInterval} Min` : "");
+      
       setTimezone(schedule.timezone || "");
       setStartTime(schedule.startTime || "");
       setEndTime(schedule.endTime || "");
     } else {
       // Reset form when modal closes
       setSelectedEmployee("");
-      setDateRange(undefined);
+      setSelectedDate(undefined);
       setWeekDays([]);
       setTimeSlot("");
       setTimezone("");
@@ -119,22 +117,25 @@ export function UpdateScheduleModal({ open, onOpenChange, schedule, onUpdate }: 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!selectedEmployee || !dateRange?.from || !startTime || !endTime || !timeSlot || !timezone) {
+    if (!selectedEmployee || !selectedDate || !startTime || !endTime || !timeSlot || !timezone) {
       toast.error("Please fill in all required fields");
       return;
     }
 
     if (!schedule) return;
 
+    // Convert "15 Min" back to "15 min" format for storage
+    const timeIntervalValue = timeSlot.replace(/\s*Min\s*/i, " min").toLowerCase();
+    
     const updatedSchedule: Schedule = {
       ...schedule,
       employeeName: selectedEmployee,
-      scheduledDate: format(dateRange.from, "yyyy-MM-dd"),
-      scheduledDateEnd: dateRange.to ? format(dateRange.to, "yyyy-MM-dd") : undefined,
+      scheduledDate: format(selectedDate, "yyyy-MM-dd"),
+      scheduledDateEnd: undefined, // Single date picker, no end date
       timezone,
       startTime,
       endTime,
-      timeInterval: timeSlot,
+      timeInterval: timeIntervalValue,
       weekDays,
     };
 
@@ -186,29 +187,19 @@ export function UpdateScheduleModal({ open, onOpenChange, schedule, onUpdate }: 
                       variant="outline"
                       className="w-full justify-between bg-white border-teal-200 hover:border-teal-400 text-foreground"
                     >
-                      <span className="text-sm">
-                        {dateRange?.from ? (
-                          dateRange.to ? (
-                            <>
-                              {format(dateRange.from, "MM/dd/yyyy")} To {format(dateRange.to, "MM/dd/yyyy")}
-                            </>
-                          ) : (
-                            format(dateRange.from, "MM/dd/yyyy")
-                          )
-                        ) : (
-                          "Select date range"
-                        )}
+                      <span className="text-sm flex items-center gap-2">
+                        <CalendarIcon className="h-4 w-4" />
+                        {selectedDate ? format(selectedDate, "MM/dd/yyyy") : "Select date"}
                       </span>
                       <ChevronDown className="h-4 w-4 text-muted-foreground" />
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
                     <Calendar
-                      mode="range"
-                      selected={dateRange}
-                      onSelect={setDateRange}
+                      mode="single"
+                      selected={selectedDate}
+                      onSelect={setSelectedDate}
                       initialFocus
-                      numberOfMonths={2}
                     />
                   </PopoverContent>
                 </Popover>
@@ -224,12 +215,18 @@ export function UpdateScheduleModal({ open, onOpenChange, schedule, onUpdate }: 
                     <SelectValue placeholder="Select time slot" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="5 min">5 min</SelectItem>
-                    <SelectItem value="10 min">10 min</SelectItem>
-                    <SelectItem value="15 min">15 min</SelectItem>
-                    <SelectItem value="20 min">20 min</SelectItem>
-                    <SelectItem value="30 min">30 min</SelectItem>
-                    <SelectItem value="60 min">60 min</SelectItem>
+                    <SelectItem value="5 Min">5 Min</SelectItem>
+                    <SelectItem value="10 Min">10 Min</SelectItem>
+                    <SelectItem value="15 Min">15 Min</SelectItem>
+                    <SelectItem value="20 Min">20 Min</SelectItem>
+                    <SelectItem value="25 Min">25 Min</SelectItem>
+                    <SelectItem value="30 Min">30 Min</SelectItem>
+                    <SelectItem value="35 Min">35 Min</SelectItem>
+                    <SelectItem value="40 Min">40 Min</SelectItem>
+                    <SelectItem value="45 Min">45 Min</SelectItem>
+                    <SelectItem value="50 Min">50 Min</SelectItem>
+                    <SelectItem value="55 Min">55 Min</SelectItem>
+                    <SelectItem value="60 Min">60 Min</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
