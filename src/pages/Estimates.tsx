@@ -173,15 +173,15 @@ const Estimates = () => {
     <div className="flex-1">
       <AppHeader searchPlaceholder="Search estimates..." onSearchChange={setSearchQuery} />
 
-      <main className="px-6 py-6 space-y-6 animate-fade-in">
-        <div className="flex items-center justify-between">
+      <main className="px-4 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6 animate-fade-in">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Estimates</h1>
-            <p className="text-muted-foreground">Manage service estimates and proposals</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Estimates</h1>
+            <p className="text-sm sm:text-base text-muted-foreground">Manage service estimates and proposals</p>
           </div>
-          <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-[140px]">
+              <SelectTrigger className="w-full sm:w-[140px] touch-target">
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent>
@@ -192,22 +192,27 @@ const Estimates = () => {
             </Select>
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="outline" className="gap-2">
+                <Button variant="outline" className="gap-2 touch-target w-full sm:w-auto">
                   <CalendarRange className="h-4 w-4" />
-                  {dateRange.from ? (
-                    dateRange.to ? (
-                      <>
-                        {format(dateRange.from, "MMM dd")} - {format(dateRange.to, "MMM dd")}
-                      </>
+                  <span className="hidden sm:inline">
+                    {dateRange.from ? (
+                      dateRange.to ? (
+                        <>
+                          {format(dateRange.from, "MMM dd")} - {format(dateRange.to, "MMM dd")}
+                        </>
+                      ) : (
+                        format(dateRange.from, "MMM dd, yyyy")
+                      )
                     ) : (
-                      format(dateRange.from, "MMM dd, yyyy")
-                    )
-                  ) : (
-                    "Date Range"
-                  )}
+                      "Date Range"
+                    )}
+                  </span>
+                  <span className="sm:hidden">
+                    {dateRange.from ? format(dateRange.from, "MMM dd") : "Date"}
+                  </span>
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="end">
+              <PopoverContent className="w-auto p-0" align="start">
                 <div className="p-3 space-y-3">
                   <div>
                     <p className="text-sm font-medium mb-2">From Date</p>
@@ -232,7 +237,7 @@ const Estimates = () => {
                     <Button
                       variant="outline"
                       size="sm"
-                      className="w-full"
+                      className="w-full touch-target"
                       onClick={() => setDateRange({ from: undefined, to: undefined })}
                     >
                       Clear Filter
@@ -241,8 +246,8 @@ const Estimates = () => {
                 </div>
               </PopoverContent>
             </Popover>
-            <Button onClick={() => setEstimateFormOpen(true)} className="gap-2">
-              <Plus className="h-5 w-5" />
+            <Button onClick={() => setEstimateFormOpen(true)} className="gap-2 touch-target w-full sm:w-auto">
+              <Plus className="h-4 w-4 sm:h-5 sm:w-5" />
               New Estimate
             </Button>
           </div>

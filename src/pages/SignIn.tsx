@@ -77,15 +77,15 @@ const SignIn = () => {
   return (
     <div className="min-h-screen flex items-center justify-center p-4 gradient-mesh">
       <Card className="w-full max-w-2xl glass-effect">
-        <CardHeader className="space-y-1 text-center">
-          <CardTitle className="text-3xl font-bold">Welcome Back</CardTitle>
-          <CardDescription>Sign in to your ServicePro911 account or try a demo</CardDescription>
+        <CardHeader className="space-y-1 text-center px-4 sm:px-6 pt-6">
+          <CardTitle className="text-2xl sm:text-3xl font-bold">Welcome Back</CardTitle>
+          <CardDescription className="text-sm sm:text-base">Sign in to your ServicePro911 account or try a demo</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-4 sm:px-6 pb-6">
           <Tabs defaultValue="signin" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-6">
-              <TabsTrigger value="signin">Sign In</TabsTrigger>
-              <TabsTrigger value="demo">Demo Accounts</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2 mb-4 sm:mb-6 h-auto">
+              <TabsTrigger value="signin" className="py-2.5 text-sm sm:text-base">Sign In</TabsTrigger>
+              <TabsTrigger value="demo" className="py-2.5 text-sm sm:text-base">Demo Accounts</TabsTrigger>
             </TabsList>
 
             <TabsContent value="signin">
@@ -136,7 +136,7 @@ const SignIn = () => {
                 </button>
               </div>
             </div>
-                <Button type="submit" className="w-full gradient-primary" disabled={loading}>
+                <Button type="submit" className="w-full gradient-primary touch-target" disabled={loading}>
                   {loading ? "Signing in..." : "Sign In"}
                 </Button>
                 <div className="text-center text-sm">
@@ -184,7 +184,7 @@ const SignIn = () => {
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="mt-2 group-hover:bg-primary/10"
+                            className="mt-2 group-hover:bg-primary/10 touch-target"
                           >
                             Try Demo →
                           </Button>

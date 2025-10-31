@@ -39,22 +39,22 @@ const Employees = () => {
     <div className="flex-1">
       <AppHeader searchPlaceholder="Search employees..." onSearchChange={setSearchQuery} />
 
-      <main className="px-6 py-6 space-y-6 animate-fade-in">
-        <div className="flex items-center justify-between">
+      <main className="px-4 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6 animate-fade-in">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Employees</h1>
-            <p className="text-muted-foreground">Manage your team members</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Employees</h1>
+            <p className="text-sm sm:text-base text-muted-foreground">Manage your team members</p>
           </div>
-          <Button onClick={() => setModalOpen(true)} className="gap-2">
-            <Plus className="h-5 w-5" />
+          <Button onClick={() => setModalOpen(true)} className="gap-2 touch-target w-full sm:w-auto">
+            <Plus className="h-4 w-4 sm:h-5 sm:w-5" />
             Add Employee
           </Button>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full max-w-md grid-cols-2">
-            <TabsTrigger value="active">Active Employees</TabsTrigger>
-            <TabsTrigger value="deactivated">Deactivated Employees</TabsTrigger>
+          <TabsList className="grid w-full max-w-full sm:max-w-md grid-cols-2 h-auto">
+            <TabsTrigger value="active" className="py-2.5 text-sm sm:text-base">Active Employees</TabsTrigger>
+            <TabsTrigger value="deactivated" className="py-2.5 text-sm sm:text-base">Deactivated</TabsTrigger>
           </TabsList>
 
           <TabsContent value="active" className="mt-6">

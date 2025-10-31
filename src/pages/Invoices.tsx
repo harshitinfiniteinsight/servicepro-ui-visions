@@ -119,8 +119,8 @@ const Invoices = () => {
   };
 
   const renderSingleInvoiceTable = (invoices: any[]) => (
-    <div className="bg-card rounded-lg border shadow-sm">
-      <Table>
+    <div className="bg-card rounded-lg border shadow-sm overflow-x-auto">
+      <Table className="min-w-[800px]">
         <TableHeader>
           <TableRow className="bg-muted/50">
             <TableHead className="font-semibold">Date</TableHead>
@@ -179,7 +179,7 @@ const Invoices = () => {
                 <TableCell className="text-right">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0 hover:bg-primary/10">
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0 hover:bg-primary/10 touch-target">
                         <MoreVertical className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
@@ -265,8 +265,8 @@ const Invoices = () => {
   );
 
   const renderRecurringInvoiceTable = (invoices: any[]) => (
-    <div className="bg-card rounded-lg border shadow-sm">
-      <Table>
+    <div className="bg-card rounded-lg border shadow-sm overflow-x-auto">
+      <Table className="min-w-[800px]">
         <TableHeader>
           <TableRow className="bg-muted/50">
             <TableHead className="font-semibold">Date</TableHead>
@@ -317,7 +317,7 @@ const Invoices = () => {
                 <TableCell className="text-right">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0 hover:bg-primary/10">
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0 hover:bg-primary/10 touch-target">
                         <MoreVertical className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
@@ -397,8 +397,8 @@ const Invoices = () => {
   );
 
   const renderDeactivatedInvoiceTable = (invoices: any[]) => (
-    <div className="bg-card rounded-lg border shadow-sm">
-      <Table>
+    <div className="bg-card rounded-lg border shadow-sm overflow-x-auto">
+      <Table className="min-w-[800px]">
         <TableHeader>
           <TableRow className="bg-muted/50">
             <TableHead className="font-semibold">Date</TableHead>
@@ -449,7 +449,7 @@ const Invoices = () => {
                 <TableCell className="text-right">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0 hover:bg-primary/10">
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0 hover:bg-primary/10 touch-target">
                         <MoreVertical className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
@@ -489,64 +489,67 @@ const Invoices = () => {
     <div className="flex-1">
       <AppHeader searchPlaceholder="Search invoices..." onSearchChange={setSearchQuery} />
 
-      <main className="px-6 py-6 space-y-6 animate-fade-in">
-        <div className="flex items-center justify-between">
+      <main className="px-4 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6 animate-fade-in">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Service Pro911 - Invoices</h1>
-            <p className="text-muted-foreground">Manage billing and payments</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Service Pro911 - Invoices</h1>
+            <p className="text-sm sm:text-base text-muted-foreground">Manage billing and payments</p>
           </div>
-          <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
             <Button 
               variant="outline" 
               onClick={() => navigate("/invoices/due-alert")} 
-              className="gap-2"
+              className="gap-2 touch-target w-full sm:w-auto"
             >
-              <Bell className="h-5 w-5" />
-              Invoice Due Alert
+              <Bell className="h-4 w-4 sm:h-5 sm:w-5" />
+              <span className="hidden sm:inline">Invoice Due Alert</span>
+              <span className="sm:hidden">Due Alert</span>
             </Button>
-            <Button onClick={() => setModalOpen(true)} className="gap-2">
-              <Plus className="h-5 w-5" />
+            <Button onClick={() => setModalOpen(true)} className="gap-2 touch-target w-full sm:w-auto">
+              <Plus className="h-4 w-4 sm:h-5 sm:w-5" />
               New Invoice
             </Button>
           </div>
         </div>
 
-        <div className="flex gap-4 items-end">
-          <div className="flex-1">
+        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-end">
+          <div className="flex-1 w-full">
             <label className="text-sm font-medium mb-2 block">Date Range</label>
-            <div className="flex gap-2 items-center">
+            <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
               <Input
                 type="date"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                className="max-w-[180px]"
+                className="w-full sm:max-w-[180px] touch-target"
               />
-              <span className="text-muted-foreground">TO</span>
+              <span className="text-muted-foreground text-center sm:text-left hidden sm:inline">TO</span>
               <Input
                 type="date"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
-                className="max-w-[180px]"
+                className="w-full sm:max-w-[180px] touch-target"
               />
             </div>
           </div>
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All</SelectItem>
-              <SelectItem value="paid">Paid</SelectItem>
-              <SelectItem value="open">Open</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="w-full sm:w-auto">
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-full sm:w-[180px] touch-target">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="paid">Paid</SelectItem>
+                <SelectItem value="open">Open</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
-        <Tabs defaultValue="recurring" className="space-y-6">
-          <TabsList className="grid w-full max-w-md grid-cols-3">
-            <TabsTrigger value="recurring">Recurring Invoices</TabsTrigger>
-            <TabsTrigger value="single">Single Invoices</TabsTrigger>
-            <TabsTrigger value="deactivated">Deactivated</TabsTrigger>
+        <Tabs defaultValue="recurring" className="space-y-4 sm:space-y-6">
+          <TabsList className="grid w-full max-w-full sm:max-w-md grid-cols-3 h-auto">
+            <TabsTrigger value="recurring" className="text-xs sm:text-sm py-2 px-2 sm:px-4">Recurring</TabsTrigger>
+            <TabsTrigger value="single" className="text-xs sm:text-sm py-2 px-2 sm:px-4">Single</TabsTrigger>
+            <TabsTrigger value="deactivated" className="text-xs sm:text-sm py-2 px-2 sm:px-4">Deactivated</TabsTrigger>
           </TabsList>
 
           <TabsContent value="recurring" className="space-y-4">
@@ -564,12 +567,12 @@ const Invoices = () => {
           </TabsContent>
 
           <TabsContent value="deactivated" className="space-y-4">
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
               <div className="text-sm text-muted-foreground">
                 Date: {new Date(startDate).toLocaleDateString()} TO {new Date(endDate).toLocaleDateString()}
               </div>
               <Select value={deactivatedStatusFilter} onValueChange={setDeactivatedStatusFilter}>
-                <SelectTrigger className="w-[180px]">
+                <SelectTrigger className="w-full sm:w-[180px] touch-target">
                   <SelectValue placeholder="Filter" />
                 </SelectTrigger>
                 <SelectContent>

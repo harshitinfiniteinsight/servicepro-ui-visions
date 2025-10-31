@@ -178,18 +178,19 @@ const CustomerDetails = () => {
       <div className="flex-1">
         <AppHeader searchPlaceholder="Search..." onSearchChange={() => {}} />
 
-        <main className="px-6 py-6 space-y-6 animate-fade-in">
-          <div className="flex items-center gap-4">
+        <main className="px-4 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6 animate-fade-in">
+          <div className="flex items-center gap-2 sm:gap-4">
             <Button
               variant="ghost"
               size="icon"
               onClick={() => navigate("/customers")}
+              className="touch-target"
             >
-              <ArrowLeft className="h-5 w-5" />
+              <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
             </Button>
             <div>
-              <h1 className="text-3xl font-bold text-foreground">Customer Details</h1>
-              <p className="text-muted-foreground">View and manage customer information</p>
+              <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Customer Details</h1>
+              <p className="text-sm sm:text-base text-muted-foreground">View and manage customer information</p>
             </div>
           </div>
 
@@ -233,14 +234,14 @@ const CustomerDetails = () => {
             <CardContent className="space-y-6">
               {/* Profile Image */}
               <div className="flex flex-col items-center space-y-2">
-                <Avatar className="h-24 w-24 border-4 border-primary/20">
+                <Avatar className="h-20 w-20 sm:h-24 sm:w-24 border-4 border-primary/20">
                   <AvatarImage src={customer.avatar} alt={customer.name} />
-                  <AvatarFallback className="bg-primary/10 text-primary font-semibold text-2xl">
+                  <AvatarFallback className="bg-primary/10 text-primary font-semibold text-xl sm:text-2xl">
                     {initials}
                   </AvatarFallback>
                 </Avatar>
-                <Button variant="outline" size="sm" className="gap-2">
-                  <Upload className="h-3 w-3" />
+                <Button variant="outline" size="sm" className="gap-2 touch-target">
+                  <Upload className="h-3 w-3 sm:h-4 sm:w-4" />
                   Upload Photo
                 </Button>
               </div>
@@ -416,7 +417,7 @@ const CustomerDetails = () => {
                       <Button 
                         variant="outline" 
                         size="icon" 
-                        className="h-9 w-9"
+                        className="h-9 w-9 touch-target"
                         onClick={() => navigate("/appointments/add", { state: { preselectedCustomer: customer } })}
                       >
                         <CalendarIcon className="h-4 w-4" />
@@ -432,7 +433,7 @@ const CustomerDetails = () => {
                       <Button 
                         variant="outline" 
                         size="icon" 
-                        className="h-9 w-9"
+                        className="h-9 w-9 touch-target"
                         onClick={() => setEstimateModalOpen(true)}
                       >
                         <FileText className="h-4 w-4" />
@@ -448,7 +449,7 @@ const CustomerDetails = () => {
                       <Button 
                         variant="outline" 
                         size="icon" 
-                        className="h-9 w-9"
+                        className="h-9 w-9 touch-target"
                         onClick={() => setInvoiceModalOpen(true)}
                       >
                         <ClipboardList className="h-4 w-4" />
@@ -464,7 +465,7 @@ const CustomerDetails = () => {
                       <Button 
                         variant="outline" 
                         size="icon" 
-                        className="h-9 w-9"
+                        className="h-9 w-9 touch-target"
                         onClick={() => setAgreementModalOpen(true)}
                       >
                         <FileSignature className="h-4 w-4" />
@@ -478,16 +479,17 @@ const CustomerDetails = () => {
               </div>
 
               {/* Filters */}
-              <div className="flex gap-4">
-                <div className="flex-1">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                <div className="flex-1 w-full">
                   <Input
                     placeholder="Search orders..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
+                    className="touch-target"
                   />
                 </div>
                 <Select value={typeFilter} onValueChange={setTypeFilter}>
-                  <SelectTrigger className="w-[180px]">
+                  <SelectTrigger className="w-full sm:w-[180px] touch-target">
                     <SelectValue placeholder="Type filter" />
                   </SelectTrigger>
                   <SelectContent>
@@ -499,22 +501,27 @@ const CustomerDetails = () => {
                 </Select>
                 <Popover>
                   <PopoverTrigger asChild>
-                    <Button variant="outline" className="gap-2">
+                    <Button variant="outline" className="gap-2 touch-target w-full sm:w-auto">
                       <CalendarIcon className="h-4 w-4" />
-                      {dateRange?.from ? (
-                        dateRange.to ? (
-                          <>
-                            {format(dateRange.from, "LLL dd")} - {format(dateRange.to, "LLL dd, y")}
-                          </>
+                      <span className="hidden sm:inline">
+                        {dateRange?.from ? (
+                          dateRange.to ? (
+                            <>
+                              {format(dateRange.from, "LLL dd")} - {format(dateRange.to, "LLL dd, y")}
+                            </>
+                          ) : (
+                            format(dateRange.from, "LLL dd, y")
+                          )
                         ) : (
-                          format(dateRange.from, "LLL dd, y")
-                        )
-                      ) : (
-                        "Date range"
-                      )}
+                          "Date range"
+                        )}
+                      </span>
+                      <span className="sm:hidden">
+                        {dateRange?.from ? format(dateRange.from, "MMM dd") : "Date"}
+                      </span>
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="end">
+                  <PopoverContent className="w-auto p-0" align="start">
                     <Calendar
                       mode="range"
                       selected={dateRange}
@@ -526,16 +533,17 @@ const CustomerDetails = () => {
               </div>
             </CardHeader>
             <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Order ID</TableHead>
-                    <TableHead>Employee Name</TableHead>
-                    <TableHead>Amount</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Date</TableHead>
-                  </TableRow>
-                </TableHeader>
+              <div className="overflow-x-auto">
+                <Table className="min-w-[600px]">
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Order ID</TableHead>
+                      <TableHead>Employee Name</TableHead>
+                      <TableHead>Amount</TableHead>
+                      <TableHead>Type</TableHead>
+                      <TableHead>Date</TableHead>
+                    </TableRow>
+                  </TableHeader>
                 <TableBody>
                   {filteredOrders.length > 0 ? (
                     filteredOrders.map((order) => (
@@ -560,6 +568,7 @@ const CustomerDetails = () => {
                   )}
                 </TableBody>
               </Table>
+              </div>
             </CardContent>
           </Card>
         </div>

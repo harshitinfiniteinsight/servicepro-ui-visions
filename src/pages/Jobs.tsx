@@ -278,14 +278,14 @@ const Jobs = () => {
             <h3 className="font-bold text-lg">Filters</h3>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
             <div>
               <Label className="text-sm font-medium mb-2 block">From Date</Label>
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" className="w-full justify-start">
+                  <Button variant="outline" className="w-full justify-start touch-target">
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {dateFrom ? format(dateFrom, "PPP") : "Select date"}
+                    <span className="truncate">{dateFrom ? format(dateFrom, "PPP") : "Select date"}</span>
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
@@ -298,9 +298,9 @@ const Jobs = () => {
               <Label className="text-sm font-medium mb-2 block">To Date</Label>
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" className="w-full justify-start">
+                  <Button variant="outline" className="w-full justify-start touch-target">
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {dateTo ? format(dateTo, "PPP") : "Select date"}
+                    <span className="truncate">{dateTo ? format(dateTo, "PPP") : "Select date"}</span>
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
@@ -312,7 +312,7 @@ const Jobs = () => {
             <div>
               <Label className="text-sm font-medium mb-2 block">Job Type</Label>
               <Select value={selectedJobType} onValueChange={setSelectedJobType}>
-                <SelectTrigger>
+                <SelectTrigger className="touch-target">
                   <SelectValue placeholder="All" />
                 </SelectTrigger>
                 <SelectContent>
@@ -327,7 +327,7 @@ const Jobs = () => {
             <div>
               <Label className="text-sm font-medium mb-2 block">Customer</Label>
               <Select value={selectedCustomer} onValueChange={setSelectedCustomer}>
-                <SelectTrigger>
+                <SelectTrigger className="touch-target">
                   <SelectValue placeholder="All Customers" />
                 </SelectTrigger>
                 <SelectContent>
@@ -344,7 +344,7 @@ const Jobs = () => {
             <div>
               <Label className="text-sm font-medium mb-2 block">Employee</Label>
               <Select value={selectedEmployee} onValueChange={setSelectedEmployee}>
-                <SelectTrigger>
+                <SelectTrigger className="touch-target">
                   <SelectValue placeholder="All Employees" />
                 </SelectTrigger>
                 <SelectContent>
@@ -359,12 +359,12 @@ const Jobs = () => {
             </div>
           </div>
 
-          <div className="flex gap-2 pt-2">
+          <div className="flex flex-wrap gap-2 pt-2">
             <Button
               variant={timeFilter === "day" ? "default" : "outline"}
               onClick={() => setTimeFilter("day")}
               size="sm"
-              className={timeFilter === "day" ? "gradient-primary" : ""}
+              className={`touch-target ${timeFilter === "day" ? "gradient-primary" : ""}`}
             >
               Day
             </Button>
@@ -372,7 +372,7 @@ const Jobs = () => {
               variant={timeFilter === "week" ? "default" : "outline"}
               onClick={() => setTimeFilter("week")}
               size="sm"
-              className={timeFilter === "week" ? "gradient-primary" : ""}
+              className={`touch-target ${timeFilter === "week" ? "gradient-primary" : ""}`}
             >
               Week
             </Button>
@@ -380,7 +380,7 @@ const Jobs = () => {
               variant={timeFilter === "month" ? "default" : "outline"}
               onClick={() => setTimeFilter("month")}
               size="sm"
-              className={timeFilter === "month" ? "gradient-primary" : ""}
+              className={`touch-target ${timeFilter === "month" ? "gradient-primary" : ""}`}
             >
               Month
             </Button>
