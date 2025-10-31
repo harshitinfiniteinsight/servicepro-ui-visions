@@ -170,213 +170,183 @@ export function UpdateScheduleModal({ open, onOpenChange, schedule, onUpdate }: 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[900px] max-h-[90vh] overflow-y-auto bg-gradient-to-br from-cyan-100/80 via-cyan-50/60 to-cyan-100/40 border-cyan-200">
-        <DialogHeader className="pb-2 border-b-2 border-cyan-500">
-          <DialogTitle className="text-2xl font-bold text-center text-gray-600">
-            Update Schedule
-          </DialogTitle>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="text-2xl font-bold text-center">Update Schedule</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-5 pt-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
-            {/* Left Column */}
-            <div className="space-y-4">
-              {/* Select Employee */}
-              <div>
-                <Label htmlFor="employee" className="text-sm text-gray-600 mb-2 block">
-                  Select Employee
-                </Label>
-                <Select value={selectedEmployee} onValueChange={setSelectedEmployee}>
-                  <SelectTrigger className="w-full bg-white border-gray-300 focus:border-cyan-400 rounded-md">
-                    <SelectValue placeholder="Choose employee" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {mockEmployees.map((employee) => (
-                      <SelectItem key={employee.id} value={employee.name}>
-                        {employee.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+        <form onSubmit={handleSubmit} className="space-y-6 py-4">
+          {/* Employee Selection */}
+          <div>
+            <Label className="text-sm font-medium mb-2 block">Select Employee</Label>
+            <Select value={selectedEmployee} onValueChange={setSelectedEmployee}>
+              <SelectTrigger>
+                <SelectValue placeholder="Choose employee" />
+              </SelectTrigger>
+              <SelectContent>
+                {mockEmployees.map((employee) => (
+                  <SelectItem key={employee.id} value={employee.name}>
+                    {employee.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
-              {/* Select Schedule Date */}
-              <div>
-                <Label className="text-sm text-gray-600 mb-2 block">
-                  Select Schedule Date
-                </Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="w-full justify-between bg-white border-gray-300 hover:border-cyan-400 text-foreground rounded-md"
-                    >
-                      <span className="text-sm flex items-center gap-2">
-                        <CalendarIcon className="h-4 w-4" />
-                        {selectedDate ? format(selectedDate, "MM/dd/yyyy") : "Select date"}
-                      </span>
-                      <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={selectedDate}
-                      onSelect={setSelectedDate}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-
-              {/* Select Time Slot */}
-              <div>
-                <Label className="text-sm text-gray-600 mb-2 block">
-                  Select Time Slot
-                </Label>
-                <Select value={timeSlot} onValueChange={setTimeSlot}>
-                  <SelectTrigger className="w-full bg-white border-gray-300 focus:border-cyan-400 rounded-md">
-                    <SelectValue placeholder="Select time slot" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="5 Min">5 Min</SelectItem>
-                    <SelectItem value="10 Min">10 Min</SelectItem>
-                    <SelectItem value="15 Min">15 Min</SelectItem>
-                    <SelectItem value="20 Min">20 Min</SelectItem>
-                    <SelectItem value="25 Min">25 Min</SelectItem>
-                    <SelectItem value="30 Min">30 Min</SelectItem>
-                    <SelectItem value="35 Min">35 Min</SelectItem>
-                    <SelectItem value="40 Min">40 Min</SelectItem>
-                    <SelectItem value="45 Min">45 Min</SelectItem>
-                    <SelectItem value="50 Min">50 Min</SelectItem>
-                    <SelectItem value="55 Min">55 Min</SelectItem>
-                    <SelectItem value="60 Min">60 Min</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Start Time */}
-              <div>
-                <Label className="text-sm text-gray-600 mb-2 block">
-                  Start Time
-                </Label>
-                <div className="relative">
-                  <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  <Input
-                    type="time"
-                    value={startTime}
-                    onChange={(e) => setStartTime(e.target.value)}
-                    className="pl-10 bg-white border-gray-300 focus:border-cyan-400 rounded-md"
-                    required
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Schedule Date */}
+            <div>
+              <Label className="text-sm font-medium mb-2 block">Select Schedule Date</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-between"
+                  >
+                    <span className="text-sm flex items-center gap-2">
+                      <CalendarIcon className="h-4 w-4" />
+                      {selectedDate ? format(selectedDate, "MM/dd/yyyy") : "Select date"}
+                    </span>
+                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={selectedDate}
+                    onSelect={setSelectedDate}
+                    initialFocus
                   />
-                </div>
-              </div>
+                </PopoverContent>
+              </Popover>
             </div>
 
-            {/* Right Column */}
-            <div className="space-y-4">
-              {/* Select Weeks Days */}
-              <div>
-                <Label className="text-sm text-gray-600 mb-2 block">
-                  Select Weeks Days
-                </Label>
-                <div className="flex gap-2 flex-wrap mb-3">
-                  {weekDaysLabels.map((day, index) => {
-                    // Check if this day is selected
-                    let isSelected = false;
-                    if (day === "T") {
-                      // For "T", check position: index 2 is Tuesday, index 4 is Thursday
-                      if (index === 2) {
-                        // Tuesday: check if first "T" exists
-                        isSelected = weekDays.indexOf("T") >= 0 && weekDays.indexOf("T") < 3;
-                      } else if (index === 4) {
-                        // Thursday: check if there's a second "T"
-                        isSelected = weekDays.filter(d => d === "T").length > 1;
-                      }
-                    } else {
-                      isSelected = weekDays.includes(day);
+            {/* Week Days */}
+            <div>
+              <Label className="text-sm font-medium mb-2 block">Select Weeks Days</Label>
+              <div className="flex gap-2 mb-3">
+                {weekDaysLabels.map((day, index) => {
+                  // Check if this day is selected
+                  let isSelected = false;
+                  if (day === "T") {
+                    // For "T", check position: index 2 is Tuesday, index 4 is Thursday
+                    if (index === 2) {
+                      // Tuesday: check if first "T" exists
+                      isSelected = weekDays.indexOf("T") >= 0 && weekDays.indexOf("T") < 3;
+                    } else if (index === 4) {
+                      // Thursday: check if there's a second "T"
+                      isSelected = weekDays.filter(d => d === "T").length > 1;
                     }
-                    
-                    return (
-                      <button
-                        key={`${day}-${index}`}
-                        type="button"
-                        onClick={() => toggleWeekDay(day, index)}
-                        className={`h-12 w-12 rounded-full font-semibold text-sm transition-all ${
-                          isSelected
-                            ? "bg-cyan-500 text-white shadow-md hover:bg-cyan-600"
-                            : "bg-white border-2 border-gray-300 text-gray-600 hover:border-cyan-400"
-                        }`}
-                      >
-                        {day}
-                      </button>
-                    );
-                  })}
-                </div>
-                {/* All Days Checkbox */}
-                <div className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    id="allDays"
-                    checked={allDaysSelected}
-                    onChange={toggleAllDays}
-                    className="h-4 w-4 rounded border-gray-300 text-cyan-500 focus:ring-cyan-500"
-                  />
-                  <Label htmlFor="allDays" className="text-sm text-gray-600 cursor-pointer">
-                    All Days
-                  </Label>
-                </div>
+                  } else {
+                    isSelected = weekDays.includes(day);
+                  }
+                  
+                  return (
+                    <button
+                      key={`${day}-${index}`}
+                      type="button"
+                      onClick={() => toggleWeekDay(day, index)}
+                      className={`h-12 w-12 rounded-full font-semibold transition-all ${
+                        isSelected
+                          ? "bg-primary text-primary-foreground shadow-md"
+                          : "bg-muted hover:bg-muted/80"
+                      }`}
+                    >
+                      {day}
+                    </button>
+                  );
+                })}
               </div>
-
-              {/* Select Timezone */}
-              <div>
-                <Label className="text-sm text-gray-600 mb-2 block">
-                  Select Timezone
+              {/* All Days Checkbox */}
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="allDays"
+                  checked={allDaysSelected}
+                  onChange={toggleAllDays}
+                  className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                />
+                <Label htmlFor="allDays" className="text-sm cursor-pointer">
+                  All Days
                 </Label>
-                <Select value={timezone} onValueChange={setTimezone}>
-                  <SelectTrigger className="w-full bg-white border-gray-300 focus:border-cyan-400 rounded-md">
-                    <SelectValue placeholder="Choose timezone" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Asia/Kolkata">Asia/Kolkata</SelectItem>
-                    <SelectItem value="America/New_York">America/New York</SelectItem>
-                    <SelectItem value="Europe/London">Europe/London</SelectItem>
-                    <SelectItem value="Asia/Tokyo">Asia/Tokyo</SelectItem>
-                    <SelectItem value="America/Los_Angeles">America/Los Angeles</SelectItem>
-                    <SelectItem value="Europe/Paris">Europe/Paris</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* End Time */}
-              <div>
-                <Label className="text-sm text-gray-600 mb-2 block">
-                  End Time
-                </Label>
-                <div className="relative">
-                  <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  <Input
-                    type="time"
-                    value={endTime}
-                    onChange={(e) => setEndTime(e.target.value)}
-                    className="pl-10 bg-white border-gray-300 focus:border-cyan-400 rounded-md"
-                    required
-                  />
-                </div>
               </div>
             </div>
           </div>
 
-          {/* Update Button */}
-          <div className="pt-4 flex justify-center">
-            <Button
-              type="submit"
-              variant="outline"
-              className="px-24 py-6 bg-transparent border-2 border-cyan-500 text-cyan-500 hover:bg-cyan-50 text-lg font-semibold rounded-lg transition-all"
-            >
-              UPDATE
-            </Button>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Time Slot */}
+            <div>
+              <Label className="text-sm font-medium mb-2 block">Select Time Slot</Label>
+              <Select value={timeSlot} onValueChange={setTimeSlot}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="5 Min">5 Min</SelectItem>
+                  <SelectItem value="10 Min">10 Min</SelectItem>
+                  <SelectItem value="15 Min">15 Min</SelectItem>
+                  <SelectItem value="20 Min">20 Min</SelectItem>
+                  <SelectItem value="30 Min">30 Min</SelectItem>
+                  <SelectItem value="60 Min">60 Min</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Timezone */}
+            <div>
+              <Label className="text-sm font-medium mb-2 block">Select Timezone</Label>
+              <Select value={timezone} onValueChange={setTimezone}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Choose timezone" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Asia/Kolkata">Asia/Kolkata</SelectItem>
+                  <SelectItem value="America/New_York">America/New York</SelectItem>
+                  <SelectItem value="Europe/London">Europe/London</SelectItem>
+                  <SelectItem value="Asia/Tokyo">Asia/Tokyo</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Start Time */}
+            <div>
+              <Label className="text-sm font-medium mb-2 block">Start Time</Label>
+              <div className="relative">
+                <Clock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="time"
+                  value={startTime}
+                  onChange={(e) => setStartTime(e.target.value)}
+                  className="pl-10"
+                  placeholder="Start Time"
+                />
+              </div>
+            </div>
+
+            {/* End Time */}
+            <div>
+              <Label className="text-sm font-medium mb-2 block">End Time</Label>
+              <div className="relative">
+                <Clock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="time"
+                  value={endTime}
+                  onChange={(e) => setEndTime(e.target.value)}
+                  className="pl-10"
+                  placeholder="End Time"
+                />
+              </div>
+            </div>
+          </div>
+
+          <Button
+            type="submit"
+            className="w-full gradient-primary text-lg py-6"
+          >
+            UPDATE
+          </Button>
         </form>
       </DialogContent>
     </Dialog>
