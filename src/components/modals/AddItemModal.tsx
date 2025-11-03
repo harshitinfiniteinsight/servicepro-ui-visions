@@ -295,7 +295,7 @@ export const AddItemModal = ({ open, onOpenChange, onAddItem, context = "invoice
                 disabled={!customItem.name || !customItem.price || parseFloat(customItem.price.replace(/[^0-9.]/g, "")) <= 0}
                 className="flex-1 touch-target"
               >
-                Add Custom Item
+                Create
               </Button>
             </div>
           </div>
