@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { Print, X, Mail, MessageSquare, UserCog } from "lucide-react";
+import { Printer, X, Mail, MessageSquare, UserCog } from "lucide-react";
 import { SendEmailModal } from "./SendEmailModal";
 import { SendSMSModal } from "./SendSMSModal";
 import { mockEmployees, mockCustomers } from "@/data/mockData";
@@ -111,7 +111,7 @@ export const PreviewInvoiceModal = ({ open, onOpenChange, invoice }: PreviewInvo
                   onClick={handlePrint}
                   className="bg-orange-500 hover:bg-orange-600 text-white border-none"
                 >
-                  <Print className="h-4 w-4 mr-2" />
+                  <Printer className="h-4 w-4 mr-2" />
                   Print
                 </Button>
                 <Button
