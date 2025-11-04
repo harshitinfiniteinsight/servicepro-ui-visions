@@ -112,7 +112,7 @@ export const PreviewInvoiceModal = ({ open, onOpenChange, invoice }: PreviewInvo
                   className="bg-orange-500 hover:bg-orange-600 text-white border-none"
                 >
                   <Printer className="h-4 w-4 mr-2" />
-                  Print
+                  Printer
                 </Button>
                 <Button
                   variant="ghost"
