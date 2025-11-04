@@ -1,11 +1,10 @@
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { Printer, X, Mail, MessageSquare, UserCog } from "lucide-react";
+import { Print, X, Mail, MessageSquare, UserCog } from "lucide-react";
 import { SendEmailModal } from "./SendEmailModal";
 import { SendSMSModal } from "./SendSMSModal";
 import { mockEmployees, mockCustomers } from "@/data/mockData";
@@ -111,7 +110,7 @@ export const PreviewInvoiceModal = ({ open, onOpenChange, invoice }: PreviewInvo
                   onClick={handlePrint}
                   className="bg-orange-500 hover:bg-orange-600 text-white border-none"
                 >
-                  <Printer className="h-4 w-4 mr-2" />
+                  <Print className="h-4 w-4 mr-2" />
                   Printer
                 </Button>
                 <Button
@@ -283,10 +282,23 @@ export const PreviewInvoiceModal = ({ open, onOpenChange, invoice }: PreviewInvo
                     <Button className="w-full bg-orange-500 hover:bg-orange-600 text-white">
                       Pay Now
                     </Button>
-                    <div className="flex items-center justify-center">
-                      <Badge variant="outline" className={`${invoice.status === "Paid" ? "bg-green-100 text-green-800 border-green-300" : "bg-red-100 text-red-800 border-red-300"}`}>
-                        {invoice.status?.toUpperCase() || "UNPAID"}
-                      </Badge>
+                    <div className="flex items-center justify-center py-4">
+                      <div 
+                        className={`
+                          inline-block px-8 py-3 border-4 rounded-lg font-bold text-xl
+                          transform rotate-[-3deg] shadow-lg
+                          ${invoice.status === "Paid" 
+                            ? "border-green-500 text-green-600 bg-green-50" 
+                            : "border-red-500 text-red-600 bg-red-50"
+                          }
+                        `}
+                        style={{
+                          fontFamily: 'serif',
+                          letterSpacing: '2px'
+                        }}
+                      >
+                        {invoice.status === "Paid" ? "Paid" : "Unpaid"}
+                      </div>
                     </div>
                   </div>
                 </div>
