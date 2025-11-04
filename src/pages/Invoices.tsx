@@ -6,6 +6,7 @@ import { SendEmailModal } from "@/components/modals/SendEmailModal";
 import { SendSMSModal } from "@/components/modals/SendSMSModal";
 import { InvoicePaymentModal } from "@/components/modals/InvoicePaymentModal";
 import { LinkModulesModal } from "@/components/modals/LinkModulesModal";
+import { PreviewInvoiceModal } from "@/components/modals/PreviewInvoiceModal";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -34,6 +35,8 @@ const Invoices = () => {
   const [linkModalOpen, setLinkModalOpen] = useState(false);
   const [linkTargetModule, setLinkTargetModule] = useState<"estimate" | "agreement">("estimate");
   const [selectedInvoiceForLink, setSelectedInvoiceForLink] = useState<any>(null);
+  const [previewModalOpen, setPreviewModalOpen] = useState(false);
+  const [selectedInvoiceForPreview, setSelectedInvoiceForPreview] = useState<any>(null);
 
   const filterInvoices = (type: "single" | "recurring" | "deactivated") => {
     return mockInvoices.filter((invoice) => {
@@ -184,7 +187,13 @@ const Invoices = () => {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-52">
-                      <DropdownMenuItem className="gap-2">
+                      <DropdownMenuItem 
+                        className="gap-2"
+                        onClick={() => {
+                          setSelectedInvoiceForPreview(invoice);
+                          setPreviewModalOpen(true);
+                        }}
+                      >
                         <Eye className="h-4 w-4" />
                         Preview invoice
                       </DropdownMenuItem>
@@ -322,7 +331,13 @@ const Invoices = () => {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-52">
-                      <DropdownMenuItem className="gap-2">
+                      <DropdownMenuItem 
+                        className="gap-2"
+                        onClick={() => {
+                          setSelectedInvoiceForPreview(invoice);
+                          setPreviewModalOpen(true);
+                        }}
+                      >
                         <Eye className="h-4 w-4" />
                         Preview invoice
                       </DropdownMenuItem>
@@ -454,7 +469,13 @@ const Invoices = () => {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-52">
-                      <DropdownMenuItem className="gap-2">
+                      <DropdownMenuItem 
+                        className="gap-2"
+                        onClick={() => {
+                          setSelectedInvoiceForPreview(invoice);
+                          setPreviewModalOpen(true);
+                        }}
+                      >
                         <Eye className="h-4 w-4" />
                         Preview invoice
                       </DropdownMenuItem>
@@ -615,6 +636,15 @@ const Invoices = () => {
           open={paymentModalOpen}
           onOpenChange={setPaymentModalOpen}
           invoice={selectedInvoiceForPayment}
+        />
+
+        <PreviewInvoiceModal
+          open={previewModalOpen}
+          onOpenChange={(open) => {
+            setPreviewModalOpen(open);
+            if (!open) setSelectedInvoiceForPreview(null);
+          }}
+          invoice={selectedInvoiceForPreview}
         />
       </main>
     </div>
