@@ -266,32 +266,34 @@ const AddAppointment = () => {
                 </div>
               </div>
 
-              <div>
-                <Label htmlFor="note">Appointment Note</Label>
-                <Textarea
-                  id="note"
-                  value={formData.note}
-                  onChange={(e) => setFormData({ ...formData, note: e.target.value })}
-                  placeholder="Additional notes or special instructions..."
-                  rows={3}
-                />
-              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="note">Appointment Note</Label>
+                  <Textarea
+                    id="note"
+                    value={formData.note}
+                    onChange={(e) => setFormData({ ...formData, note: e.target.value })}
+                    placeholder="Additional notes or special instructions..."
+                    rows={3}
+                  />
+                </div>
 
-              <div>
-                <Label htmlFor="reminder">Reminder Before</Label>
-                <Select value={formData.reminder} onValueChange={(value) => setFormData({ ...formData, reminder: value })}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="10mins">10 minutes</SelectItem>
-                    <SelectItem value="20mins">20 minutes</SelectItem>
-                    <SelectItem value="30mins">30 minutes</SelectItem>
-                    <SelectItem value="1hour">1 hour</SelectItem>
-                    <SelectItem value="2hrs">2 hours</SelectItem>
-                    <SelectItem value="1day">1 day</SelectItem>
-                  </SelectContent>
-                </Select>
+                <div>
+                  <Label htmlFor="reminder">Reminder Before</Label>
+                  <Select value={formData.reminder} onValueChange={(value) => setFormData({ ...formData, reminder: value })}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="10mins">10 minutes</SelectItem>
+                      <SelectItem value="20mins">20 minutes</SelectItem>
+                      <SelectItem value="30mins">30 minutes</SelectItem>
+                      <SelectItem value="1hour">1 hour</SelectItem>
+                      <SelectItem value="2hrs">2 hours</SelectItem>
+                      <SelectItem value="1day">1 day</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
 
               <div className="flex gap-2 pt-4">
