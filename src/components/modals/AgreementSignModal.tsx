@@ -8,14 +8,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Camera, Upload } from "lucide-react";
+import { Camera, Upload, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-
-interface AgreementSignModalProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  agreementId: string;
-}
 
 interface AgreementSignModalProps {
   open: boolean;
@@ -135,25 +129,25 @@ export const AgreementSignModal = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-5xl">
-        <DialogHeader>
-          <DialogTitle className="text-2xl">Sign & Upload Agreement Documents</DialogTitle>
+        <DialogHeader className="pb-4">
+          <div className="flex items-center justify-between">
+            <DialogTitle className="text-2xl font-bold">Sign & Upload Agreement Documents</DialogTitle>
+          </div>
         </DialogHeader>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 py-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 py-4">
           {/* Left side - Signature Canvas */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <Label className="text-base">Please sign here</Label>
-              <Button
-                variant="ghost"
-                size="sm"
+              <Label className="text-base font-medium">Please sign here</Label>
+              <button
                 onClick={clearCanvas}
-                className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                className="text-sm text-red-600 hover:text-red-700 hover:underline"
               >
                 Clear
-              </Button>
+              </button>
             </div>
-            <div className="border-2 border-muted rounded-lg bg-background">
+            <div className="border-2 border-gray-200 rounded-lg bg-white">
               <canvas
                 ref={canvasRef}
                 width={400}
@@ -170,9 +164,9 @@ export const AgreementSignModal = ({
           {/* Right side - Document Upload */}
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label className="text-base">Select Document Type</Label>
+              <Label className="text-base font-medium">Select Document Type</Label>
               <Select value={documentType} onValueChange={setDocumentType}>
-                <SelectTrigger className="w-full h-12">
+                <SelectTrigger className="w-full h-12 border-gray-300">
                   <SelectValue placeholder="Select Document Type" />
                 </SelectTrigger>
                 <SelectContent>
@@ -185,25 +179,58 @@ export const AgreementSignModal = ({
             </div>
 
             <div className="space-y-3">
-              <Label className="text-base">Upload Document</Label>
-              <div className="border-2 border-dashed border-muted rounded-lg p-8 flex flex-col items-center justify-center bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer min-h-[300px]"
+              <Label className="text-base font-medium">Upload Document</Label>
+              <div 
+                className="border-2 border-dashed border-gray-300 rounded-lg p-8 flex flex-col items-center justify-center bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer min-h-[300px]"
                 onClick={() => fileInputRef.current?.click()}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                }}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  const file = e.dataTransfer.files[0];
+                  if (file && file.type.startsWith("image/")) {
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                      setUploadedImage(reader.result as string);
+                    };
+                    reader.readAsDataURL(file);
+                  }
+                }}
               >
                 {uploadedImage ? (
-                  <img 
-                    src={uploadedImage} 
-                    alt="Uploaded document" 
-                    className="max-h-[280px] object-contain rounded"
-                  />
+                  <div className="relative w-full h-full">
+                    <img 
+                      src={uploadedImage} 
+                      alt="Uploaded document" 
+                      className="max-h-[280px] object-contain rounded mx-auto"
+                    />
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setUploadedImage(null);
+                        if (fileInputRef.current) {
+                          fileInputRef.current.value = "";
+                        }
+                      }}
+                      className="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1 hover:bg-red-700"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
                 ) : (
                   <>
                     <div className="relative mb-4">
-                      <Camera className="h-20 w-20 text-info" />
-                      <div className="absolute -top-2 -right-2 bg-destructive rounded-full p-2">
-                        <Upload className="h-6 w-6 text-destructive-foreground" />
+                      <div className="h-20 w-20 rounded-full bg-blue-100 flex items-center justify-center">
+                        <Camera className="h-12 w-12 text-blue-600" />
+                      </div>
+                      <div className="absolute -top-1 -right-1 bg-red-600 rounded-full p-1.5">
+                        <Upload className="h-4 w-4 text-white" />
                       </div>
                     </div>
-                    <p className="text-sm text-muted-foreground text-center">
+                    <p className="text-sm text-gray-600 text-center">
                       Click to upload or drag and drop
                     </p>
                   </>
@@ -220,10 +247,10 @@ export const AgreementSignModal = ({
           </div>
         </div>
 
-        <div className="flex justify-end pt-4 border-t">
+        <div className="flex justify-end pt-4 border-t border-gray-200">
           <Button 
             onClick={handleSend} 
-            className="px-12 h-12 text-lg font-semibold"
+            className="px-12 h-12 text-lg font-semibold bg-orange-500 hover:bg-orange-600 text-white"
             size="lg"
           >
             SEND

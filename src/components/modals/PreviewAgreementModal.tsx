@@ -7,6 +7,7 @@ import { mockCustomers, mockEmployees } from "@/data/mockData";
 import { useToast } from "@/hooks/use-toast";
 import { SendEmailModal } from "./SendEmailModal";
 import { SendSMSModal } from "./SendSMSModal";
+import { AgreementSignModal } from "./AgreementSignModal";
 
 interface PreviewAgreementModalProps {
   open: boolean;
@@ -24,6 +25,7 @@ export const PreviewAgreementModal = ({ open, onOpenChange, agreement, onPayNow,
   const [isDrawing, setIsDrawing] = useState(false);
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [showSMSModal, setShowSMSModal] = useState(false);
+  const [showSignModal, setShowSignModal] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const photoIdInputRef = useRef<HTMLInputElement>(null);
   const snapshotInputRef = useRef<HTMLInputElement>(null);
@@ -329,13 +331,10 @@ export const PreviewAgreementModal = ({ open, onOpenChange, agreement, onPayNow,
                     </Badge>
                   )}
                 </div>
-                {!isPaid && onPayNow && (
+                {!isPaid && (
                   <Button
                     onClick={() => {
-                      if (onPayNow) {
-                        onPayNow(agreement);
-                        onOpenChange(false);
-                      }
+                      setShowSignModal(true);
                     }}
                     className="bg-blue-600 hover:bg-blue-700 text-white min-w-[180px]"
                   >
@@ -589,6 +588,13 @@ export const PreviewAgreementModal = ({ open, onOpenChange, agreement, onPayNow,
         onOpenChange={setShowSMSModal}
         customerName={customer?.name || agreement.customerName || ""}
         phoneNumber={customer?.phone || agreement.customerPhone || ""}
+      />
+
+      {/* Sign & Upload Agreement Documents Modal */}
+      <AgreementSignModal
+        open={showSignModal}
+        onOpenChange={setShowSignModal}
+        agreementId={agreement.id}
       />
     </Dialog>
   );
