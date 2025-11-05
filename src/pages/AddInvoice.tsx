@@ -790,7 +790,9 @@ const AddInvoice = () => {
                         ? 'border-primary border-2 bg-primary/10 shadow-lg' 
                         : 'border-border/50 hover:border-primary/50'
                     }`}
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
                       const calculatedDiscount = discount.type === "%" 
                         ? subtotal * (discount.value / 100)
                         : discount.value;
@@ -798,10 +800,12 @@ const AddInvoice = () => {
                       if (calculatedDiscount > subtotal) {
                         setDiscountError(`${discount.name} (${discount.type === "%" ? `${discount.value}%` : `$${discount.value}`}) exceeds the subtotal amount`);
                         setSelectedDiscount(null);
+                        toast.error("Discount cannot exceed subtotal amount");
                       } else {
                         setSelectedDiscount(discount);
                         setDiscountError("");
                         setShowDiscountModal(false);
+                        toast.success(`Discount "${discount.name}" applied successfully`);
                       }
                     }}
                   >
