@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AppHeader } from "@/components/AppHeader";
-import { InvoiceFormModal } from "@/components/modals/InvoiceFormModal";
 import { SendEmailModal } from "@/components/modals/SendEmailModal";
 import { SendSMSModal } from "@/components/modals/SendSMSModal";
 import { InvoicePaymentModal } from "@/components/modals/InvoicePaymentModal";
@@ -25,8 +24,6 @@ const Invoices = () => {
   const [activeTab, setActiveTab] = useState("single");
   const [startDate, setStartDate] = useState("2024-08-01");
   const [endDate, setEndDate] = useState("2024-10-27");
-  const [modalOpen, setModalOpen] = useState(false);
-  const [selectedInvoice, setSelectedInvoice] = useState<any>(null);
   const [emailModalOpen, setEmailModalOpen] = useState(false);
   const [smsModalOpen, setSmsModalOpen] = useState(false);
   const [selectedInvoiceForContact, setSelectedInvoiceForContact] = useState<any>(null);
@@ -208,8 +205,7 @@ const Invoices = () => {
                         disabled={invoice.status === "Paid"}
                         onClick={() => {
                           if (invoice.status !== "Paid") {
-                            setSelectedInvoice(invoice);
-                            setModalOpen(true);
+                            navigate(`/invoices/${invoice.id}/edit`);
                           }
                         }}
                       >
@@ -352,8 +348,7 @@ const Invoices = () => {
                         disabled={invoice.status === "Paid"}
                         onClick={() => {
                           if (invoice.status !== "Paid") {
-                            setSelectedInvoice(invoice);
-                            setModalOpen(true);
+                            navigate(`/invoices/${invoice.id}/edit`);
                           }
                         }}
                       >
@@ -515,7 +510,7 @@ const Invoices = () => {
               <span className="hidden sm:inline">Invoice Due Alert</span>
               <span className="sm:hidden">Due Alert</span>
             </Button>
-            <Button onClick={() => setModalOpen(true)} className="gap-2 touch-target w-full sm:w-auto">
+            <Button onClick={() => navigate("/invoices/new")} className="gap-2 touch-target w-full sm:w-auto">
               <Plus className="h-4 w-4 sm:h-5 sm:w-5" />
               New Invoice
             </Button>
@@ -586,16 +581,6 @@ const Invoices = () => {
           </TabsContent>
         </Tabs>
 
-        <InvoiceFormModal 
-          open={modalOpen} 
-          onOpenChange={(open) => {
-            setModalOpen(open);
-            if (!open) setSelectedInvoice(null);
-          }} 
-          invoice={selectedInvoice}
-          mode={selectedInvoice ? "edit" : "create"} 
-        />
-
         <SendEmailModal
           open={emailModalOpen}
           onOpenChange={setEmailModalOpen}
@@ -623,8 +608,7 @@ const Invoices = () => {
           }}
           invoice={selectedInvoiceForPreview}
           onEdit={(invoice) => {
-            setSelectedInvoice(invoice);
-            setModalOpen(true);
+            navigate(`/invoices/${invoice.id}/edit`);
           }}
           onPayNow={(invoice) => {
             setSelectedInvoiceForPayment(invoice);
