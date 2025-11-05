@@ -2,9 +2,10 @@ import { useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowLeft, Zap, Wifi, MoreVertical, CreditCard, DollarSign, RefreshCw } from "lucide-react";
+import { ArrowLeft, Zap, Wifi, MoreVertical, CreditCard, DollarSign, RefreshCw, Building2 } from "lucide-react";
 import { toast } from "sonner";
 import { CardDetailsModal } from "./CardDetailsModal";
+import { ACHPaymentModal } from "./ACHPaymentModal";
 
 interface InvoicePaymentModalProps {
   open: boolean;
@@ -13,14 +14,15 @@ interface InvoicePaymentModalProps {
 }
 
 export const InvoicePaymentModal = ({ open, onOpenChange, invoice }: InvoicePaymentModalProps) => {
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<"tap" | "card" | "cash" | null>(null);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<"tap" | "card" | "cash" | "ach" | null>(null);
   const [showCardDetailsModal, setShowCardDetailsModal] = useState(false);
+  const [showACHModal, setShowACHModal] = useState(false);
 
   if (!invoice) return null;
 
   const totalAmount = invoice.amount || 0;
 
-  const handlePaymentMethodSelect = (method: "tap" | "card" | "cash") => {
+  const handlePaymentMethodSelect = (method: "tap" | "card" | "cash" | "ach") => {
     setSelectedPaymentMethod(method);
     if (method === "cash") {
       toast.success("Cash payment selected");
@@ -30,6 +32,8 @@ export const InvoicePaymentModal = ({ open, onOpenChange, invoice }: InvoicePaym
     } else if (method === "tap") {
       toast.success("Tap to Pay selected");
       // Handle tap to pay
+    } else if (method === "ach") {
+      setShowACHModal(true);
     }
   };
 
@@ -125,9 +129,26 @@ export const InvoicePaymentModal = ({ open, onOpenChange, invoice }: InvoicePaym
                 </CardContent>
               </Card>
 
+              {/* ACH Payment */}
+              <Card
+                className={`cursor-pointer transition-all hover:shadow-md ${
+                  selectedPaymentMethod === "ach"
+                    ? "border-teal-600 border-2 bg-teal-50"
+                    : "border-blue-200"
+                }`}
+                onClick={() => handlePaymentMethodSelect("ach")}
+              >
+                <CardContent className="pt-6 pb-4 flex flex-col items-center justify-center min-h-[120px]">
+                  <div className="mb-3">
+                    <Building2 className="h-10 w-10 text-teal-600" />
+                  </div>
+                  <p className="text-sm font-medium text-center">ACH Payment</p>
+                </CardContent>
+              </Card>
+
               {/* Pay by Cash */}
               <Card
-                className={`cursor-pointer transition-all hover:shadow-md col-span-2 ${
+                className={`cursor-pointer transition-all hover:shadow-md ${
                   selectedPaymentMethod === "cash"
                     ? "border-teal-600 border-2 bg-teal-50"
                     : "border-blue-200"
@@ -149,6 +170,13 @@ export const InvoicePaymentModal = ({ open, onOpenChange, invoice }: InvoicePaym
       <CardDetailsModal
         open={showCardDetailsModal}
         onOpenChange={setShowCardDetailsModal}
+        totalAmount={totalAmount}
+        onPaymentComplete={handlePaymentComplete}
+      />
+
+      <ACHPaymentModal
+        open={showACHModal}
+        onOpenChange={setShowACHModal}
         totalAmount={totalAmount}
         onPaymentComplete={handlePaymentComplete}
       />
