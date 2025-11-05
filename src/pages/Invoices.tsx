@@ -22,7 +22,6 @@ const Invoices = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [deactivatedStatusFilter, setDeactivatedStatusFilter] = useState("all");
   const [startDate, setStartDate] = useState("2024-08-01");
   const [endDate, setEndDate] = useState("2024-10-27");
   const [modalOpen, setModalOpen] = useState(false);
@@ -45,23 +44,12 @@ const Invoices = () => {
         invoice.orderId.toLowerCase().includes(searchQuery.toLowerCase());
       
       if (type === "deactivated") {
-        const filter = deactivatedStatusFilter.toLowerCase();
-        let matchesFilter = true;
-        
-        if (filter !== "all") {
-          if (filter === "paid" || filter === "open") {
-            matchesFilter = invoice.status.toLowerCase() === filter;
-          } else if (filter === "single" || filter === "recurring") {
-            matchesFilter = invoice.invoiceType === filter;
-          }
-        }
-        
         const invoiceDate = new Date(invoice.issueDate);
         const start = new Date(startDate);
         const end = new Date(endDate);
         const matchesDateRange = invoiceDate >= start && invoiceDate <= end;
         
-        return invoice.deactivated && matchesSearch && matchesFilter && matchesDateRange;
+        return invoice.deactivated && matchesSearch && matchesDateRange;
       }
       
       const matchesStatus = statusFilter === "all" || invoice.status.toLowerCase() === statusFilter.toLowerCase();
@@ -588,22 +576,8 @@ const Invoices = () => {
           </TabsContent>
 
           <TabsContent value="deactivated" className="space-y-4">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
-              <div className="text-sm text-muted-foreground">
-                Date: {new Date(startDate).toLocaleDateString()} TO {new Date(endDate).toLocaleDateString()}
-              </div>
-              <Select value={deactivatedStatusFilter} onValueChange={setDeactivatedStatusFilter}>
-                <SelectTrigger className="w-full sm:w-[180px] touch-target">
-                  <SelectValue placeholder="Filter" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All</SelectItem>
-                  <SelectItem value="paid">Paid</SelectItem>
-                  <SelectItem value="open">Open</SelectItem>
-                  <SelectItem value="single">Single</SelectItem>
-                  <SelectItem value="recurring">Recurring</SelectItem>
-                </SelectContent>
-              </Select>
+            <div className="text-sm text-muted-foreground mb-4">
+              Date: {new Date(startDate).toLocaleDateString()} TO {new Date(endDate).toLocaleDateString()}
             </div>
             {renderDeactivatedInvoiceTable(filterInvoices("deactivated"))}
           </TabsContent>
