@@ -9,7 +9,6 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { Plus, FileText, Calendar as CalendarIcon, Eye, Mail, MessageSquare, Edit, DollarSign, Wallet, CalendarRange, Percent } from "lucide-react";
 import { mockAgreements } from "@/data/mockData";
-import { AddAgreementModal } from "@/components/modals/AddAgreementModal";
 import { SendEmailModal } from "@/components/modals/SendEmailModal";
 import { SendSMSModal } from "@/components/modals/SendSMSModal";
 import { PayCashModal } from "@/components/modals/PayCashModal";
@@ -24,7 +23,6 @@ import { cn } from "@/lib/utils";
 const Agreements = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
-  const [addAgreementOpen, setAddAgreementOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("all");
   const [dateRange, setDateRange] = useState<{ from: Date | undefined; to: Date | undefined }>({
     from: undefined,
@@ -34,7 +32,6 @@ const Agreements = () => {
   const [sendSMSOpen, setSendSMSOpen] = useState(false);
   const [payCashOpen, setPayCashOpen] = useState(false);
   const [selectedAgreement, setSelectedAgreement] = useState<any>(null);
-  const [editAgreementOpen, setEditAgreementOpen] = useState(false);
   const [agreements, setAgreements] = useState(mockAgreements);
   const [linkModalOpen, setLinkModalOpen] = useState(false);
   const [linkTargetModule, setLinkTargetModule] = useState<"estimate" | "invoice">("estimate");
@@ -88,8 +85,7 @@ const Agreements = () => {
   };
 
   const handleUpdateAgreement = (agreement: any) => {
-    setSelectedAgreement(agreement);
-    setEditAgreementOpen(true);
+    navigate(`/agreements/${agreement.id}/edit`);
   };
 
   const handlePaymentComplete = () => {
@@ -190,7 +186,7 @@ const Agreements = () => {
               <Percent className="h-5 w-5" />
               Minimum Deposit
             </Button>
-            <Button className="gap-2" onClick={() => setAddAgreementOpen(true)}>
+            <Button className="gap-2" onClick={() => navigate("/agreements/new")}>
               <Plus className="h-5 w-5" />
               New Agreement
             </Button>
@@ -343,12 +339,6 @@ const Agreements = () => {
         </Tabs>
       </main>
 
-      <AddAgreementModal open={addAgreementOpen} onOpenChange={setAddAgreementOpen} />
-      <AddAgreementModal 
-        open={editAgreementOpen} 
-        onOpenChange={setEditAgreementOpen}
-        existingAgreement={selectedAgreement}
-      />
       <SendEmailModal
         open={sendEmailOpen}
         onOpenChange={setSendEmailOpen}
@@ -393,8 +383,7 @@ const Agreements = () => {
           setPaymentModalOpen(true);
         }}
         onUpdate={(agreement) => {
-          setSelectedAgreement(agreement);
-          setEditAgreementOpen(true);
+          navigate(`/agreements/${agreement.id}/edit`);
         }}
       />
       <AgreementPaymentModal
