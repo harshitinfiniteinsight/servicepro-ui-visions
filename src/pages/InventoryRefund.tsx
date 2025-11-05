@@ -9,7 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { RotateCcw, Search, Plus, DollarSign, Package, AlertCircle } from "lucide-react";
+import { RotateCcw, Search, Plus, DollarSign, Package, AlertCircle, RefreshCw } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const mockRefunds = [
@@ -90,13 +90,28 @@ const InventoryRefund = () => {
               <p className="text-sm sm:text-base text-muted-foreground">Manage customer refunds and returns</p>
             </div>
           </div>
-          <Button
-            onClick={() => setRefundModalOpen(true)}
-            className="gap-2 shadow-md hover:shadow-lg transition-all w-full sm:w-auto"
-          >
-            <Plus className="h-4 w-4" />
-            <span className="text-sm">Process Refund</span>
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+            <Button
+              variant="outline"
+              onClick={() => {
+                toast({
+                  title: "Refunds Synced",
+                  description: "Refunds have been synced successfully.",
+                });
+              }}
+              className="gap-2 shadow-sm hover:shadow-md transition-all"
+            >
+              <RefreshCw className="h-4 w-4" />
+              <span className="text-sm">Sync Refunds</span>
+            </Button>
+            <Button
+              onClick={() => setRefundModalOpen(true)}
+              className="gap-2 shadow-md hover:shadow-lg transition-all"
+            >
+              <Plus className="h-4 w-4" />
+              <span className="text-sm">Process Refund</span>
+            </Button>
+          </div>
         </div>
 
         {/* Stats Cards */}
