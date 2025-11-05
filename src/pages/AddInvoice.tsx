@@ -151,11 +151,9 @@ const AddInvoice = () => {
                   </h1>
                 </div>
               </div>
-              {formData.invoiceType === "single" && (
-                <Badge variant="secondary" className="bg-background/20 text-primary-foreground border-none">
-                  SINGLE INVOICE
-                </Badge>
-              )}
+              <Badge variant="secondary" className="bg-background/20 text-primary-foreground border-none">
+                {formData.invoiceType === "single" ? "SINGLE INVOICE" : "RECURRING INVOICE"}
+              </Badge>
             </div>
           </div>
 
