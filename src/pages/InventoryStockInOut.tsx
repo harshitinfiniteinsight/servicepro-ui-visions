@@ -200,16 +200,17 @@ const InventoryStockInOut = () => {
                       </TableCell>
                       <TableCell>
                         <Badge 
+                          variant="outline"
                           className={
                             transaction.type === "Stock In"
-                              ? "bg-success/15 text-success border-success/40"
-                              : "bg-destructive/15 text-destructive border-destructive/40"
+                              ? "bg-success/20 text-success border-success/60 font-semibold shadow-sm"
+                              : "bg-destructive/20 text-destructive border-destructive/60 font-semibold shadow-sm"
                           }
                         >
                           {transaction.type === "Stock In" ? (
-                            <ArrowUpCircle className="h-3 w-3 mr-1" />
+                            <ArrowUpCircle className="h-3.5 w-3.5 mr-1.5" />
                           ) : (
-                            <ArrowDownCircle className="h-3 w-3 mr-1" />
+                            <ArrowDownCircle className="h-3.5 w-3.5 mr-1.5" />
                           )}
                           {transaction.type}
                         </Badge>
