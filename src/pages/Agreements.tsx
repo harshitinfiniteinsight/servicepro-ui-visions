@@ -396,6 +396,10 @@ const Agreements = () => {
           setSelectedAgreementForPayment(agreement);
           setPaymentModalOpen(true);
         }}
+        onUpdate={(agreement) => {
+          setSelectedAgreement(agreement);
+          setEditAgreementOpen(true);
+        }}
       />
     </div>
   );

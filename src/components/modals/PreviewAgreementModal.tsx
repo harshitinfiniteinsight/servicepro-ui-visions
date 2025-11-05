@@ -2,23 +2,28 @@ import { useState, useRef } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { FileDown, X, CheckCircle, Send, Eye, PenTool, Lock, Camera, User, Upload, Trash2 } from "lucide-react";
+import { FileDown, X, CheckCircle, Send, Eye, PenTool, Lock, Camera, User, Upload, Trash2, Mail, MessageSquare, Edit } from "lucide-react";
 import { mockCustomers, mockEmployees } from "@/data/mockData";
 import { useToast } from "@/hooks/use-toast";
+import { SendEmailModal } from "./SendEmailModal";
+import { SendSMSModal } from "./SendSMSModal";
 
 interface PreviewAgreementModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   agreement: any;
   onPayNow?: (agreement: any) => void;
+  onUpdate?: (agreement: any) => void;
 }
 
-export const PreviewAgreementModal = ({ open, onOpenChange, agreement, onPayNow }: PreviewAgreementModalProps) => {
+export const PreviewAgreementModal = ({ open, onOpenChange, agreement, onPayNow, onUpdate }: PreviewAgreementModalProps) => {
   const { toast } = useToast();
   const [signature, setSignature] = useState<string | null>(null);
   const [photoId, setPhotoId] = useState<string | null>(null);
   const [snapshot, setSnapshot] = useState<string | null>(null);
   const [isDrawing, setIsDrawing] = useState(false);
+  const [showEmailModal, setShowEmailModal] = useState(false);
+  const [showSMSModal, setShowSMSModal] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const photoIdInputRef = useRef<HTMLInputElement>(null);
   const snapshotInputRef = useRef<HTMLInputElement>(null);
@@ -483,6 +488,67 @@ export const PreviewAgreementModal = ({ open, onOpenChange, agreement, onPayNow 
               </div>
             </div>
 
+            {/* Action Buttons Section */}
+            <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+              <div className="flex items-center gap-3">
+                {isPaid ? (
+                  <>
+                    <Button
+                      onClick={() => setShowEmailModal(true)}
+                      className="bg-blue-600 hover:bg-blue-700 text-white"
+                    >
+                      <Mail className="h-4 w-4 mr-2" />
+                      Send Email
+                    </Button>
+                    <Button
+                      onClick={() => setShowSMSModal(true)}
+                      className="bg-blue-600 hover:bg-blue-700 text-white"
+                    >
+                      <MessageSquare className="h-4 w-4 mr-2" />
+                      Send via SMS
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button
+                      onClick={() => setShowEmailModal(true)}
+                      className="bg-blue-600 hover:bg-blue-700 text-white"
+                    >
+                      <Mail className="h-4 w-4 mr-2" />
+                      Send Email
+                    </Button>
+                    <Button
+                      onClick={() => setShowSMSModal(true)}
+                      className="bg-blue-600 hover:bg-blue-700 text-white"
+                    >
+                      <MessageSquare className="h-4 w-4 mr-2" />
+                      Send via SMS
+                    </Button>
+                    {onUpdate && (
+                      <Button
+                        onClick={() => {
+                          if (onUpdate) {
+                            onUpdate(agreement);
+                            onOpenChange(false);
+                          }
+                        }}
+                        className="bg-blue-600 hover:bg-blue-700 text-white"
+                      >
+                        <Edit className="h-4 w-4 mr-2" />
+                        Update Agreement
+                      </Button>
+                    )}
+                  </>
+                )}
+              </div>
+              <Button
+                onClick={() => onOpenChange(false)}
+                className="bg-orange-500 hover:bg-orange-600 text-white"
+              >
+                Close
+              </Button>
+            </div>
+
             {/* Footer */}
             <div className="bg-blue-600 text-white p-4 rounded-lg">
               <div className="flex items-center justify-center gap-2">
@@ -495,6 +561,21 @@ export const PreviewAgreementModal = ({ open, onOpenChange, agreement, onPayNow 
           </div>
         </div>
       </DialogContent>
+
+      {/* Send Email Modal */}
+      <SendEmailModal
+        open={showEmailModal}
+        onOpenChange={setShowEmailModal}
+        customerEmail={customer?.email || agreement.customerEmail || ""}
+      />
+
+      {/* Send SMS Modal */}
+      <SendSMSModal
+        open={showSMSModal}
+        onOpenChange={setShowSMSModal}
+        customerName={customer?.name || agreement.customerName || ""}
+        phoneNumber={customer?.phone || agreement.customerPhone || ""}
+      />
     </Dialog>
   );
 };
