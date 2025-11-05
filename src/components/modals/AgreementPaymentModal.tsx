@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowLeft, Zap, Wifi, MoreVertical, CreditCard, DollarSign, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
+import { CardDetailsModal } from "./CardDetailsModal";
 
 interface AgreementPaymentModalProps {
   open: boolean;
@@ -13,7 +14,7 @@ interface AgreementPaymentModalProps {
 
 export const AgreementPaymentModal = ({ open, onOpenChange, agreement }: AgreementPaymentModalProps) => {
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<"tap" | "card" | "cash" | null>(null);
-  const [cardReaderConnected, setCardReaderConnected] = useState(false);
+  const [showCardDetailsModal, setShowCardDetailsModal] = useState(false);
 
   if (!agreement) return null;
 
@@ -25,12 +26,15 @@ export const AgreementPaymentModal = ({ open, onOpenChange, agreement }: Agreeme
       toast.success("Cash payment selected");
       // Handle cash payment
     } else if (method === "card") {
-      toast.success("Card payment selected");
-      // Handle card payment - could open another modal for card details
+      setShowCardDetailsModal(true);
     } else if (method === "tap") {
       toast.success("Tap to Pay selected");
       // Handle tap to pay
     }
+  };
+
+  const handlePaymentComplete = () => {
+    onOpenChange(false);
   };
 
   return (
@@ -84,27 +88,6 @@ export const AgreementPaymentModal = ({ open, onOpenChange, agreement }: Agreeme
           {/* Payment Options Section */}
           <div>
             <h3 className="text-lg font-bold mb-4">Payment Options</h3>
-
-            {/* Card Reader Status */}
-            {!cardReaderConnected && (
-              <Card className="mb-4 border-blue-200">
-                <CardContent className="pt-6">
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Card reader is not connected. You may connect your reader via Bluetooth or USB at anytime.
-                  </p>
-                  <Button
-                    variant="outline"
-                    className="w-full bg-teal-600 text-white hover:bg-teal-700 border-teal-600"
-                    onClick={() => {
-                      setCardReaderConnected(true);
-                      toast.success("Card reader connected");
-                    }}
-                  >
-                    Continue
-                  </Button>
-                </CardContent>
-              </Card>
-            )}
 
             {/* Payment Method Cards */}
             <div className="grid grid-cols-2 gap-4">
@@ -162,6 +145,13 @@ export const AgreementPaymentModal = ({ open, onOpenChange, agreement }: Agreeme
           </div>
         </div>
       </DialogContent>
+
+      <CardDetailsModal
+        open={showCardDetailsModal}
+        onOpenChange={setShowCardDetailsModal}
+        totalAmount={totalAmount}
+        onPaymentComplete={handlePaymentComplete}
+      />
     </Dialog>
   );
 };
