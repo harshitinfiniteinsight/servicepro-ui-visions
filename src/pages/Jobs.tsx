@@ -498,13 +498,19 @@ const Jobs = () => {
                                   {config.label}
                                 </Badge>
                                 <span className="font-mono font-bold text-lg">{job.orderId}</span>
-                                <Eye 
-                                  className="h-4 w-4 text-muted-foreground hover:text-primary cursor-pointer transition-colors" 
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-6 w-6 p-0 hover:bg-transparent"
                                   onClick={(e) => {
+                                    e.preventDefault();
                                     e.stopPropagation();
                                     handlePreview(job);
                                   }}
-                                />
+                                >
+                                  <Eye className="h-4 w-4 text-muted-foreground hover:text-primary transition-colors" />
+                                </Button>
                               </div>
 
                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
