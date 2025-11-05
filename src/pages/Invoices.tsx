@@ -22,6 +22,7 @@ const Invoices = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [activeTab, setActiveTab] = useState("single");
   const [startDate, setStartDate] = useState("2024-08-01");
   const [endDate, setEndDate] = useState("2024-10-27");
   const [modalOpen, setModalOpen] = useState(false);
@@ -540,21 +541,23 @@ const Invoices = () => {
               />
             </div>
           </div>
-          <div className="w-full sm:w-auto">
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full sm:w-[180px] touch-target">
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All</SelectItem>
-                <SelectItem value="paid">Paid</SelectItem>
-                <SelectItem value="open">Open</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          {activeTab !== "deactivated" && (
+            <div className="w-full sm:w-auto">
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-full sm:w-[180px] touch-target">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem value="paid">Paid</SelectItem>
+                  <SelectItem value="open">Open</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
         </div>
 
-        <Tabs defaultValue="single" className="space-y-4 sm:space-y-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 sm:space-y-6">
           <TabsList className="grid w-full max-w-full sm:max-w-md grid-cols-3 h-auto">
             <TabsTrigger value="single" className="text-xs sm:text-sm py-2 px-2 sm:px-4">Single</TabsTrigger>
             <TabsTrigger value="recurring" className="text-xs sm:text-sm py-2 px-2 sm:px-4">Recurring</TabsTrigger>
