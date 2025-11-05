@@ -219,6 +219,14 @@ export const PreviewEstimateModal = ({ open, onOpenChange, estimate, onEdit, onP
               {/* Terms & Conditions Section */}
               <div className="col-span-2 space-y-4">
                 <div>
+                  <h3 className="text-blue-600 font-semibold mb-1">Message on Statement</h3>
+                  <p className="text-sm text-gray-600">{estimate.messageOnStatement || "-"}</p>
+                </div>
+                <div>
+                  <h3 className="text-blue-600 font-semibold mb-1">Message on Estimate</h3>
+                  <p className="text-sm text-gray-600">{estimate.messageOnEstimate || "-"}</p>
+                </div>
+                <div>
                   <h3 className="text-blue-600 font-semibold mb-1">Terms & Conditions</h3>
                   <p className="text-sm text-gray-600">{estimate.termsConditions || "from global settings"}</p>
                 </div>

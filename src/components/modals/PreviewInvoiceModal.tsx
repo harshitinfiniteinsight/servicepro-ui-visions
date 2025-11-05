@@ -221,6 +221,14 @@ export const PreviewInvoiceModal = ({ open, onOpenChange, invoice, onEdit, onPay
               {/* Terms & Conditions Section */}
               <div className="col-span-2 space-y-4">
                 <div>
+                  <h3 className="text-blue-600 font-semibold mb-1">Message on Statement</h3>
+                  <p className="text-sm text-gray-600">{invoice.messageOnStatement || "-"}</p>
+                </div>
+                <div>
+                  <h3 className="text-blue-600 font-semibold mb-1">Message on Invoice</h3>
+                  <p className="text-sm text-gray-600">{invoice.messageOnInvoice || "-"}</p>
+                </div>
+                <div>
                   <h3 className="text-blue-600 font-semibold mb-1">Terms & Conditions</h3>
                   <p className="text-sm text-gray-600">{invoice.termsConditions || "from global settings"}</p>
                 </div>
