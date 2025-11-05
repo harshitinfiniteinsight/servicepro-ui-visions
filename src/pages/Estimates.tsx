@@ -60,10 +60,12 @@ const Estimates = () => {
       estimate.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       estimate.employeeName.toLowerCase().includes(searchQuery.toLowerCase());
     
-    const matchesStatus = 
-      statusFilter === "all" || 
-      (statusFilter === "paid" && estimate.status === "Paid") ||
-      (statusFilter === "open" && estimate.status === "Open");
+    // Don't apply status filter for deactivated tab
+    const matchesStatus = activeTab === "deactivated" 
+      ? true
+      : (statusFilter === "all" || 
+         (statusFilter === "paid" && estimate.status === "Paid") ||
+         (statusFilter === "open" && estimate.status === "Open"));
     
     const estimateDate = new Date(estimate.createdDate);
     const matchesDateRange = 
@@ -180,16 +182,18 @@ const Estimates = () => {
             <p className="text-sm sm:text-base text-muted-foreground">Manage service estimates and proposals</p>
           </div>
           <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full sm:w-[140px] touch-target">
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All</SelectItem>
-                <SelectItem value="paid">Paid</SelectItem>
-                <SelectItem value="open">Open</SelectItem>
-              </SelectContent>
-            </Select>
+            {activeTab !== "deactivated" && (
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-full sm:w-[140px] touch-target">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem value="paid">Paid</SelectItem>
+                  <SelectItem value="open">Open</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
             <Popover>
               <PopoverTrigger asChild>
                 <Button variant="outline" className="gap-2 touch-target w-full sm:w-auto">
