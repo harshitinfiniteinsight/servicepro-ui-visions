@@ -13,6 +13,7 @@ import Invoices from "./pages/Invoices";
 import InvoiceDueAlert from "./pages/InvoiceDueAlert";
 import AddInvoice from "./pages/AddInvoice";
 import Estimates from "./pages/Estimates";
+import AddEstimate from "./pages/AddEstimate";
 import Agreements from "./pages/Agreements";
 import MinimumDepositPercentage from "./pages/MinimumDepositPercentage";
 import Employees from "./pages/Employees";
@@ -71,6 +72,8 @@ const AppContent = () => {
           <Route path="/invoices/:id/edit" element={<AddInvoice />} />
           <Route path="/invoices/due-alert" element={<InvoiceDueAlert />} />
           <Route path="/estimates" element={<Estimates />} />
+          <Route path="/estimates/new" element={<AddEstimate />} />
+          <Route path="/estimates/:id/edit" element={<AddEstimate />} />
           <Route path="/agreements" element={<Agreements />} />
           <Route path="/agreements/minimum-deposit" element={<MinimumDepositPercentage />} />
           <Route path="/employees" element={<Employees />} />

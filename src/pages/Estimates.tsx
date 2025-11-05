@@ -10,7 +10,6 @@ import { SendEmailModal } from "@/components/modals/SendEmailModal";
 import { SendSMSModal } from "@/components/modals/SendSMSModal";
 import { ShareAddressModal } from "@/components/modals/ShareAddressModal";
 import { PayCashModal } from "@/components/modals/PayCashModal";
-import { EstimateFormModal } from "@/components/modals/EstimateFormModal";
 import { InvoicePaymentModal } from "@/components/modals/InvoicePaymentModal";
 import { PreviewEstimateModal } from "@/components/modals/PreviewEstimateModal";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -45,8 +44,6 @@ const Estimates = () => {
   const [selectedEstimate, setSelectedEstimate] = useState<any>(null);
   const [selectedEmployee, setSelectedEmployee] = useState("");
   const [payCashModalOpen, setPayCashModalOpen] = useState(false);
-  const [estimateFormOpen, setEstimateFormOpen] = useState(false);
-  const [editEstimateOpen, setEditEstimateOpen] = useState(false);
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const [selectedEstimateForPayment, setSelectedEstimateForPayment] = useState<any>(null);
   const [previewModalOpen, setPreviewModalOpen] = useState(false);
@@ -134,8 +131,7 @@ const Estimates = () => {
   };
 
   const handleEditEstimate = (estimate: any) => {
-    setSelectedEstimate(estimate);
-    setEditEstimateOpen(true);
+    navigate(`/estimates/${estimate.id}/edit`);
   };
 
   const handleDeactivate = (estimate: any) => {
@@ -251,7 +247,7 @@ const Estimates = () => {
                 </div>
               </PopoverContent>
             </Popover>
-            <Button onClick={() => setEstimateFormOpen(true)} className="gap-2 touch-target w-full sm:w-auto">
+            <Button onClick={() => navigate("/estimates/new")} className="gap-2 touch-target w-full sm:w-auto">
               <Plus className="h-4 w-4 sm:h-5 sm:w-5" />
               New Estimate
             </Button>
@@ -493,18 +489,6 @@ const Estimates = () => {
         orderId={selectedEstimate?.id || ""}
       />
 
-      <EstimateFormModal
-        open={estimateFormOpen}
-        onOpenChange={setEstimateFormOpen}
-        mode="create"
-      />
-
-      <EstimateFormModal
-        open={editEstimateOpen}
-        onOpenChange={setEditEstimateOpen}
-        estimate={selectedEstimate}
-        mode="edit"
-      />
 
       <InvoicePaymentModal
         open={paymentModalOpen}
@@ -520,8 +504,7 @@ const Estimates = () => {
         }}
         estimate={selectedEstimateForPreview}
         onEdit={(estimate) => {
-          setSelectedEstimate(estimate);
-          setEditEstimateOpen(true);
+          navigate(`/estimates/${estimate.id}/edit`);
         }}
         onPayNow={(estimate) => {
           setSelectedEstimateForPayment(estimate);
