@@ -566,10 +566,10 @@ const Invoices = () => {
           </div>
         </div>
 
-        <Tabs defaultValue="recurring" className="space-y-4 sm:space-y-6">
+        <Tabs defaultValue="single" className="space-y-4 sm:space-y-6">
           <TabsList className="grid w-full max-w-full sm:max-w-md grid-cols-3 h-auto">
-            <TabsTrigger value="recurring" className="text-xs sm:text-sm py-2 px-2 sm:px-4">Recurring</TabsTrigger>
             <TabsTrigger value="single" className="text-xs sm:text-sm py-2 px-2 sm:px-4">Single</TabsTrigger>
+            <TabsTrigger value="recurring" className="text-xs sm:text-sm py-2 px-2 sm:px-4">Recurring</TabsTrigger>
             <TabsTrigger value="deactivated" className="text-xs sm:text-sm py-2 px-2 sm:px-4">Deactivated</TabsTrigger>
           </TabsList>
 
