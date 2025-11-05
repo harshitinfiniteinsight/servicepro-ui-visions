@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { Printer, X, Mail, MessageSquare, UserCog } from "lucide-react";
+import { Printer, X, Mail, MessageSquare, UserCog, Edit } from "lucide-react";
 import { SendEmailModal } from "./SendEmailModal";
 import { SendSMSModal } from "./SendSMSModal";
 import { mockEmployees, mockCustomers } from "@/data/mockData";
@@ -14,9 +14,11 @@ interface PreviewEstimateModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   estimate: any;
+  onEdit?: (estimate: any) => void;
+  onPayNow?: (estimate: any) => void;
 }
 
-export const PreviewEstimateModal = ({ open, onOpenChange, estimate }: PreviewEstimateModalProps) => {
+export const PreviewEstimateModal = ({ open, onOpenChange, estimate, onEdit, onPayNow }: PreviewEstimateModalProps) => {
   const { toast } = useToast();
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [showSMSModal, setShowSMSModal] = useState(false);
@@ -281,11 +283,10 @@ export const PreviewEstimateModal = ({ open, onOpenChange, estimate }: PreviewEs
                       <Button 
                         className="w-full bg-orange-500 hover:bg-orange-600 text-white"
                         onClick={() => {
-                          // Handle pay now action
-                          toast({
-                            title: "Payment",
-                            description: "Redirecting to payment page...",
-                          });
+                          if (onPayNow) {
+                            onPayNow(estimate);
+                            onOpenChange(false);
+                          }
                         }}
                       >
                         Pay Now
@@ -317,6 +318,20 @@ export const PreviewEstimateModal = ({ open, onOpenChange, estimate }: PreviewEs
             {/* Action Buttons */}
             <div className="flex items-center justify-between pt-4 border-t border-gray-200">
               <div className="flex items-center gap-3">
+                {estimate.status !== "Paid" && onEdit && (
+                  <Button
+                    onClick={() => {
+                      if (onEdit) {
+                        onEdit(estimate);
+                        onOpenChange(false);
+                      }
+                    }}
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                  >
+                    <Edit className="h-4 w-4 mr-2" />
+                    Edit Estimate
+                  </Button>
+                )}
                 <Button
                   onClick={handleSendEmail}
                   className="bg-blue-600 hover:bg-blue-700 text-white"

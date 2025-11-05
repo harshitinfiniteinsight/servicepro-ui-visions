@@ -519,6 +519,14 @@ const Estimates = () => {
           if (!open) setSelectedEstimateForPreview(null);
         }}
         estimate={selectedEstimateForPreview}
+        onEdit={(estimate) => {
+          setSelectedEstimate(estimate);
+          setEditEstimateOpen(true);
+        }}
+        onPayNow={(estimate) => {
+          setSelectedEstimateForPayment(estimate);
+          setPaymentModalOpen(true);
+        }}
       />
 
       <Dialog open={reassignModalOpen} onOpenChange={setReassignModalOpen}>
