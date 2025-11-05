@@ -24,6 +24,11 @@ import { Calendar } from "@/components/ui/calendar";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isSameMonth } from "date-fns";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { PreviewAgreementModal } from "@/components/modals/PreviewAgreementModal";
+import { PreviewEstimateModal } from "@/components/modals/PreviewEstimateModal";
+import { PreviewInvoiceModal } from "@/components/modals/PreviewInvoiceModal";
+import { InvoicePaymentModal } from "@/components/modals/InvoicePaymentModal";
+import { AgreementPaymentModal } from "@/components/modals/AgreementPaymentModal";
 
 type ViewMode = "list" | "calendar";
 type TimeFilter = "day" | "week" | "month";
@@ -52,6 +57,15 @@ const Jobs = () => {
   const [dateTo, setDateTo] = useState<Date | undefined>(undefined);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [filterUnpaid, setFilterUnpaid] = useState(false);
+  const [previewAgreementModalOpen, setPreviewAgreementModalOpen] = useState(false);
+  const [previewEstimateModalOpen, setPreviewEstimateModalOpen] = useState(false);
+  const [previewInvoiceModalOpen, setPreviewInvoiceModalOpen] = useState(false);
+  const [selectedAgreementForPreview, setSelectedAgreementForPreview] = useState<any>(null);
+  const [selectedEstimateForPreview, setSelectedEstimateForPreview] = useState<any>(null);
+  const [selectedInvoiceForPreview, setSelectedInvoiceForPreview] = useState<any>(null);
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+  const [selectedItemForPayment, setSelectedItemForPayment] = useState<any>(null);
+  const [paymentType, setPaymentType] = useState<"invoice" | "agreement" | null>(null);
 
   // Apply filters from navigation state
   useEffect(() => {
@@ -211,6 +225,29 @@ const Jobs = () => {
       newMonth.setMonth(newMonth.getMonth() + 1);
     }
     setCurrentMonth(newMonth);
+  };
+
+  // Handle preview based on job type
+  const handlePreview = (job: JobItem) => {
+    if (job.type === "agreement") {
+      const agreement = mockAgreements.find(agr => agr.id === job.id);
+      if (agreement) {
+        setSelectedAgreementForPreview(agreement);
+        setPreviewAgreementModalOpen(true);
+      }
+    } else if (job.type === "estimate") {
+      const estimate = mockEstimates.find(est => est.id === job.id);
+      if (estimate) {
+        setSelectedEstimateForPreview(estimate);
+        setPreviewEstimateModalOpen(true);
+      }
+    } else if (job.type === "invoice") {
+      const invoice = mockInvoices.find(inv => inv.id === job.id);
+      if (invoice) {
+        setSelectedInvoiceForPreview(invoice);
+        setPreviewInvoiceModalOpen(true);
+      }
+    }
   };
 
   // Calculate stats
@@ -461,7 +498,13 @@ const Jobs = () => {
                                   {config.label}
                                 </Badge>
                                 <span className="font-mono font-bold text-lg">{job.orderId}</span>
-                                <Eye className="h-4 w-4 text-muted-foreground hover:text-primary cursor-pointer transition-colors" />
+                                <Eye 
+                                  className="h-4 w-4 text-muted-foreground hover:text-primary cursor-pointer transition-colors" 
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handlePreview(job);
+                                  }}
+                                />
                               </div>
 
                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
@@ -590,6 +633,74 @@ const Jobs = () => {
           </div>
         )}
       </main>
+
+      {/* Preview Modals */}
+      <PreviewAgreementModal
+        open={previewAgreementModalOpen}
+        onOpenChange={(open) => {
+          setPreviewAgreementModalOpen(open);
+          if (!open) setSelectedAgreementForPreview(null);
+        }}
+        agreement={selectedAgreementForPreview}
+        onPayNow={(agreement) => {
+          setSelectedItemForPayment(agreement);
+          setPaymentType("agreement");
+          setPaymentModalOpen(true);
+        }}
+        onUpdate={(agreement) => {
+          navigate(`/agreements/${agreement.id}/edit`);
+        }}
+      />
+
+      <PreviewEstimateModal
+        open={previewEstimateModalOpen}
+        onOpenChange={(open) => {
+          setPreviewEstimateModalOpen(open);
+          if (!open) setSelectedEstimateForPreview(null);
+        }}
+        estimate={selectedEstimateForPreview}
+        onEdit={(estimate) => {
+          navigate(`/estimates/${estimate.id}/edit`);
+        }}
+        onPayNow={(estimate) => {
+          setSelectedItemForPayment(estimate);
+          setPaymentType("invoice");
+          setPaymentModalOpen(true);
+        }}
+      />
+
+      <PreviewInvoiceModal
+        open={previewInvoiceModalOpen}
+        onOpenChange={(open) => {
+          setPreviewInvoiceModalOpen(open);
+          if (!open) setSelectedInvoiceForPreview(null);
+        }}
+        invoice={selectedInvoiceForPreview}
+        onEdit={(invoice) => {
+          navigate(`/invoices/${invoice.id}/edit`);
+        }}
+        onPayNow={(invoice) => {
+          setSelectedItemForPayment(invoice);
+          setPaymentType("invoice");
+          setPaymentModalOpen(true);
+        }}
+      />
+
+      {/* Payment Modals */}
+      {paymentType === "invoice" && (
+        <InvoicePaymentModal
+          open={paymentModalOpen}
+          onOpenChange={setPaymentModalOpen}
+          invoice={selectedItemForPayment}
+        />
+      )}
+      {paymentType === "agreement" && (
+        <AgreementPaymentModal
+          open={paymentModalOpen}
+          onOpenChange={setPaymentModalOpen}
+          agreement={selectedItemForPayment}
+        />
+      )}
     </div>
   );
 };
