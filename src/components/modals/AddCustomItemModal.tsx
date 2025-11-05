@@ -139,7 +139,7 @@ export function AddCustomItemModal({ open, onOpenChange, onAddItem }: AddCustomI
           {/* Price */}
           <div className="space-y-2 md:space-y-3">
             <Label htmlFor="price" className="text-sm md:text-base font-semibold">
-              Price ($) *
+              Price *
             </Label>
             <div className="relative">
               <DollarSign className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 h-5 w-5 md:h-6 md:w-6 text-muted-foreground font-medium" />
@@ -231,7 +231,7 @@ export function AddCustomItemModal({ open, onOpenChange, onAddItem }: AddCustomI
               type="submit"
               className="touch-target min-w-[100px] md:min-w-[120px] h-12 md:h-14 text-base md:text-lg"
             >
-              Create
+              Add
             </Button>
           </div>
         </form>
