@@ -12,6 +12,7 @@ import { ShareAddressModal } from "@/components/modals/ShareAddressModal";
 import { PayCashModal } from "@/components/modals/PayCashModal";
 import { EstimateFormModal } from "@/components/modals/EstimateFormModal";
 import { InvoicePaymentModal } from "@/components/modals/InvoicePaymentModal";
+import { PreviewEstimateModal } from "@/components/modals/PreviewEstimateModal";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -48,6 +49,8 @@ const Estimates = () => {
   const [editEstimateOpen, setEditEstimateOpen] = useState(false);
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const [selectedEstimateForPayment, setSelectedEstimateForPayment] = useState<any>(null);
+  const [previewModalOpen, setPreviewModalOpen] = useState(false);
+  const [selectedEstimateForPreview, setSelectedEstimateForPreview] = useState<any>(null);
   const { toast } = useToast();
 
   const filteredEstimates = mockEstimates.filter((estimate) => {
@@ -126,10 +129,8 @@ const Estimates = () => {
   };
 
   const handlePreview = (estimate: any) => {
-    toast({
-      title: "Preview Estimate",
-      description: `Opening preview for ${estimate.id}`,
-    });
+    setSelectedEstimateForPreview(estimate);
+    setPreviewModalOpen(true);
   };
 
   const handleEditEstimate = (estimate: any) => {
@@ -509,6 +510,15 @@ const Estimates = () => {
         open={paymentModalOpen}
         onOpenChange={setPaymentModalOpen}
         invoice={selectedEstimateForPayment}
+      />
+
+      <PreviewEstimateModal
+        open={previewModalOpen}
+        onOpenChange={(open) => {
+          setPreviewModalOpen(open);
+          if (!open) setSelectedEstimateForPreview(null);
+        }}
+        estimate={selectedEstimateForPreview}
       />
 
       <Dialog open={reassignModalOpen} onOpenChange={setReassignModalOpen}>
