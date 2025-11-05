@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { FileDown, X, CheckCircle, Send, Eye, PenTool, Lock, Camera, User } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { FileDown, X, CheckCircle, Send, Eye, PenTool, Lock, Camera, User, Upload, Trash2 } from "lucide-react";
 import { mockCustomers, mockEmployees } from "@/data/mockData";
+import { useToast } from "@/hooks/use-toast";
 
 interface PreviewAgreementModalProps {
   open: boolean;
@@ -12,11 +14,21 @@ interface PreviewAgreementModalProps {
 }
 
 export const PreviewAgreementModal = ({ open, onOpenChange, agreement, onPayNow }: PreviewAgreementModalProps) => {
+  const { toast } = useToast();
+  const [signature, setSignature] = useState<string | null>(null);
+  const [photoId, setPhotoId] = useState<string | null>(null);
+  const [snapshot, setSnapshot] = useState<string | null>(null);
+  const [isDrawing, setIsDrawing] = useState(false);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const photoIdInputRef = useRef<HTMLInputElement>(null);
+  const snapshotInputRef = useRef<HTMLInputElement>(null);
+
   if (!agreement) return null;
 
   // Find customer and employee details
   const customer = mockCustomers.find(c => c.id === agreement.customerId);
   const employee = mockEmployees.find(e => e.id === agreement.employeeId);
+  const isPaid = agreement.status === "Paid";
 
   // Format date
   const formatDate = (dateString: string) => {
@@ -37,7 +49,120 @@ export const PreviewAgreementModal = ({ open, onOpenChange, agreement, onPayNow 
 
   const handleDownloadPDF = () => {
     // PDF download logic would go here
-    console.log("Downloading PDF...");
+    toast({
+      title: "PDF Download",
+      description: "PDF download initiated",
+    });
+  };
+
+  // Signature drawing functions
+  const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    setIsDrawing(true);
+    const rect = canvas.getBoundingClientRect();
+    ctx.beginPath();
+    ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+  };
+
+  const draw = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (!isDrawing) return;
+    
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const rect = canvas.getBoundingClientRect();
+    ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+    ctx.strokeStyle = "#000";
+    ctx.lineWidth = 2;
+    ctx.lineCap = "round";
+    ctx.stroke();
+  };
+
+  const stopDrawing = () => {
+    setIsDrawing(false);
+    const canvas = canvasRef.current;
+    if (canvas) {
+      setSignature(canvas.toDataURL());
+    }
+  };
+
+  const clearSignature = () => {
+    const canvas = canvasRef.current;
+    if (canvas) {
+      const ctx = canvas.getContext("2d");
+      if (ctx) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        setSignature(null);
+      }
+    }
+  };
+
+  const handlePhotoIdUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (!file.type.startsWith("image/")) {
+        toast({
+          title: "Invalid File",
+          description: "Please upload an image file",
+          variant: "destructive",
+        });
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPhotoId(reader.result as string);
+        toast({
+          title: "Photo ID Uploaded",
+          description: "Photo ID has been uploaded successfully",
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSnapshotUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (!file.type.startsWith("image/")) {
+        toast({
+          title: "Invalid File",
+          description: "Please upload an image file",
+          variant: "destructive",
+        });
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setSnapshot(reader.result as string);
+        toast({
+          title: "Snapshot Uploaded",
+          description: "Snapshot has been uploaded successfully",
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removePhotoId = () => {
+    setPhotoId(null);
+    if (photoIdInputRef.current) {
+      photoIdInputRef.current.value = "";
+    }
+  };
+
+  const removeSnapshot = () => {
+    setSnapshot(null);
+    if (snapshotInputRef.current) {
+      snapshotInputRef.current.value = "";
+    }
   };
 
   // Mock audit trail data
@@ -178,14 +303,21 @@ export const PreviewAgreementModal = ({ open, onOpenChange, agreement, onPayNow 
 
               {/* Action Buttons */}
               <div className="flex flex-col gap-3">
-                <Button
-                  onClick={handleDownloadPDF}
-                  className="bg-blue-600 hover:bg-blue-700 text-white min-w-[180px]"
-                >
-                  <FileDown className="h-4 w-4 mr-2" />
-                  PDF DOWNLOAD
-                </Button>
-                {agreement.status !== "Paid" && onPayNow && (
+                <div className="flex flex-col gap-2">
+                  <Button
+                    onClick={handleDownloadPDF}
+                    className="bg-blue-600 hover:bg-blue-700 text-white min-w-[180px]"
+                  >
+                    <FileDown className="h-4 w-4 mr-2" />
+                    PDF DOWNLOAD
+                  </Button>
+                  {isPaid && (
+                    <Badge className="bg-green-600 text-white text-center py-2 px-4 w-full">
+                      Fully Paid
+                    </Badge>
+                  )}
+                </div>
+                {!isPaid && onPayNow && (
                   <Button
                     onClick={() => {
                       if (onPayNow) {
@@ -201,19 +333,116 @@ export const PreviewAgreementModal = ({ open, onOpenChange, agreement, onPayNow 
               </div>
             </div>
 
-            {/* Signature, Photo ID, Snapshot Placeholders */}
+            {/* Signature, Photo ID, Snapshot Fields */}
             <div className="grid grid-cols-3 gap-4">
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                <PenTool className="h-12 w-12 mx-auto mb-2 text-blue-600" />
-                <p className="text-sm font-medium text-gray-700">Signature</p>
+              {/* Signature Field */}
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-sm font-medium text-gray-700">Signature</p>
+                  {signature && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={clearSignature}
+                      className="h-6 w-6 p-0 text-destructive hover:text-destructive"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+                {signature ? (
+                  <div className="relative">
+                    <img src={signature} alt="Signature" className="w-full h-32 object-contain border border-gray-200 rounded" />
+                  </div>
+                ) : (
+                  <div className="relative bg-gray-50 rounded border border-gray-200" style={{ height: "128px" }}>
+                    <canvas
+                      ref={canvasRef}
+                      width={300}
+                      height={128}
+                      className="w-full h-full cursor-crosshair"
+                      onMouseDown={startDrawing}
+                      onMouseMove={draw}
+                      onMouseUp={stopDrawing}
+                      onMouseLeave={stopDrawing}
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                      <PenTool className="h-8 w-8 text-gray-400" />
+                    </div>
+                  </div>
+                )}
               </div>
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                <User className="h-12 w-12 mx-auto mb-2 text-blue-600" />
-                <p className="text-sm font-medium text-gray-700">Photo ID</p>
+
+              {/* Photo ID Field */}
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-sm font-medium text-gray-700">Photo ID</p>
+                  {photoId && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={removePhotoId}
+                      className="h-6 w-6 p-0 text-destructive hover:text-destructive"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+                {photoId ? (
+                  <div className="relative">
+                    <img src={photoId} alt="Photo ID" className="w-full h-32 object-cover border border-gray-200 rounded" />
+                  </div>
+                ) : (
+                  <label className="flex flex-col items-center justify-center h-32 bg-gray-50 rounded border border-gray-200 cursor-pointer hover:bg-gray-100 transition-colors">
+                    <User className="h-8 w-8 mb-2 text-gray-400" />
+                    <span className="text-xs text-gray-500">Click to upload</span>
+                    <input
+                      ref={photoIdInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handlePhotoIdUpload}
+                      className="hidden"
+                    />
+                  </label>
+                )}
               </div>
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                <Camera className="h-12 w-12 mx-auto mb-2 text-blue-600" />
-                <p className="text-sm font-medium text-gray-700">Snapshot</p>
+
+              {/* Snapshot Field */}
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-sm font-medium text-gray-700">Snapshot</p>
+                  {snapshot && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={removeSnapshot}
+                      className="h-6 w-6 p-0 text-destructive hover:text-destructive"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+                {snapshot ? (
+                  <div className="relative">
+                    <img src={snapshot} alt="Snapshot" className="w-full h-32 object-cover border border-gray-200 rounded" />
+                  </div>
+                ) : (
+                  <label className="flex flex-col items-center justify-center h-32 bg-gray-50 rounded border border-gray-200 cursor-pointer hover:bg-gray-100 transition-colors">
+                    <Camera className="h-8 w-8 mb-2 text-gray-400" />
+                    <span className="text-xs text-gray-500">Click to upload</span>
+                    <input
+                      ref={snapshotInputRef}
+                      type="file"
+                      accept="image/*"
+                      capture="environment"
+                      onChange={handleSnapshotUpload}
+                      className="hidden"
+                    />
+                  </label>
+                )}
               </div>
             </div>
 
