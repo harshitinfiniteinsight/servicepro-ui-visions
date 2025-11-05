@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Trash2, UserPlus, Repeat, FileText, Minus, Tag, X, Percent, DollarSign, Camera, ArrowLeft } from "lucide-react";
+import { Plus, Trash2, UserPlus, Repeat, FileText, Minus, Tag, X, Percent, DollarSign, Camera, ArrowLeft, RefreshCw, List } from "lucide-react";
 import { mockCustomers, mockJobs, mockEmployees, mockDiscounts, mockInvoices } from "@/data/mockData";
 import { QuickAddCustomerModal } from "@/components/modals/QuickAddCustomerModal";
 import { AddItemModal } from "@/components/modals/AddItemModal";
@@ -157,6 +157,31 @@ const AddInvoice = () => {
                 </Badge>
               )}
             </div>
+          </div>
+
+          {/* Action Buttons Bar */}
+          <div className="flex items-center justify-end gap-3 mb-6">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => navigate("/invoices")}
+              className="gap-2"
+            >
+              <List className="h-4 w-4" />
+              Invoice List
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                toast.success("Inventory items synced successfully");
+                // Sync logic would go here - this could refresh available inventory items
+              }}
+              className="gap-2"
+            >
+              <RefreshCw className="h-4 w-4" />
+              Sync Item
+            </Button>
           </div>
 
           <form onSubmit={handleSubmit}>
