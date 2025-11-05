@@ -45,11 +45,11 @@ export const InvoicePaymentModal = ({ open, onOpenChange, invoice }: InvoicePaym
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md p-0 max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="bg-[#3F8C8C] text-white px-4 py-4 flex items-center gap-3">
+        <div className="bg-orange-500 text-white px-4 py-4 flex items-center gap-3">
           <Button
             variant="ghost"
             size="icon"
-            className="text-white hover:bg-[#2d6b6b] h-8 w-8"
+            className="text-white hover:bg-orange-600 h-8 w-8"
             onClick={() => onOpenChange(false)}
           >
             <ArrowLeft className="h-5 w-5" />
@@ -58,7 +58,7 @@ export const InvoicePaymentModal = ({ open, onOpenChange, invoice }: InvoicePaym
           <Button
             variant="ghost"
             size="icon"
-            className="text-white hover:bg-[#2d6b6b] h-8 w-8"
+            className="text-white hover:bg-orange-600 h-8 w-8"
             onClick={() => onOpenChange(false)}
           >
             <X className="h-5 w-5" />
@@ -69,8 +69,8 @@ export const InvoicePaymentModal = ({ open, onOpenChange, invoice }: InvoicePaym
           {/* Total Amount Section */}
           <div className="flex flex-col items-center justify-center py-6">
             <div className="relative mb-4">
-              <div className="h-20 w-20 rounded-full bg-[#A7E0D9] flex items-center justify-center">
-                <RefreshCw className="h-10 w-10 text-[#3F8C8C]" />
+              <div className="h-20 w-20 rounded-full bg-orange-100 flex items-center justify-center">
+                <RefreshCw className="h-10 w-10 text-orange-500" />
               </div>
             </div>
             <p className="text-sm text-muted-foreground mb-2">Total Amount</p>
@@ -107,14 +107,14 @@ export const InvoicePaymentModal = ({ open, onOpenChange, invoice }: InvoicePaym
               <Card
                 className={`cursor-pointer transition-all hover:shadow-md bg-white ${
                   selectedPaymentMethod === "tap"
-                    ? "border-[#3F8C8C] border-2 bg-[#A7E0D9]/10"
+                    ? "border-orange-500 border-2 bg-orange-50"
                     : "border-gray-200"
                 }`}
                 onClick={() => handlePaymentMethodSelect("tap")}
               >
                 <CardContent className="pt-6 pb-4 flex flex-col items-center justify-center min-h-[120px]">
                   <div className="mb-3">
-                    <Zap className="h-10 w-10 text-[#3F8C8C]" />
+                    <Zap className="h-10 w-10 text-orange-500" />
                   </div>
                   <p className="text-sm font-medium text-center text-foreground">Tap to Pay</p>
                 </CardContent>
@@ -124,14 +124,14 @@ export const InvoicePaymentModal = ({ open, onOpenChange, invoice }: InvoicePaym
               <Card
                 className={`cursor-pointer transition-all hover:shadow-md bg-white ${
                   selectedPaymentMethod === "card"
-                    ? "border-[#3F8C8C] border-2 bg-[#A7E0D9]/10"
+                    ? "border-orange-500 border-2 bg-orange-50"
                     : "border-gray-200"
                 }`}
                 onClick={() => handlePaymentMethodSelect("card")}
               >
                 <CardContent className="pt-6 pb-4 flex flex-col items-center justify-center min-h-[120px]">
                   <div className="mb-3">
-                    <CreditCard className="h-10 w-10 text-[#3F8C8C]" />
+                    <CreditCard className="h-10 w-10 text-orange-500" />
                   </div>
                   <p className="text-sm font-medium text-center text-foreground">Enter Card Manually</p>
                 </CardContent>
@@ -141,14 +141,14 @@ export const InvoicePaymentModal = ({ open, onOpenChange, invoice }: InvoicePaym
               <Card
                 className={`cursor-pointer transition-all hover:shadow-md bg-white ${
                   selectedPaymentMethod === "ach"
-                    ? "border-[#3F8C8C] border-2 bg-[#A7E0D9]/10"
+                    ? "border-orange-500 border-2 bg-orange-50"
                     : "border-gray-200"
                 }`}
                 onClick={() => handlePaymentMethodSelect("ach")}
               >
                 <CardContent className="pt-6 pb-4 flex flex-col items-center justify-center min-h-[120px]">
                   <div className="mb-3">
-                    <Building2 className="h-10 w-10 text-[#3F8C8C]" />
+                    <Building2 className="h-10 w-10 text-orange-500" />
                   </div>
                   <p className="text-sm font-medium text-center text-foreground">ACH Payment</p>
                 </CardContent>
@@ -158,14 +158,14 @@ export const InvoicePaymentModal = ({ open, onOpenChange, invoice }: InvoicePaym
               <Card
                 className={`cursor-pointer transition-all hover:shadow-md bg-white ${
                   selectedPaymentMethod === "cash"
-                    ? "border-[#3F8C8C] border-2 bg-[#A7E0D9]/10"
+                    ? "border-orange-500 border-2 bg-orange-50"
                     : "border-gray-200"
                 }`}
                 onClick={() => handlePaymentMethodSelect("cash")}
               >
                 <CardContent className="pt-6 pb-4 flex flex-col items-center justify-center min-h-[120px]">
                   <div className="mb-3">
-                    <DollarSign className="h-10 w-10 text-[#3F8C8C]" />
+                    <DollarSign className="h-10 w-10 text-orange-500" />
                   </div>
                   <p className="text-sm font-medium text-center text-foreground">Pay by Cash</p>
                 </CardContent>
