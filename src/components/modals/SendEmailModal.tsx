@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -8,7 +8,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 
 interface SendEmailModalProps {
   open: boolean;
@@ -22,7 +21,12 @@ export const SendEmailModal = ({
   customerEmail,
 }: SendEmailModalProps) => {
   const [email, setEmail] = useState(customerEmail);
-  const [emailBody, setEmailBody] = useState("");
+
+  useEffect(() => {
+    if (open) {
+      setEmail(customerEmail);
+    }
+  }, [customerEmail, open]);
 
   const handleSend = () => {
     // Email sending logic here
@@ -32,33 +36,40 @@ export const SendEmailModal = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
-        <DialogHeader>
-          <DialogTitle>Send Email</DialogTitle>
+      <DialogContent className="sm:max-w-[500px] p-0 bg-white">
+        {/* Header with teal background */}
+        <DialogHeader className="bg-teal-600 text-white p-6 pb-4">
+          <div className="flex items-center justify-between">
+            <DialogTitle className="text-2xl font-bold text-white">Send email</DialogTitle>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => onOpenChange(false)}
+              className="text-white hover:bg-teal-700 h-10 w-auto px-4 rounded-md"
+            >
+              <span className="text-lg font-semibold">Close</span>
+            </Button>
+          </div>
         </DialogHeader>
-        <div className="space-y-4 py-4">
+
+        {/* Content Area */}
+        <div className="p-6 space-y-4">
           <div className="space-y-2">
-            <Label>Email send to</Label>
+            <Label className="text-gray-600">Email send to :</Label>
             <Input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="customer@example.com"
+              className="border-0 border-b-2 border-gray-300 rounded-none px-0 focus-visible:ring-0 focus-visible:border-teal-600 text-teal-600 font-medium"
             />
           </div>
 
-          <div className="space-y-2">
-            <Label>Email Body</Label>
-            <Textarea
-              value={emailBody}
-              onChange={(e) => setEmailBody(e.target.value)}
-              placeholder="Type your email message here..."
-              className="min-h-[200px]"
-            />
-          </div>
-
-          <Button onClick={handleSend} className="w-full">
-            Send
+          <Button 
+            onClick={handleSend} 
+            className="w-full border-2 border-teal-600 text-teal-600 bg-white hover:bg-teal-50 font-semibold py-2"
+          >
+            SEND
           </Button>
         </div>
       </DialogContent>
