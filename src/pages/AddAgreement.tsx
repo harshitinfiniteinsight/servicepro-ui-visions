@@ -18,7 +18,7 @@ import { FollowUpAppointmentModal } from "@/components/modals/FollowUpAppointmen
 import { AddAppointmentModal } from "@/components/modals/AddAppointmentModal";
 import { useToast } from "@/hooks/use-toast";
 import { mockCustomers, mockEmployees, mockInventory, mockAgreements } from "@/data/mockData";
-import { CalendarIcon, Plus, Search, Check, ArrowLeft, RefreshCw, List, FileText } from "lucide-react";
+import { CalendarIcon, Plus, Search, Check, ArrowLeft, RefreshCw, List, FileText, CheckCircle2 } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -229,6 +229,53 @@ const AddAgreement = () => {
               <RefreshCw className="h-4 w-4" />
               Sync Item
             </Button>
+          </div>
+
+          {/* Stepper */}
+          <div className="max-w-4xl mx-auto mb-6">
+            <div className="flex items-center justify-between">
+              {[1, 2, 3, 4].map((stepNumber, index) => (
+                <div key={stepNumber} className="flex items-center flex-1">
+                  <div className="flex flex-col items-center flex-1">
+                    <div
+                      className={cn(
+                        "flex items-center justify-center w-10 h-10 rounded-full border-2 font-semibold transition-all",
+                        stepNumber < step
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : stepNumber === step
+                          ? "bg-primary text-primary-foreground border-primary ring-4 ring-primary/20"
+                          : "bg-background text-muted-foreground border-muted-foreground/30"
+                      )}
+                    >
+                      {stepNumber < step ? (
+                        <CheckCircle2 className="h-5 w-5" />
+                      ) : (
+                        stepNumber
+                      )}
+                    </div>
+                    <div
+                      className={cn(
+                        "mt-2 text-xs font-medium text-center",
+                        stepNumber <= step ? "text-foreground" : "text-muted-foreground"
+                      )}
+                    >
+                      {stepNumber === 1 && "Customer & Employee"}
+                      {stepNumber === 2 && "Agreement Type"}
+                      {stepNumber === 3 && "Select Services"}
+                      {stepNumber === 4 && "Work Description"}
+                    </div>
+                  </div>
+                  {index < 3 && (
+                    <div
+                      className={cn(
+                        "h-0.5 flex-1 mx-2 transition-all",
+                        stepNumber < step ? "bg-primary" : "bg-muted-foreground/30"
+                      )}
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
 
           <div className="max-w-4xl mx-auto bg-card rounded-xl border shadow-lg p-6">
