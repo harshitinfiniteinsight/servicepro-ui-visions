@@ -75,6 +75,60 @@ const Index = () => {
     customer: "Sharon Mcdonald",
     type: "Anytime"
   }];
+
+  // Get today's date for filtering
+  const today = new Date();
+  const todayStart = new Date(today);
+  todayStart.setHours(0, 0, 0, 0);
+  const todayEnd = new Date(today);
+  todayEnd.setHours(23, 59, 59, 999);
+
+  // Format date for input fields (YYYY-MM-DD)
+  const formatDateForInput = (date: Date) => {
+    return date.toISOString().split('T')[0];
+  };
+
+  const handleNewEstimatesClick = () => {
+    navigate("/estimates", {
+      state: {
+        dateRange: {
+          from: todayStart,
+          to: todayEnd,
+        },
+      },
+    });
+  };
+
+  const handleActiveJobsClick = () => {
+    navigate("/jobs", {
+      state: {
+        dateFrom: todayStart,
+        dateTo: todayEnd,
+        timeFilter: "day",
+      },
+    });
+  };
+
+  const handleAwaitingPaymentsClick = () => {
+    navigate("/jobs", {
+      state: {
+        dateFrom: todayStart,
+        dateTo: todayEnd,
+        timeFilter: "day",
+        filterUnpaid: true,
+      },
+    });
+  };
+
+  const handleTodaysAppointmentsClick = () => {
+    navigate("/appointments/manage", {
+      state: {
+        selectedDate: formatDateForInput(today),
+        calendarView: "day",
+      },
+    });
+  };
+
   return <div className="flex-1">
       <AppHeader searchPlaceholder="Search..." />
 
@@ -99,7 +153,7 @@ const Index = () => {
 
         {/* Quick Stats Overview */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-          <div className="app-card p-4 card-shine cursor-pointer group">
+          <div className="app-card p-4 card-shine cursor-pointer group" onClick={handleNewEstimatesClick}>
             <div className="flex items-center justify-between mb-3">
               <div className="p-3 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 group-hover:from-primary/20 group-hover:to-primary/10 transition-all shadow-sm">
                 <FileText className="h-5 w-5 text-primary" />
@@ -113,7 +167,7 @@ const Index = () => {
             </div>
           </div>
 
-          <div className="app-card p-4 card-shine cursor-pointer group">
+          <div className="app-card p-4 card-shine cursor-pointer group" onClick={handleActiveJobsClick}>
             <div className="flex items-center justify-between mb-3">
               <div className="p-3 rounded-xl bg-gradient-to-br from-accent/10 to-accent/5 group-hover:from-accent/20 group-hover:to-accent/10 transition-all shadow-sm">
                 <Briefcase className="h-5 w-5 text-accent" />
@@ -129,7 +183,7 @@ const Index = () => {
             </div>
           </div>
 
-          <div className="app-card p-4 card-shine cursor-pointer group">
+          <div className="app-card p-4 card-shine cursor-pointer group" onClick={handleAwaitingPaymentsClick}>
             <div className="flex items-center justify-between mb-3">
               <div className="p-3 rounded-xl bg-gradient-to-br from-warning/10 to-warning/5 group-hover:from-warning/20 group-hover:to-warning/10 transition-all shadow-sm">
                 <DollarSign className="h-5 w-5 text-warning" />
@@ -143,7 +197,7 @@ const Index = () => {
             </div>
           </div>
 
-          <div className="app-card p-4 card-shine cursor-pointer group">
+          <div className="app-card p-4 card-shine cursor-pointer group" onClick={handleTodaysAppointmentsClick}>
             <div className="flex items-center justify-between mb-3">
               <div className="p-3 rounded-xl bg-gradient-to-br from-success/10 to-success/5 group-hover:from-success/20 group-hover:to-success/10 transition-all shadow-sm">
                 <Calendar className="h-5 w-5 text-success" />

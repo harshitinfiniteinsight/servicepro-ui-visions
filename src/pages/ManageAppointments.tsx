@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AppHeader } from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Calendar as CalendarIcon, List, Edit, StickyNote, Share2 } from "lucide-react";
 import { mockEmployees } from "@/data/mockData";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
@@ -18,9 +18,25 @@ import { useToast } from "@/hooks/use-toast";
 
 const ManageAppointments = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   const [selectedEmployee, setSelectedEmployee] = useState("all");
   const [calendarView, setCalendarView] = useState<"month" | "week" | "day">("month");
+
+  // Apply filters from navigation state
+  useEffect(() => {
+    if (location.state) {
+      if (location.state.calendarView) {
+        setCalendarView(location.state.calendarView);
+      }
+      if (location.state.selectedDate) {
+        // Set the current date based on selectedDate
+        // The calendar will filter appointments for this date
+      }
+      // Clear the state to prevent re-applying on re-render
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
   const [selectedAppointments, setSelectedAppointments] = useState<string[]>([]);
   const [addNoteOpen, setAddNoteOpen] = useState(false);
   const [shareAppointmentOpen, setShareAppointmentOpen] = useState(false);

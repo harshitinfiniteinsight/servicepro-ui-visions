@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { AppHeader } from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -39,6 +40,8 @@ interface JobItem {
 }
 
 const Jobs = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [timeFilter, setTimeFilter] = useState<TimeFilter>("day");
@@ -48,6 +51,27 @@ const Jobs = () => {
   const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined);
   const [dateTo, setDateTo] = useState<Date | undefined>(undefined);
   const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [filterUnpaid, setFilterUnpaid] = useState(false);
+
+  // Apply filters from navigation state
+  useEffect(() => {
+    if (location.state) {
+      if (location.state.dateFrom) {
+        setDateFrom(location.state.dateFrom);
+      }
+      if (location.state.dateTo) {
+        setDateTo(location.state.dateTo);
+      }
+      if (location.state.timeFilter) {
+        setTimeFilter(location.state.timeFilter);
+      }
+      if (location.state.filterUnpaid) {
+        setFilterUnpaid(location.state.filterUnpaid);
+      }
+      // Clear the state to prevent re-applying on re-render
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   // Transform data into unified format
   const allJobs: JobItem[] = [
@@ -87,6 +111,21 @@ const Jobs = () => {
         job.orderId.toLowerCase().includes(searchQuery.toLowerCase()) ||
         job.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
         job.employeeName.toLowerCase().includes(searchQuery.toLowerCase());
+      
+      // Filter unpaid jobs if filterUnpaid is true
+      if (filterUnpaid) {
+        const jobInvoice = mockInvoices.find(inv => inv.id === job.id);
+        const jobEstimate = mockEstimates.find(est => est.id === job.id);
+        const jobAgreement = mockAgreements.find(agr => agr.id === job.id);
+        
+        // Check if job is unpaid
+        const isUnpaid = 
+          (jobInvoice && jobInvoice.status !== "Paid") ||
+          (jobEstimate && jobEstimate.status === "Open") ||
+          (jobAgreement && jobAgreement.status !== "Paid");
+        
+        if (!isUnpaid) return false;
+      }
       
       const matchesEmployee = selectedEmployee === "all" || job.employeeName === selectedEmployee;
       const matchesJobType = selectedJobType === "all" || job.type === selectedJobType;

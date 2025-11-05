@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { AppHeader } from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -30,6 +30,7 @@ import { cn } from "@/lib/utils";
 
 const Estimates = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("active");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -37,6 +38,15 @@ const Estimates = () => {
     from: undefined,
     to: undefined,
   });
+
+  // Apply date range from navigation state
+  useEffect(() => {
+    if (location.state?.dateRange) {
+      setDateRange(location.state.dateRange);
+      // Clear the state to prevent re-applying on re-render
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
   const [emailModalOpen, setEmailModalOpen] = useState(false);
   const [smsModalOpen, setSmsModalOpen] = useState(false);
   const [shareAddressModalOpen, setShareAddressModalOpen] = useState(false);
