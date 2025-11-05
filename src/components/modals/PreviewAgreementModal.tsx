@@ -242,6 +242,13 @@ export const PreviewAgreementModal = ({ open, onOpenChange, agreement, onPayNow,
           </div>
 
           <div className="p-6 space-y-6">
+            {/* Ticket Number - Top Right */}
+            <div className="flex justify-end">
+              <p className="text-green-600 font-semibold text-sm">
+                Ticket Number: <span className="text-gray-900">{agreement.ticketNumber || agreement.id || "N/A"}</span>
+              </p>
+            </div>
+
             {/* Service Work Order Section */}
             <div className="bg-blue-100 p-4 rounded-lg">
               <h2 className="text-xl font-semibold text-blue-900 mb-4">Service Work Order</h2>
@@ -336,6 +343,13 @@ export const PreviewAgreementModal = ({ open, onOpenChange, agreement, onPayNow,
                   </Button>
                 )}
               </div>
+            </div>
+
+            {/* Agreement Expiry Date - Bottom Right */}
+            <div className="flex justify-end">
+              <p className="text-green-600 font-semibold text-sm">
+                Agreement Expiry Date: <span className="text-gray-900">{formatDate(agreement.endDate || agreement.expiryDate)}</span>
+              </p>
             </div>
 
             {/* Signature, Photo ID, Snapshot Fields */}
