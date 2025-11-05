@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { SendEmailModal } from "./SendEmailModal";
 import { SendSMSModal } from "./SendSMSModal";
 import { AgreementSignModal } from "./AgreementSignModal";
+import { AgreementPaymentModal } from "./AgreementPaymentModal";
 
 interface PreviewAgreementModalProps {
   open: boolean;
@@ -26,6 +27,7 @@ export const PreviewAgreementModal = ({ open, onOpenChange, agreement, onPayNow,
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [showSMSModal, setShowSMSModal] = useState(false);
   const [showSignModal, setShowSignModal] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const photoIdInputRef = useRef<HTMLInputElement>(null);
   const snapshotInputRef = useRef<HTMLInputElement>(null);
@@ -595,6 +597,17 @@ export const PreviewAgreementModal = ({ open, onOpenChange, agreement, onPayNow,
         open={showSignModal}
         onOpenChange={setShowSignModal}
         agreementId={agreement.id}
+        onSignComplete={() => {
+          setShowSignModal(false);
+          setShowPaymentModal(true);
+        }}
+      />
+
+      {/* Payment Due Modal */}
+      <AgreementPaymentModal
+        open={showPaymentModal}
+        onOpenChange={setShowPaymentModal}
+        agreement={agreement}
       />
     </Dialog>
   );
