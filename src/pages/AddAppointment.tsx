@@ -101,64 +101,67 @@ const AddAppointment = () => {
                 />
               </div>
 
-              <div>
-                <Label htmlFor="customer">Select Customer *</Label>
-                <div className="flex gap-2">
-                  <Select value={formData.customer} onValueChange={(value) => setFormData({ ...formData, customer: value })}>
-                    <SelectTrigger className="flex-1">
-                      <SelectValue placeholder="Choose customer" />
+              {/* Employee, Customer, and Category in one row */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <Label htmlFor="employee">Select Employee *</Label>
+                  <Select value={formData.employee} onValueChange={(value) => setFormData({ ...formData, employee: value })}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Choose employee" />
                     </SelectTrigger>
                     <SelectContent>
-                      {mockCustomers.map((customer) => (
-                        <SelectItem key={customer.id} value={customer.id}>
-                          {customer.name}
+                      {mockEmployees.map((employee) => (
+                        <SelectItem key={employee.id} value={employee.id}>
+                          {employee.name} - {employee.role}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
-                  <Button type="button" variant="outline" size="icon" onClick={() => setQuickAddCustomerOpen(true)}>
-                    <Plus className="h-4 w-4" />
-                  </Button>
                 </div>
-              </div>
 
-              <div>
-                <Label htmlFor="employee">Select Employee *</Label>
-                <Select value={formData.employee} onValueChange={(value) => setFormData({ ...formData, employee: value })}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Choose employee" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {mockEmployees.map((employee) => (
-                      <SelectItem key={employee.id} value={employee.id}>
-                        {employee.name} - {employee.role}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+                <div>
+                  <Label htmlFor="customer">Select Customer *</Label>
+                  <div className="flex gap-2">
+                    <Select value={formData.customer} onValueChange={(value) => setFormData({ ...formData, customer: value })}>
+                      <SelectTrigger className="flex-1">
+                        <SelectValue placeholder="Choose customer" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {mockCustomers.map((customer) => (
+                          <SelectItem key={customer.id} value={customer.id}>
+                            {customer.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Button type="button" variant="outline" size="icon" onClick={() => setQuickAddCustomerOpen(true)}>
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
 
-              <div>
-                <Label htmlFor="category">Category</Label>
-                <div className="flex gap-2">
-                  <Select value={formData.category} onValueChange={(value) => setFormData({ ...formData, category: value })}>
-                    <SelectTrigger className="flex-1">
-                      <SelectValue placeholder="Choose category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {mockCategories.map((category) => (
-                        <SelectItem key={category.id} value={category.id}>
-                          <div className="flex items-center gap-2">
-                            <div className="h-3 w-3 rounded-full" style={{ backgroundColor: category.color }}></div>
-                            {category.name}
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Button type="button" variant="outline" size="icon" onClick={() => setAddCategoryOpen(true)}>
-                    <Plus className="h-4 w-4" />
-                  </Button>
+                <div>
+                  <Label htmlFor="category">Category</Label>
+                  <div className="flex gap-2">
+                    <Select value={formData.category} onValueChange={(value) => setFormData({ ...formData, category: value })}>
+                      <SelectTrigger className="flex-1">
+                        <SelectValue placeholder="Choose category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {mockCategories.map((category) => (
+                          <SelectItem key={category.id} value={category.id}>
+                            <div className="flex items-center gap-2">
+                              <div className="h-3 w-3 rounded-full" style={{ backgroundColor: category.color }}></div>
+                              {category.name}
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Button type="button" variant="outline" size="icon" onClick={() => setAddCategoryOpen(true)}>
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
               </div>
 
