@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { Printer, X, Mail, MessageSquare, UserCog } from "lucide-react";
+import { Printer, X, Mail, MessageSquare, UserCog, Edit } from "lucide-react";
 import { SendEmailModal } from "./SendEmailModal";
 import { SendSMSModal } from "./SendSMSModal";
 import { mockEmployees, mockCustomers } from "@/data/mockData";
@@ -14,9 +14,11 @@ interface PreviewInvoiceModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   invoice: any;
+  onEdit?: (invoice: any) => void;
+  onPayNow?: (invoice: any) => void;
 }
 
-export const PreviewInvoiceModal = ({ open, onOpenChange, invoice }: PreviewInvoiceModalProps) => {
+export const PreviewInvoiceModal = ({ open, onOpenChange, invoice, onEdit, onPayNow }: PreviewInvoiceModalProps) => {
   const { toast } = useToast();
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [showSMSModal, setShowSMSModal] = useState(false);
@@ -280,7 +282,15 @@ export const PreviewInvoiceModal = ({ open, onOpenChange, invoice }: PreviewInvo
                   
                   <div className="pt-2 space-y-2">
                     {invoice.status !== "Paid" && (
-                      <Button className="w-full bg-orange-500 hover:bg-orange-600 text-white">
+                      <Button 
+                        className="w-full bg-orange-500 hover:bg-orange-600 text-white"
+                        onClick={() => {
+                          if (onPayNow) {
+                            onPayNow(invoice);
+                            onOpenChange(false);
+                          }
+                        }}
+                      >
                         Pay Now
                       </Button>
                     )}
@@ -310,6 +320,20 @@ export const PreviewInvoiceModal = ({ open, onOpenChange, invoice }: PreviewInvo
             {/* Action Buttons */}
             <div className="flex items-center justify-between pt-4 border-t border-gray-200">
               <div className="flex items-center gap-3">
+                {invoice.status !== "Paid" && onEdit && (
+                  <Button
+                    onClick={() => {
+                      if (onEdit) {
+                        onEdit(invoice);
+                        onOpenChange(false);
+                      }
+                    }}
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                  >
+                    <Edit className="h-4 w-4 mr-2" />
+                    Edit Invoice
+                  </Button>
+                )}
                 <Button
                   onClick={handleSendEmail}
                   className="bg-blue-600 hover:bg-blue-700 text-white"

@@ -622,6 +622,14 @@ const Invoices = () => {
             if (!open) setSelectedInvoiceForPreview(null);
           }}
           invoice={selectedInvoiceForPreview}
+          onEdit={(invoice) => {
+            setSelectedInvoice(invoice);
+            setModalOpen(true);
+          }}
+          onPayNow={(invoice) => {
+            setSelectedInvoiceForPayment(invoice);
+            setPaymentModalOpen(true);
+          }}
         />
       </main>
     </div>
