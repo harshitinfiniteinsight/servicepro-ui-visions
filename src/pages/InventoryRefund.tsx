@@ -242,10 +242,11 @@ const InventoryRefund = () => {
                       </TableCell>
                       <TableCell>
                         <Badge 
+                          variant="outline"
                           className={
                             refund.status === "Completed"
-                              ? "bg-success/15 text-success border-success/40"
-                              : "bg-warning/15 text-warning border-warning/40"
+                              ? "bg-success/20 text-success border-success/60 font-semibold shadow-sm"
+                              : "bg-warning/20 text-warning border-warning/60 font-semibold shadow-sm"
                           }
                         >
                           {refund.status}
