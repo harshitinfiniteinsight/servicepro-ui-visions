@@ -443,17 +443,16 @@ const Inventory = () => {
                               <span className="text-xs font-medium text-muted-foreground">Serial: </span>
                               <span className="text-xs font-bold text-foreground">{equipment.serialNumber}</span>
                             </div>
-                          </div>
-                          
-                          {equipment.assignedTo && (
-                            <div className="flex items-center gap-2 px-4 py-2 bg-accent/10 rounded-lg border border-accent/20">
-                              <UserCheck className="h-4 w-4 text-accent" />
-                              <div>
-                                <span className="text-xs text-muted-foreground block">Assigned To</span>
-                                <span className="font-semibold text-sm text-foreground">{equipment.assignedTo}</span>
+                            {equipment.assignedTo && (
+                              <div className="flex items-center gap-2 px-3 py-1.5 bg-accent/10 rounded-md border border-accent/20">
+                                <UserCheck className="h-4 w-4 text-accent" />
+                                <div>
+                                  <span className="text-xs text-muted-foreground">Assigned To: </span>
+                                  <span className="text-xs font-semibold text-foreground">{equipment.assignedTo}</span>
+                                </div>
                               </div>
-                            </div>
-                          )}
+                            )}
+                          </div>
                         </div>
                       </div>
                       
