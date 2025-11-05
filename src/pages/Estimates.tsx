@@ -80,7 +80,7 @@ const Estimates = () => {
       case "Paid":
         return "bg-success/10 text-success border-success/20";
       case "Open":
-        return "bg-info/10 text-info border-info/20";
+        return "bg-warning/10 text-warning border-warning/20";
       default:
         return "bg-muted text-muted-foreground";
     }
@@ -336,8 +336,8 @@ const Estimates = () => {
                           </Button>
                         </div>
                         <div className="flex items-center justify-between gap-2">
-                          <Badge className={getStatusColor(estimate.status)}>
-                            {estimate.status}
+                          <Badge className={getStatusColor(estimate.status)} variant="outline">
+                            {estimate.status.toUpperCase()}
                           </Badge>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
