@@ -230,7 +230,7 @@ const Inventory = () => {
                           onClick={() => setStockAdjustmentModal({ open: true, item })}
                         >
                           <Package className="h-3.5 w-3.5" />
-                          <span className="text-xs">Stock</span>
+                          <span className="text-xs">Adjust Stock</span>
                         </Button>
                         <Button 
                           variant="outline" 
@@ -334,7 +334,7 @@ const Inventory = () => {
                           onClick={() => setStockAdjustmentModal({ open: true, item })}
                         >
                           <Package className="h-3 w-3 mr-1" />
-                          Stock
+                          Adjust Stock
                         </Button>
                       </div>
                     </CardContent>
