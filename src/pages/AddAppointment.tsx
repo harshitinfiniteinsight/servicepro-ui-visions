@@ -51,6 +51,7 @@ const AddAppointment = () => {
   const mockAppointmentHistory = [
     {
       id: "APT-001",
+      employeeId: "E-001",
       customerName: "Sarah Johnson",
       subject: "HVAC Maintenance",
       date: "2025-10-20",
@@ -58,12 +59,37 @@ const AddAppointment = () => {
     },
     {
       id: "APT-002",
+      employeeId: "E-001",
       customerName: "Mike Williams",
       subject: "Plumbing Check",
       date: "2025-10-22",
       time: "2:00 PM",
     },
+    {
+      id: "APT-003",
+      employeeId: "E-002",
+      customerName: "Emma Davis",
+      subject: "Electrical Repair",
+      date: "2025-10-21",
+      time: "11:00 AM",
+    },
+    {
+      id: "APT-004",
+      employeeId: "E-002",
+      customerName: "James Wilson",
+      subject: "Appliance Installation",
+      date: "2025-10-23",
+      time: "3:00 PM",
+    },
   ];
+
+  // Filter appointments by selected employee
+  const filteredAppointmentHistory = formData.employee
+    ? mockAppointmentHistory.filter((apt) => apt.employeeId === formData.employee)
+    : [];
+
+  // Get selected employee name
+  const selectedEmployee = mockEmployees.find((emp) => emp.id === formData.employee);
 
   return (
     <div className="flex-1">
@@ -75,20 +101,19 @@ const AddAppointment = () => {
             <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Add Appointment</h1>
             <p className="text-sm sm:text-base text-muted-foreground">Schedule a new appointment</p>
           </div>
-          <Button 
-            variant="outline"
-            onClick={() => document.getElementById('appointment-history')?.scrollIntoView({ behavior: 'smooth' })}
-            className="w-full sm:w-auto"
-          >
-            Appointment History
-          </Button>
+          {formData.employee && (
+            <Button 
+              variant="outline"
+              onClick={() => document.getElementById('appointment-history')?.scrollIntoView({ behavior: 'smooth' })}
+              className="w-full sm:w-auto"
+            >
+              Appointment History
+            </Button>
+          )}
         </div>
 
         <form onSubmit={handleSubmit}>
           <Card className="border border-border bg-card shadow-md">
-            <CardHeader className="border-b border-border bg-muted/30">
-              <CardTitle className="text-lg font-bold">Appointment Details</CardTitle>
-            </CardHeader>
             <CardContent className="p-4 sm:p-6 space-y-4">
               <div>
                 <Label htmlFor="subject">Appointment Subject *</Label>
@@ -282,30 +307,38 @@ const AddAppointment = () => {
         </form>
 
         {/* Appointment History Section */}
-        <div id="appointment-history">
-          <Card className="border border-border bg-card shadow-md">
-            <CardHeader className="border-b border-border bg-muted/30">
-              <CardTitle className="text-lg font-bold">Appointment History</CardTitle>
-            </CardHeader>
-            <CardContent className="p-4">
-              <div className="space-y-3">
-                {mockAppointmentHistory.map((apt) => (
-                  <div key={apt.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-muted/20 rounded-lg border border-border">
-                    <div className="flex-1 mb-3 sm:mb-0">
-                      <h4 className="font-semibold text-foreground">{apt.customerName}</h4>
-                      <p className="text-sm text-muted-foreground">{apt.subject}</p>
-                      <div className="flex gap-2 mt-1">
-                        <span className="text-xs px-2 py-1 bg-accent/10 text-accent rounded">{apt.date}</span>
-                        <span className="text-xs px-2 py-1 bg-primary/10 text-primary rounded">{apt.time}</span>
+        {formData.employee && (
+          <div id="appointment-history">
+            <Card className="border border-border bg-card shadow-md">
+              <CardHeader className="border-b border-border bg-muted/30">
+                <CardTitle className="text-lg font-bold">
+                  Appointment History of {selectedEmployee?.name || ""}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4">
+                <div className="space-y-3">
+                  {filteredAppointmentHistory.length > 0 ? (
+                    filteredAppointmentHistory.map((apt) => (
+                      <div key={apt.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-muted/20 rounded-lg border border-border">
+                        <div className="flex-1 mb-3 sm:mb-0">
+                          <h4 className="font-semibold text-foreground">{apt.customerName}</h4>
+                          <p className="text-sm text-muted-foreground">{apt.subject}</p>
+                          <div className="flex gap-2 mt-1">
+                            <span className="text-xs px-2 py-1 bg-accent/10 text-accent rounded">{apt.date}</span>
+                            <span className="text-xs px-2 py-1 bg-primary/10 text-primary rounded">{apt.time}</span>
+                          </div>
+                        </div>
+                        <Button variant="outline" size="sm">Edit</Button>
                       </div>
-                    </div>
-                    <Button variant="outline" size="sm">Edit</Button>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+                    ))
+                  ) : (
+                    <p className="text-muted-foreground text-center py-4">No appointment history found for this employee.</p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
       </main>
 
       <QuickAddCustomerModal open={quickAddCustomerOpen} onOpenChange={setQuickAddCustomerOpen} />
