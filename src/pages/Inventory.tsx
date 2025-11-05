@@ -17,6 +17,7 @@ import { EquipmentAssignModal } from "@/components/modals/EquipmentAssignModal";
 import { EquipmentNotesModal } from "@/components/modals/EquipmentNotesModal";
 import { AddAgreementInventoryModal } from "@/components/modals/AddAgreementInventoryModal";
 import { SendCurrentReportModal } from "@/components/modals/SendCurrentReportModal";
+import { SendStockInOutReportModal } from "@/components/modals/SendStockInOutReportModal";
 
 const Inventory = () => {
   const navigate = useNavigate();
@@ -30,6 +31,7 @@ const Inventory = () => {
   const [equipmentNotesModal, setEquipmentNotesModal] = useState<{ open: boolean; equipment: any }>({ open: false, equipment: null });
   const [agreementInventoryModalOpen, setAgreementInventoryModalOpen] = useState(false);
   const [sendCurrentReportModalOpen, setSendCurrentReportModalOpen] = useState(false);
+  const [sendStockInOutReportModalOpen, setSendStockInOutReportModalOpen] = useState(false);
   const [selectedTab, setSelectedTab] = useState("inventory");
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
 
@@ -90,7 +92,11 @@ const Inventory = () => {
                   <FileText className="h-4 w-4" />
                   <span className="text-sm whitespace-nowrap">Current Report</span>
                 </Button>
-                <Button variant="outline" className="gap-2 shadow-sm hover:shadow-md hover:bg-muted transition-all flex-shrink-0">
+                <Button 
+                  variant="outline" 
+                  className="gap-2 shadow-sm hover:shadow-md hover:bg-muted transition-all flex-shrink-0"
+                  onClick={() => setSendStockInOutReportModalOpen(true)}
+                >
                   <span className="text-sm whitespace-nowrap">Stock In/Out Report</span>
                 </Button>
                 <Button 
@@ -531,6 +537,10 @@ const Inventory = () => {
         <SendCurrentReportModal
           open={sendCurrentReportModalOpen}
           onOpenChange={setSendCurrentReportModalOpen}
+        />
+        <SendStockInOutReportModal
+          open={sendStockInOutReportModalOpen}
+          onOpenChange={setSendStockInOutReportModalOpen}
         />
       </main>
     </div>

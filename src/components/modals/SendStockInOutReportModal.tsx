@@ -7,12 +7,12 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 
-interface SendCurrentReportModalProps {
+interface SendStockInOutReportModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-export function SendCurrentReportModal({ open, onOpenChange }: SendCurrentReportModalProps) {
+export function SendStockInOutReportModal({ open, onOpenChange }: SendStockInOutReportModalProps) {
   const [deliveryMethod, setDeliveryMethod] = useState<"email" | "phone" | "">("");
   const [email, setEmail] = useState("");
   const [countryCode, setCountryCode] = useState("+1");
@@ -48,7 +48,7 @@ export function SendCurrentReportModal({ open, onOpenChange }: SendCurrentReport
       ? `Email: ${email}` 
       : `Phone: ${countryCode}${phoneNumber}`;
 
-    toast.success(`Current report sent successfully to ${deliveryInfo}`);
+    toast.success(`Stock In/Out report sent successfully to ${deliveryInfo}`);
     
     // Reset form
     setDeliveryMethod("");
@@ -73,7 +73,7 @@ export function SendCurrentReportModal({ open, onOpenChange }: SendCurrentReport
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold">Send Current Report</DialogTitle>
+          <DialogTitle className="text-2xl font-bold">Send Stock In/Out Report</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-6 py-4">
@@ -163,6 +163,4 @@ export function SendCurrentReportModal({ open, onOpenChange }: SendCurrentReport
     </Dialog>
   );
 }
-
-
 
