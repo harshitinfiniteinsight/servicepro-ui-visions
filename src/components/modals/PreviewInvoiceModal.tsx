@@ -279,9 +279,11 @@ export const PreviewInvoiceModal = ({ open, onOpenChange, invoice }: PreviewInvo
                   </div>
                   
                   <div className="pt-2 space-y-2">
-                    <Button className="w-full bg-orange-500 hover:bg-orange-600 text-white">
-                      Pay Now
-                    </Button>
+                    {invoice.status !== "Paid" && (
+                      <Button className="w-full bg-orange-500 hover:bg-orange-600 text-white">
+                        Pay Now
+                      </Button>
+                    )}
                     <div className="flex items-center justify-center py-4">
                       <div 
                         className={`
