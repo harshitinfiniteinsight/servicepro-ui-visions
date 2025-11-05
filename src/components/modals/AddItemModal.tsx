@@ -9,6 +9,7 @@ import { mockInventory } from "@/data/mockData";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { InventoryFormModal } from "./InventoryFormModal";
+import { AddCustomItemModal } from "./AddCustomItemModal";
 
 interface AddItemModalProps {
   open: boolean;
@@ -19,84 +20,16 @@ interface AddItemModalProps {
 
 export const AddItemModal = ({ open, onOpenChange, onAddItem, context = "invoice" }: AddItemModalProps) => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [showCustomItemForm, setShowCustomItemForm] = useState(false);
+  const [showCustomItemModal, setShowCustomItemModal] = useState(false);
   const [showInventoryModal, setShowInventoryModal] = useState(false);
   const [selectedInventory, setSelectedInventory] = useState<any>(null);
   const [customPrice, setCustomPrice] = useState("");
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  
-  const [customItem, setCustomItem] = useState({
-    name: "",
-    price: "",
-    image: null as File | null,
-    imagePreview: "",
-  });
-  const [validationErrors, setValidationErrors] = useState({
-    name: "",
-    price: "",
-  });
 
   const filteredInventory = mockInventory.filter((item) =>
     item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     item.sku.toLowerCase().includes(searchQuery.toLowerCase()) ||
     item.category.toLowerCase().includes(searchQuery.toLowerCase())
   );
-
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setCustomItem({ ...customItem, image: file, imagePreview: reader.result as string });
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleRemoveImage = () => {
-    setCustomItem({ ...customItem, image: null, imagePreview: "" });
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
-  };
-
-  const handleAddCustomItem = () => {
-    const priceValue = parseFloat(customItem.price.replace(/[^0-9.]/g, ""));
-    
-    // Reset validation errors
-    setValidationErrors({ name: "", price: "" });
-    
-    // Validation
-    let hasErrors = false;
-    
-    if (!customItem.name.trim()) {
-      setValidationErrors(prev => ({ ...prev, name: "Custom Item Name is required" }));
-      hasErrors = true;
-    }
-    
-    if (!customItem.price || priceValue <= 0) {
-      setValidationErrors(prev => ({ ...prev, price: "Price must be a positive number" }));
-      hasErrors = true;
-    }
-    
-    if (hasErrors) {
-      return;
-    }
-    
-    // Add custom item to the list
-    onAddItem({
-      description: customItem.name,
-      quantity: 1,
-      rate: priceValue,
-      amount: priceValue,
-      type: "custom",
-      image: customItem.image,
-      imagePreview: customItem.imagePreview,
-    });
-    
-    // Reset and close modal
-    resetModal();
-  };
 
   const handleSelectInventory = (inventory: any) => {
     if (inventory.type === "Variable") {
@@ -146,15 +79,10 @@ export const AddItemModal = ({ open, onOpenChange, onAddItem, context = "invoice
   };
 
   const resetModal = () => {
-    setShowCustomItemForm(false);
+    setShowCustomItemModal(false);
     setSelectedInventory(null);
     setCustomPrice("");
-    setCustomItem({ name: "", price: "", image: null, imagePreview: "" });
-    setValidationErrors({ name: "", price: "" });
     setSearchQuery("");
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
     onOpenChange(false);
   };
 
@@ -169,142 +97,21 @@ export const AddItemModal = ({ open, onOpenChange, onAddItem, context = "invoice
       <DialogContent className="sm:max-w-[600px] max-h-[85vh] overflow-hidden app-card">
         <DialogHeader>
           <DialogTitle className="text-gradient">
-            {showCustomItemForm 
-              ? "Add Custom Item" 
-              : context === "estimate" 
-                ? "Add Item to Estimate" 
-                : "Add Item to Invoice"
-            }
+            {context === "estimate" 
+              ? "Add Item to Estimate" 
+              : "Add Item to Invoice"}
           </DialogTitle>
           <DialogDescription>
-            {showCustomItemForm 
-              ? "Create a custom line item with image"
-              : "Search inventory or create custom line items"
-            }
+            Search inventory or create custom line items
           </DialogDescription>
         </DialogHeader>
 
-        {showCustomItemForm ? (
-          <div className="space-y-4 py-4">
-            <div className="grid gap-2">
-              <Label htmlFor="customItemName">Custom Item Name *</Label>
-              <Input
-                id="customItemName"
-                value={customItem.name}
-                onChange={(e) => {
-                  setCustomItem({ ...customItem, name: e.target.value });
-                  if (validationErrors.name) {
-                    setValidationErrors(prev => ({ ...prev, name: "" }));
-                  }
-                }}
-                placeholder="Enter item name"
-                className={`touch-target ${validationErrors.name ? "border-destructive" : ""}`}
-              />
-              {validationErrors.name && (
-                <p className="text-sm text-destructive">{validationErrors.name}</p>
-              )}
-            </div>
-
-            <div className="grid gap-2">
-              <Label htmlFor="customItemPrice">Price *</Label>
-              <div className="relative">
-                <span className="absolute left-3 top-3 text-muted-foreground font-medium">$</span>
-                <Input
-                  id="customItemPrice"
-                  type="text"
-                  value={customItem.price}
-                  onChange={(e) => {
-                    const value = e.target.value.replace(/[^0-9.]/g, "");
-                    setCustomItem({ ...customItem, price: value });
-                    if (validationErrors.price) {
-                      setValidationErrors(prev => ({ ...prev, price: "" }));
-                    }
-                  }}
-                  placeholder="0.00"
-                  className={`pl-8 touch-target ${validationErrors.price ? "border-destructive" : ""}`}
-                />
-              </div>
-              {validationErrors.price && (
-                <p className="text-sm text-destructive">{validationErrors.price}</p>
-              )}
-            </div>
-
-            <div className="grid gap-2">
-              <Label>Upload Image (Optional)</Label>
-              <div
-                className="border-2 border-dashed border-muted rounded-lg p-6 flex flex-col items-center justify-center bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer min-h-[200px]"
-                onClick={() => fileInputRef.current?.click()}
-              >
-                {customItem.imagePreview ? (
-                  <div className="relative w-full">
-                    <img
-                      src={customItem.imagePreview}
-                      alt="Preview"
-                      className="max-h-[180px] mx-auto object-contain rounded"
-                    />
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      size="icon"
-                      className="absolute top-2 right-2 h-8 w-8"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleRemoveImage();
-                      }}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ) : (
-                  <>
-                    <div className="relative mb-4">
-                      <Camera className="h-16 w-16 text-muted-foreground" />
-                      <div className="absolute -top-2 -right-2 bg-primary rounded-full p-2">
-                        <Upload className="h-5 w-5 text-primary-foreground" />
-                      </div>
-                    </div>
-                    <p className="text-sm text-muted-foreground text-center">
-                      Click to upload or drag and drop
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      PNG, JPG up to 10MB
-                    </p>
-                  </>
-                )}
-              </div>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleImageUpload}
-                className="hidden"
-              />
-            </div>
-
-            <div className="flex gap-2 pt-4">
-              <Button
-                variant="outline"
-                onClick={() => setShowCustomItemForm(false)}
-                className="flex-1 touch-target"
-              >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back
-              </Button>
-              <Button
-                onClick={handleAddCustomItem}
-                disabled={!customItem.name || !customItem.price || parseFloat(customItem.price.replace(/[^0-9.]/g, "")) <= 0}
-                className="flex-1 touch-target"
-              >
-                Create
-              </Button>
-            </div>
-          </div>
-        ) : !selectedInventory && (
+        {!selectedInventory && (
           <div className="space-y-4 py-4">
             {/* Action Buttons */}
             <div className="grid grid-cols-2 gap-3">
               <Button
-                onClick={() => setShowCustomItemForm(true)}
+                onClick={() => setShowCustomItemModal(true)}
                 variant="outline"
                 className="h-14 gap-2 touch-target"
               >
@@ -430,6 +237,20 @@ export const AddItemModal = ({ open, onOpenChange, onAddItem, context = "invoice
         onOpenChange={setShowInventoryModal}
         mode="create"
         onInventoryAdded={handleInventoryAdded}
+      />
+      <AddCustomItemModal
+        open={showCustomItemModal}
+        onOpenChange={(open) => {
+          setShowCustomItemModal(open);
+          if (!open) {
+            // Don't close parent modal when custom item modal closes
+          }
+        }}
+        onAddItem={(item) => {
+          onAddItem(item);
+          setShowCustomItemModal(false);
+          resetModal();
+        }}
       />
     </Dialog>
   );
