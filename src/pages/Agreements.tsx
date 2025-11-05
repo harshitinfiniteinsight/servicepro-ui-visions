@@ -16,6 +16,7 @@ import { PayCashModal } from "@/components/modals/PayCashModal";
 import { LinkModulesModal } from "@/components/modals/LinkModulesModal";
 import { AgreementSignModal } from "@/components/modals/AgreementSignModal";
 import { InvoicePaymentModal } from "@/components/modals/InvoicePaymentModal";
+import { PreviewAgreementModal } from "@/components/modals/PreviewAgreementModal";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 
@@ -41,6 +42,8 @@ const Agreements = () => {
   const [selectedAgreementForSign, setSelectedAgreementForSign] = useState<any>(null);
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const [selectedAgreementForPayment, setSelectedAgreementForPayment] = useState<any>(null);
+  const [previewModalOpen, setPreviewModalOpen] = useState(false);
+  const [selectedAgreementForPreview, setSelectedAgreementForPreview] = useState<any>(null);
 
   const filteredAgreements = agreements.filter((agreement) => {
     const matchesSearch = agreement.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -252,7 +255,15 @@ const Agreements = () => {
                     </div>
 
                     <div className="flex flex-wrap gap-2 pt-2">
-                      <Button variant="outline" size="sm" className="gap-2 hover:bg-primary/5 hover:text-primary hover:border-primary">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="gap-2 hover:bg-primary/5 hover:text-primary hover:border-primary"
+                        onClick={() => {
+                          setSelectedAgreementForPreview(agreement);
+                          setPreviewModalOpen(true);
+                        }}
+                      >
                         <Eye className="h-4 w-4" />
                         Preview Agreement
                       </Button>
@@ -373,6 +384,18 @@ const Agreements = () => {
         open={paymentModalOpen}
         onOpenChange={setPaymentModalOpen}
         invoice={selectedAgreementForPayment}
+      />
+      <PreviewAgreementModal
+        open={previewModalOpen}
+        onOpenChange={(open) => {
+          setPreviewModalOpen(open);
+          if (!open) setSelectedAgreementForPreview(null);
+        }}
+        agreement={selectedAgreementForPreview}
+        onPayNow={(agreement) => {
+          setSelectedAgreementForPayment(agreement);
+          setPaymentModalOpen(true);
+        }}
       />
     </div>
   );
