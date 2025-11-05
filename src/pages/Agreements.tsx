@@ -16,6 +16,7 @@ import { PayCashModal } from "@/components/modals/PayCashModal";
 import { LinkModulesModal } from "@/components/modals/LinkModulesModal";
 import { AgreementSignModal } from "@/components/modals/AgreementSignModal";
 import { InvoicePaymentModal } from "@/components/modals/InvoicePaymentModal";
+import { AgreementPaymentModal } from "@/components/modals/AgreementPaymentModal";
 import { PreviewAgreementModal } from "@/components/modals/PreviewAgreementModal";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -380,11 +381,6 @@ const Agreements = () => {
         agreementId={selectedAgreementForSign?.id || ""}
         onSignComplete={handleSignComplete}
       />
-      <InvoicePaymentModal
-        open={paymentModalOpen}
-        onOpenChange={setPaymentModalOpen}
-        invoice={selectedAgreementForPayment}
-      />
       <PreviewAgreementModal
         open={previewModalOpen}
         onOpenChange={(open) => {
@@ -400,6 +396,11 @@ const Agreements = () => {
           setSelectedAgreement(agreement);
           setEditAgreementOpen(true);
         }}
+      />
+      <AgreementPaymentModal
+        open={paymentModalOpen}
+        onOpenChange={setPaymentModalOpen}
+        agreement={selectedAgreementForPayment}
       />
     </div>
   );
