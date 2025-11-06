@@ -93,6 +93,20 @@ export const EmployeeFormModal = ({ open, onOpenChange, employee, mode }: Employ
     });
   };
 
+  const toggleAllDays = () => {
+    if (selectedDays.length === WEEK_DAYS.length) {
+      // Deselect all
+      setSelectedDays([]);
+      setDayTimes({});
+    } else {
+      // Select all
+      const allDayValues = WEEK_DAYS.map((day) => day.value);
+      setSelectedDays(allDayValues);
+    }
+  };
+
+  const allDaysSelected = selectedDays.length === WEEK_DAYS.length;
+
   const updateDayTime = (dayValue: string, field: "start" | "end", value: string) => {
     setDayTimes((prev) => ({
       ...prev,
@@ -282,8 +296,20 @@ export const EmployeeFormModal = ({ open, onOpenChange, employee, mode }: Employ
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Select Days</Label>
-                  <div className="flex gap-2 flex-wrap">
+                  <div className="flex items-center justify-between">
+                    <Label>Select Days</Label>
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="selectAllDays"
+                        checked={allDaysSelected}
+                        onCheckedChange={toggleAllDays}
+                      />
+                      <Label htmlFor="selectAllDays" className="text-sm font-medium cursor-pointer">
+                        Select All
+                      </Label>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
                     {WEEK_DAYS.map((day) => {
                       const isSelected = selectedDays.includes(day.value);
                       return (
@@ -292,7 +318,7 @@ export const EmployeeFormModal = ({ open, onOpenChange, employee, mode }: Employ
                           type="button"
                           onClick={() => toggleDay(day.value)}
                           className={cn(
-                            "h-10 w-10 rounded-full border-2 font-semibold text-sm transition-all",
+                            "h-10 w-10 rounded-full border-2 font-semibold text-sm transition-all flex-shrink-0",
                             isSelected
                               ? "bg-orange-500 text-white border-orange-500 shadow-md"
                               : "bg-background text-muted-foreground border-border hover:border-orange-300 hover:text-orange-600"
