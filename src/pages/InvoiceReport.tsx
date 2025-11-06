@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronLeft, Info, Search, Filter, Download, FileText, Mail, FileSpreadsheet } from "lucide-react";
+import { ChevronLeft, Info, Search, Filter, Download, FileText, Mail, FileSpreadsheet, CalendarRange } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +13,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { format } from "date-fns";
 
 // Mock data for Invoice Report
 const invoiceData = [
@@ -40,6 +43,16 @@ const InvoiceReport = () => {
   const [days, setDays] = useState("all");
   const [employee, setEmployee] = useState("all");
   const [emailModalOpen, setEmailModalOpen] = useState(false);
+  
+  // Initialize date range to current month
+  const getCurrentMonthRange = () => {
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    return { from: startOfMonth, to: endOfMonth };
+  };
+  
+  const [dateRange, setDateRange] = useState<{ from: Date | undefined; to: Date | undefined }>(getCurrentMonthRange());
 
   const handleClearFilters = () => {
     setSearch("");
@@ -47,6 +60,7 @@ const InvoiceReport = () => {
     setPaymentType("all");
     setDays("all");
     setEmployee("all");
+    setDateRange(getCurrentMonthRange());
   };
 
   const handleDownloadPDF = () => {
@@ -69,7 +83,9 @@ const InvoiceReport = () => {
         </head>
         <body>
           <h1>Service Pro911 - Invoice Report</h1>
-          <p>Date Range: 08/01/2025 TO 10/27/2025</p>
+          <p>Date Range: ${dateRange.from && dateRange.to 
+            ? `${format(dateRange.from, "MM/dd/yyyy")} TO ${format(dateRange.to, "MM/dd/yyyy")}`
+            : "08/01/2025 TO 10/27/2025"}</p>
           <table>
             <thead>
               <tr>
@@ -164,19 +180,17 @@ const InvoiceReport = () => {
             >
               <Info className="h-6 w-6" />
             </Button>
-            <Button
-              variant="outline"
-              className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 font-semibold"
-            >
-              DATE RANGE
-            </Button>
           </div>
         </div>
       </div>
 
       <div className="p-6 space-y-6 bg-background">
         <div className="flex items-center justify-between">
-          <p className="text-sm font-medium text-foreground">Date : 08/01/2025 TO 10/27/2025</p>
+          <p className="text-sm font-medium text-foreground">
+            Date : {dateRange.from && dateRange.to 
+              ? `${format(dateRange.from, "MM/dd/yyyy")} TO ${format(dateRange.to, "MM/dd/yyyy")}`
+              : "08/01/2025 TO 10/27/2025"}
+          </p>
           <div className="flex-1 max-w-2xl mx-6">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
@@ -192,6 +206,32 @@ const InvoiceReport = () => {
 
         {/* Filters */}
         <div className="flex items-center gap-4 flex-wrap">
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-muted-foreground">Date Range</label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className="w-[200px] justify-start text-left font-normal gap-2">
+                  <CalendarRange className="h-4 w-4" />
+                  {dateRange.from && dateRange.to ? (
+                    <>
+                      {format(dateRange.from, "MMM dd")} - {format(dateRange.to, "MMM dd, yyyy")}
+                    </>
+                  ) : (
+                    <span>Select date range</span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="range"
+                  selected={dateRange}
+                  onSelect={(range) => setDateRange(range as { from: Date | undefined; to: Date | undefined })}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+
           <div className="space-y-2">
             <label className="text-sm font-medium text-muted-foreground">Days</label>
             <Select value={days} onValueChange={setDays}>
