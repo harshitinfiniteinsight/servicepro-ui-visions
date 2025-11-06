@@ -146,36 +146,7 @@ const EstimateReport = () => {
             </Button>
             <h1 className="text-2xl font-bold">Service Pro911 - Estimate Reports</h1>
           </div>
-          <div className="flex items-center gap-2 sm:gap-4">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="outline"
-                  className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 font-semibold gap-2"
-                >
-                  <Download className="h-4 w-4" />
-                  <span className="hidden sm:inline">Download</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={handleDownloadPDF} className="gap-2">
-                  <FileText className="h-4 w-4" />
-                  Download as PDF
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleDownloadCSV} className="gap-2">
-                  <FileSpreadsheet className="h-4 w-4" />
-                  Download as CSV
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            <Button
-              variant="outline"
-              onClick={handleSendEmail}
-              className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 font-semibold gap-2"
-            >
-              <Mail className="h-4 w-4" />
-              <span className="hidden sm:inline">Send Email</span>
-            </Button>
+          <div className="flex items-center gap-4">
             <Button
               variant="ghost"
               size="icon"
@@ -254,8 +225,7 @@ const EstimateReport = () => {
             </Select>
           </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-transparent">.</label>
+          <div className="flex items-end gap-2">
             <Button
               variant="outline"
               onClick={handleClearFilters}
@@ -263,6 +233,35 @@ const EstimateReport = () => {
             >
               Clear Filter
               <Filter className="h-4 w-4" />
+            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-10 w-10"
+                >
+                  <Download className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={handleDownloadPDF} className="gap-2">
+                  <FileText className="h-4 w-4" />
+                  Download as PDF
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleDownloadCSV} className="gap-2">
+                  <FileSpreadsheet className="h-4 w-4" />
+                  Download as CSV
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={handleSendEmail}
+              className="h-10 w-10"
+            >
+              <Mail className="h-4 w-4" />
             </Button>
           </div>
         </div>
