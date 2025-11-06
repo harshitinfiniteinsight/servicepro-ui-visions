@@ -14,7 +14,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { Plus, Eye, Mail, MessageSquare, Edit, UserCog, FileText, CreditCard, Banknote, MoreVertical, Trash2, Check, X, CheckCircle2, Bell, Settings, FileCheck, RotateCcw } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
-import { mockInvoices } from "@/data/mockData";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { mockInvoices, mockEmployees } from "@/data/mockData";
 import { toast } from "sonner";
 
 const Invoices = () => {
@@ -34,6 +36,9 @@ const Invoices = () => {
   const [selectedInvoiceForLink, setSelectedInvoiceForLink] = useState<any>(null);
   const [previewModalOpen, setPreviewModalOpen] = useState(false);
   const [selectedInvoiceForPreview, setSelectedInvoiceForPreview] = useState<any>(null);
+  const [reassignModalOpen, setReassignModalOpen] = useState(false);
+  const [selectedInvoiceForReassign, setSelectedInvoiceForReassign] = useState<any>(null);
+  const [selectedEmployee, setSelectedEmployee] = useState("");
 
   const filterInvoices = (type: "single" | "recurring" | "deactivated") => {
     return mockInvoices.filter((invoice) => {
@@ -105,6 +110,25 @@ const Invoices = () => {
     setSelectedInvoiceForLink(invoice);
     setLinkTargetModule(targetModule);
     setLinkModalOpen(true);
+  };
+
+  const handleReassignEmployee = (invoice: any) => {
+    setSelectedInvoiceForReassign(invoice);
+    // Find employee ID by matching employee name
+    const currentEmployee = mockEmployees.find(emp => emp.name === invoice.employeeName);
+    setSelectedEmployee(currentEmployee?.id || "");
+    setReassignModalOpen(true);
+  };
+
+  const handleReassignSubmit = () => {
+    if (!selectedEmployee) {
+      toast.error("Please select an employee");
+      return;
+    }
+    toast.success(`Invoice ${selectedInvoiceForReassign?.id} has been reassigned to the selected employee.`);
+    setReassignModalOpen(false);
+    setSelectedEmployee("");
+    setSelectedInvoiceForReassign(null);
   };
 
   const renderSingleInvoiceTable = (invoices: any[]) => (
@@ -212,7 +236,10 @@ const Invoices = () => {
                         <Edit className="h-4 w-4" />
                         Edit Invoice {invoice.status === "Paid" && "(Disabled)"}
                       </DropdownMenuItem>
-                      <DropdownMenuItem className="gap-2">
+                      <DropdownMenuItem 
+                        className="gap-2"
+                        onClick={() => handleReassignEmployee(invoice)}
+                      >
                         <UserCog className="h-4 w-4" />
                         Reassign Employee
                       </DropdownMenuItem>
@@ -355,7 +382,10 @@ const Invoices = () => {
                         <Edit className="h-4 w-4" />
                         Edit Invoice {invoice.status === "Paid" && "(Disabled)"}
                       </DropdownMenuItem>
-                      <DropdownMenuItem className="gap-2">
+                      <DropdownMenuItem 
+                        className="gap-2"
+                        onClick={() => handleReassignEmployee(invoice)}
+                      >
                         <UserCog className="h-4 w-4" />
                         Reassign Employee
                       </DropdownMenuItem>
@@ -607,14 +637,44 @@ const Invoices = () => {
             if (!open) setSelectedInvoiceForPreview(null);
           }}
           invoice={selectedInvoiceForPreview}
-          onEdit={(invoice) => {
-            navigate(`/invoices/${invoice.id}/edit`);
-          }}
-          onPayNow={(invoice) => {
-            setSelectedInvoiceForPayment(invoice);
-            setPaymentModalOpen(true);
-          }}
         />
+
+        <Dialog open={reassignModalOpen} onOpenChange={setReassignModalOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Reassign Employee</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label>Select New Employee</Label>
+                <Select value={selectedEmployee} onValueChange={setSelectedEmployee}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Choose employee" />
+                  </SelectTrigger>
+                  <SelectContent className="z-50 bg-popover">
+                    {mockEmployees
+                      .filter((emp) => emp.status === "Active")
+                      .map((employee) => (
+                        <SelectItem key={employee.id} value={employee.id}>
+                          {employee.name} - {employee.role}
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => {
+                setReassignModalOpen(false);
+                setSelectedEmployee("");
+                setSelectedInvoiceForReassign(null);
+              }}>
+                Cancel
+              </Button>
+              <Button onClick={handleReassignSubmit}>Reassign</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </main>
     </div>
   );
