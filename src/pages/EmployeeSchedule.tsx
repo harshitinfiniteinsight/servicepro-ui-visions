@@ -1,17 +1,18 @@
 import { useState } from "react";
 import { AppHeader } from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Clock, Calendar, MapPin, Edit, Trash2 } from "lucide-react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Plus, Clock, Calendar, SquarePen, Trash2, MoreVertical, Eye } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { mockEmployees } from "@/data/mockData";
 import { toast } from "sonner";
-import { format } from "date-fns";
 import { UpdateScheduleModal } from "@/components/modals/UpdateScheduleModal";
+import { ViewScheduleModal } from "@/components/modals/ViewScheduleModal";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -76,6 +77,7 @@ const EmployeeSchedule = () => {
   const [schedules, setSchedules] = useState<Schedule[]>(mockSchedules);
   const [modalOpen, setModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
+  const [viewModalOpen, setViewModalOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedSchedule, setSelectedSchedule] = useState<Schedule | null>(null);
   const [selectedEmployee, setSelectedEmployee] = useState("");
@@ -96,12 +98,9 @@ const EmployeeSchedule = () => {
     setEditModalOpen(true);
   };
 
-  const handleEditModalClose = (open: boolean) => {
-    setEditModalOpen(open);
-    if (!open) {
-      // Reset selected schedule when modal closes
-      setSelectedSchedule(null);
-    }
+  const handleViewSchedule = (schedule: Schedule) => {
+    setSelectedSchedule(schedule);
+    setViewModalOpen(true);
   };
 
   const handleUpdateSchedule = (updatedSchedule: Schedule) => {
@@ -110,6 +109,7 @@ const EmployeeSchedule = () => {
     );
     setEditModalOpen(false);
     setSelectedSchedule(null);
+    toast.success("Schedule updated successfully!");
   };
 
   const handleDeleteClick = (schedule: Schedule) => {
@@ -178,67 +178,78 @@ const EmployeeSchedule = () => {
         </div>
 
         {/* Schedule Table */}
-        <div className="app-card overflow-hidden">
+        <div className="app-card">
           <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gradient-to-r from-muted/50 to-muted/30 border-b">
-                <tr>
-                  <th className="px-4 py-4 text-left text-sm font-semibold">Employee Name</th>
-                  <th className="px-4 py-4 text-left text-sm font-semibold">Scheduled Date</th>
-                  <th className="px-4 py-4 text-left text-sm font-semibold">Timezone</th>
-                  <th className="px-4 py-4 text-left text-sm font-semibold">Start Time</th>
-                  <th className="px-4 py-4 text-left text-sm font-semibold">End Time</th>
-                  <th className="px-4 py-4 text-left text-sm font-semibold">Time Interval</th>
-                  <th className="px-4 py-4 text-left text-sm font-semibold">Action</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-gradient-to-r from-muted/50 to-muted/30">
+                  <TableHead>Employee Name</TableHead>
+                  <TableHead>Scheduled Date</TableHead>
+                  <TableHead>Timezone</TableHead>
+                  <TableHead>Start Time</TableHead>
+                  <TableHead>End Time</TableHead>
+                  <TableHead>Time Interval</TableHead>
+                  <TableHead className="text-right">Action</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {filteredSchedules.map((schedule) => (
-                  <tr key={schedule.id} className="hover:bg-muted/30 transition-colors">
-                    <td className="px-4 py-4">
+                  <TableRow key={schedule.id}>
+                    <TableCell>
                       <span className="font-medium text-primary underline cursor-pointer hover:text-primary/80">
                         {schedule.employeeName}
                       </span>
-                    </td>
-                    <td className="px-4 py-4 text-muted-foreground">
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">
                       {schedule.scheduledDateEnd 
                         ? `${schedule.scheduledDate} - ${schedule.scheduledDateEnd}`
                         : schedule.scheduledDate}
-                    </td>
-                    <td className="px-4 py-4 text-muted-foreground">{schedule.timezone}</td>
-                    <td className="px-4 py-4 text-muted-foreground">{schedule.startTime}</td>
-                    <td className="px-4 py-4 text-muted-foreground">{schedule.endTime}</td>
-                    <td className="px-4 py-4">
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">{schedule.timezone}</TableCell>
+                    <TableCell className="text-muted-foreground">{schedule.startTime}</TableCell>
+                    <TableCell className="text-muted-foreground">{schedule.endTime}</TableCell>
+                    <TableCell>
                       <Badge variant="outline" className="bg-info/10 text-info border-info/20">
                         {schedule.timeInterval}
                       </Badge>
-                    </td>
-                    <td className="px-4 py-4">
-                      <div className="flex items-center gap-2">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 hover:bg-primary/10 hover:text-primary"
-                          onClick={() => handleEditSchedule(schedule)}
-                          title="Edit schedule"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 hover:bg-destructive/10 hover:text-destructive"
-                          onClick={() => handleDeleteClick(schedule)}
-                          title="Delete schedule"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 hover:bg-primary/10 touch-target">
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-52">
+                          <DropdownMenuItem 
+                            className="gap-2"
+                            onClick={() => handleEditSchedule(schedule)}
+                          >
+                            <SquarePen className="h-4 w-4" />
+                            Edit schedule
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            className="gap-2"
+                            onClick={() => handleViewSchedule(schedule)}
+                          >
+                            <Eye className="h-4 w-4" />
+                            View details
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem 
+                            className="gap-2 text-destructive focus:text-destructive"
+                            onClick={() => handleDeleteClick(schedule)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                            Delete schedule
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
                 ))}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           </div>
 
           {filteredSchedules.length === 0 && (
@@ -402,9 +413,16 @@ const EmployeeSchedule = () => {
         {/* Update Schedule Modal */}
         <UpdateScheduleModal
           open={editModalOpen}
-          onOpenChange={handleEditModalClose}
+          onOpenChange={setEditModalOpen}
           schedule={selectedSchedule}
           onUpdate={handleUpdateSchedule}
+        />
+
+        {/* View Schedule Modal */}
+        <ViewScheduleModal
+          open={viewModalOpen}
+          onOpenChange={setViewModalOpen}
+          schedule={selectedSchedule}
         />
 
         {/* Delete Confirmation Dialog */}

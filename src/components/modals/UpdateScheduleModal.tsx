@@ -32,6 +32,7 @@ const weekDaysLabels = ["S", "M", "T", "W", "T", "F", "S"];
 export function UpdateScheduleModal({ open, onOpenChange, schedule, onUpdate }: UpdateScheduleModalProps) {
   const [selectedEmployee, setSelectedEmployee] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
+  const [selectedDateEnd, setSelectedDateEnd] = useState("");
   const [weekDays, setWeekDays] = useState<string[]>([]);
   const [allDaysSelected, setAllDaysSelected] = useState(false);
   const [timeSlot, setTimeSlot] = useState("");
@@ -39,34 +40,31 @@ export function UpdateScheduleModal({ open, onOpenChange, schedule, onUpdate }: 
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
 
-  // Initialize form data when schedule changes
+  // Initialize form data when modal opens with schedule
   useEffect(() => {
-    if (schedule && open) {
+    if (open && schedule) {
       setSelectedEmployee(schedule.employeeName);
+      setSelectedDate(schedule.scheduledDate || "");
+      setSelectedDateEnd(schedule.scheduledDateEnd || "");
+      setWeekDays(schedule.weekDays || []);
+      setAllDaysSelected((schedule.weekDays || []).length === 7);
       
-      // Parse date - convert to YYYY-MM-DD format for input type="date"
-      const scheduleDate = schedule.scheduledDate || "";
-      setSelectedDate(scheduleDate);
-      
-      // Store weekDays
-      const days = schedule.weekDays || [];
-      setWeekDays(days);
-      
-      // Check if all days are selected
-      setAllDaysSelected(days.length === 7);
-      
-      // Format time slot - extract number from "15 min" format
-      const timeInterval = schedule.timeInterval || "";
-      const normalizedInterval = timeInterval.replace(/\s*min\s*/i, "").trim();
-      setTimeSlot(normalizedInterval || "");
+      // Extract time slot number from "15 min" format
+      const intervalMatch = schedule.timeInterval.match(/\d+/);
+      setTimeSlot(intervalMatch ? intervalMatch[0] : "15");
       
       setTimezone(schedule.timezone || "");
       setStartTime(schedule.startTime || "");
       setEndTime(schedule.endTime || "");
-    } else {
-      // Reset form when modal closes
+    }
+  }, [open, schedule]);
+
+  // Reset form when modal closes
+  useEffect(() => {
+    if (!open) {
       setSelectedEmployee("");
       setSelectedDate("");
+      setSelectedDateEnd("");
       setWeekDays([]);
       setAllDaysSelected(false);
       setTimeSlot("");
@@ -74,7 +72,7 @@ export function UpdateScheduleModal({ open, onOpenChange, schedule, onUpdate }: 
       setStartTime("");
       setEndTime("");
     }
-  }, [schedule, open]);
+  }, [open]);
 
   const toggleAllDays = () => {
     if (allDaysSelected) {
@@ -87,37 +85,44 @@ export function UpdateScheduleModal({ open, onOpenChange, schedule, onUpdate }: 
   };
 
   const toggleWeekDay = (day: string) => {
-    const newDays = weekDays.includes(day) ? weekDays.filter(d => d !== day) : [...weekDays, day];
+    const newDays = weekDays.includes(day) 
+      ? weekDays.filter(d => d !== day) 
+      : [...weekDays, day];
     setWeekDays(newDays);
     setAllDaysSelected(newDays.length === 7);
   };
 
   const handleUpdateSchedule = () => {
+    // Validation
     if (!selectedEmployee || !selectedDate || !startTime || !endTime || !timeSlot || !timezone) {
       toast.error("Please fill in all required fields");
       return;
     }
 
-    if (!schedule) return;
+    if (weekDays.length === 0) {
+      toast.error("Please select at least one weekday");
+      return;
+    }
 
-    // Convert time slot to "15 min" format for storage
-    const timeIntervalValue = `${timeSlot} min`;
-    
+    if (!schedule) {
+      toast.error("No schedule selected");
+      return;
+    }
+
     const updatedSchedule: Schedule = {
       ...schedule,
       employeeName: selectedEmployee,
       scheduledDate: selectedDate,
-      scheduledDateEnd: undefined,
+      scheduledDateEnd: selectedDateEnd || undefined,
       timezone,
       startTime,
       endTime,
-      timeInterval: timeIntervalValue,
+      timeInterval: `${timeSlot} min`,
       weekDays,
     };
 
     onUpdate(updatedSchedule);
     toast.success("Schedule updated successfully");
-    onOpenChange(false);
   };
 
   return (
@@ -128,9 +133,9 @@ export function UpdateScheduleModal({ open, onOpenChange, schedule, onUpdate }: 
         </DialogHeader>
 
         <div className="space-y-6 py-4">
-          {/* 1. Select Employee */}
+          {/* Employee Selection */}
           <div>
-            <Label className="text-sm font-medium mb-2 block">Select Employee</Label>
+            <Label className="text-sm font-medium mb-2 block">Select Employee *</Label>
             <Select value={selectedEmployee} onValueChange={setSelectedEmployee}>
               <SelectTrigger>
                 <SelectValue placeholder="Choose employee" />
@@ -145,19 +150,32 @@ export function UpdateScheduleModal({ open, onOpenChange, schedule, onUpdate }: 
             </Select>
           </div>
 
-          {/* 2. Select Schedule Date */}
-          <div>
-            <Label className="text-sm font-medium mb-2 block">Select Schedule Date</Label>
-            <Input
-              type="date"
-              value={selectedDate}
-              onChange={(e) => setSelectedDate(e.target.value)}
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Schedule Start Date */}
+            <div>
+              <Label className="text-sm font-medium mb-2 block">Schedule Start Date *</Label>
+              <Input
+                type="date"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+              />
+            </div>
+
+            {/* Schedule End Date */}
+            <div>
+              <Label className="text-sm font-medium mb-2 block">Schedule End Date (Optional)</Label>
+              <Input
+                type="date"
+                value={selectedDateEnd}
+                onChange={(e) => setSelectedDateEnd(e.target.value)}
+                min={selectedDate}
+              />
+            </div>
           </div>
 
-          {/* 3. Select Week Days */}
+          {/* Week Days Selection */}
           <div>
-            <Label className="text-sm font-medium mb-2 block">Select Week Days</Label>
+            <Label className="text-sm font-medium mb-2 block">Select Week Days *</Label>
             <div className="flex items-center gap-2 mb-3">
               <input
                 type="checkbox"
@@ -167,10 +185,10 @@ export function UpdateScheduleModal({ open, onOpenChange, schedule, onUpdate }: 
                 className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
               />
               <Label htmlFor="allDaysEdit" className="text-sm cursor-pointer">
-                Select All
+                Select All Days
               </Label>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-wrap">
               {weekDaysLabels.map((day) => (
                 <button
                   key={day}
@@ -188,83 +206,100 @@ export function UpdateScheduleModal({ open, onOpenChange, schedule, onUpdate }: 
             </div>
           </div>
 
-          {/* 4. Select Time Slot */}
-          <div>
-            <Label className="text-sm font-medium mb-2 block">Select Time Slot</Label>
-            <Select value={timeSlot} onValueChange={setTimeSlot}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select time slot" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="5">5 min</SelectItem>
-                <SelectItem value="10">10 min</SelectItem>
-                <SelectItem value="15">15 min</SelectItem>
-                <SelectItem value="20">20 min</SelectItem>
-                <SelectItem value="25">25 min</SelectItem>
-                <SelectItem value="30">30 min</SelectItem>
-                <SelectItem value="35">35 min</SelectItem>
-                <SelectItem value="40">40 min</SelectItem>
-                <SelectItem value="45">45 min</SelectItem>
-                <SelectItem value="50">50 min</SelectItem>
-                <SelectItem value="55">55 min</SelectItem>
-                <SelectItem value="60">60 min</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Time Slot */}
+            <div>
+              <Label className="text-sm font-medium mb-2 block">Select Time Slot *</Label>
+              <Select value={timeSlot} onValueChange={setTimeSlot}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select time slot" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="5">5 min</SelectItem>
+                  <SelectItem value="10">10 min</SelectItem>
+                  <SelectItem value="15">15 min</SelectItem>
+                  <SelectItem value="20">20 min</SelectItem>
+                  <SelectItem value="25">25 min</SelectItem>
+                  <SelectItem value="30">30 min</SelectItem>
+                  <SelectItem value="35">35 min</SelectItem>
+                  <SelectItem value="40">40 min</SelectItem>
+                  <SelectItem value="45">45 min</SelectItem>
+                  <SelectItem value="50">50 min</SelectItem>
+                  <SelectItem value="55">55 min</SelectItem>
+                  <SelectItem value="60">60 min</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
-          {/* 5. Select Timezone */}
-          <div>
-            <Label className="text-sm font-medium mb-2 block">Select Timezone</Label>
-            <Select value={timezone} onValueChange={setTimezone}>
-              <SelectTrigger>
-                <SelectValue placeholder="Choose timezone" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Asia/Kolkata">Asia/Kolkata</SelectItem>
-                <SelectItem value="America/New_York">America/New York</SelectItem>
-                <SelectItem value="Europe/London">Europe/London</SelectItem>
-                <SelectItem value="Asia/Tokyo">Asia/Tokyo</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* 6. Start Time */}
-          <div>
-            <Label className="text-sm font-medium mb-2 block">Start Time</Label>
-            <div className="relative">
-              <Clock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="time"
-                value={startTime}
-                onChange={(e) => setStartTime(e.target.value)}
-                className="pl-10"
-                placeholder="HH:MM"
-              />
+            {/* Timezone */}
+            <div>
+              <Label className="text-sm font-medium mb-2 block">Select Timezone *</Label>
+              <Select value={timezone} onValueChange={setTimezone}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Choose timezone" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Asia/Kolkata">Asia/Kolkata</SelectItem>
+                  <SelectItem value="America/New_York">America/New York</SelectItem>
+                  <SelectItem value="Europe/London">Europe/London</SelectItem>
+                  <SelectItem value="Asia/Tokyo">Asia/Tokyo</SelectItem>
+                  <SelectItem value="America/Los_Angeles">America/Los Angeles</SelectItem>
+                  <SelectItem value="America/Chicago">America/Chicago</SelectItem>
+                  <SelectItem value="Europe/Paris">Europe/Paris</SelectItem>
+                  <SelectItem value="Australia/Sydney">Australia/Sydney</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
-          {/* 7. End Time */}
-          <div>
-            <Label className="text-sm font-medium mb-2 block">End Time</Label>
-            <div className="relative">
-              <Clock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="time"
-                value={endTime}
-                onChange={(e) => setEndTime(e.target.value)}
-                className="pl-10"
-                placeholder="HH:MM"
-              />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Start Time */}
+            <div>
+              <Label className="text-sm font-medium mb-2 block">Start Time *</Label>
+              <div className="relative">
+                <Clock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="time"
+                  value={startTime}
+                  onChange={(e) => setStartTime(e.target.value)}
+                  className="pl-10"
+                  placeholder="HH:MM"
+                />
+              </div>
+            </div>
+
+            {/* End Time */}
+            <div>
+              <Label className="text-sm font-medium mb-2 block">End Time *</Label>
+              <div className="relative">
+                <Clock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="time"
+                  value={endTime}
+                  onChange={(e) => setEndTime(e.target.value)}
+                  className="pl-10"
+                  placeholder="HH:MM"
+                />
+              </div>
             </div>
           </div>
 
-          {/* 8. Update Button */}
-          <Button
-            onClick={handleUpdateSchedule}
-            className="w-full gradient-primary text-lg py-6"
-          >
-            Update
-          </Button>
+          {/* Action Buttons */}
+          <div className="flex gap-3 pt-4">
+            <Button
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+              className="flex-1"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleUpdateSchedule}
+              className="flex-1 gradient-primary"
+            >
+              Update Schedule
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

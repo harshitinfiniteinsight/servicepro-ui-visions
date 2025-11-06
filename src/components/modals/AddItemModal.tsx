@@ -4,13 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Package, Search, Upload, Camera, X, ArrowLeft } from "lucide-react";
+import { Plus, Package, Search, Upload, Camera, X, ArrowLeft, DollarSign } from "lucide-react";
 import { mockInventory } from "@/data/mockData";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { InventoryFormModal } from "./InventoryFormModal";
-import { AddCustomItemModal } from "./AddCustomItemModal";
 import { SelectInventoryModal } from "./SelectInventoryModal";
+import { toast } from "sonner";
 
 interface AddItemModalProps {
   open: boolean;
@@ -21,11 +21,22 @@ interface AddItemModalProps {
 
 export const AddItemModal = ({ open, onOpenChange, onAddItem, context = "invoice" }: AddItemModalProps) => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [showCustomItemModal, setShowCustomItemModal] = useState(false);
+  const [showCustomItemForm, setShowCustomItemForm] = useState(false);
   const [showInventoryModal, setShowInventoryModal] = useState(false);
   const [showSelectInventoryModal, setShowSelectInventoryModal] = useState(false);
   const [selectedInventory, setSelectedInventory] = useState<any>(null);
   const [customPrice, setCustomPrice] = useState("");
+  
+  // Custom item form states
+  const [customItemName, setCustomItemName] = useState("");
+  const [customItemPrice, setCustomItemPrice] = useState("");
+  const [image, setImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string>("");
+  const [validationErrors, setValidationErrors] = useState({
+    name: "",
+    price: "",
+  });
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const filteredInventory = mockInventory.filter((item) =>
     item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -97,12 +108,84 @@ export const AddItemModal = ({ open, onOpenChange, onAddItem, context = "invoice
     resetModal();
   };
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.type.startsWith("image/")) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setImage(file);
+          setImagePreview(reader.result as string);
+        };
+        reader.readAsDataURL(file);
+      } else {
+        toast.error("Please select a valid image file");
+      }
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setImage(null);
+    setImagePreview("");
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const handleCreateCustomItem = () => {
+    // Reset validation errors
+    setValidationErrors({ name: "", price: "" });
+
+    // Validation
+    let hasErrors = false;
+
+    if (!customItemName.trim()) {
+      setValidationErrors((prev) => ({ ...prev, name: "Custom Item Name is required" }));
+      hasErrors = true;
+    }
+
+    const priceValue = parseFloat(customItemPrice.replace(/[^0-9.]/g, ""));
+    if (!customItemPrice || isNaN(priceValue) || priceValue <= 0) {
+      setValidationErrors((prev) => ({ ...prev, price: "Price must be a positive number" }));
+      hasErrors = true;
+    }
+
+    if (hasErrors) {
+      return;
+    }
+
+    // Add custom item to invoice
+    onAddItem({
+      description: customItemName.trim(),
+      quantity: 1,
+      rate: priceValue,
+      amount: priceValue,
+      type: "custom",
+      image: image,
+      imagePreview: imagePreview,
+    });
+
+    // Show success toast
+    toast.success("Custom item added successfully!");
+
+    // Reset form and close modal
+    resetModal();
+  };
+
   const resetModal = () => {
-    setShowCustomItemModal(false);
+    setShowCustomItemForm(false);
     setShowSelectInventoryModal(false);
     setSelectedInventory(null);
     setCustomPrice("");
     setSearchQuery("");
+    setCustomItemName("");
+    setCustomItemPrice("");
+    setImage(null);
+    setImagePreview("");
+    setValidationErrors({ name: "", price: "" });
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
     onOpenChange(false);
   };
 
@@ -126,12 +209,12 @@ export const AddItemModal = ({ open, onOpenChange, onAddItem, context = "invoice
           </DialogDescription>
         </DialogHeader>
 
-        {!selectedInventory && (
+        {!selectedInventory && !showCustomItemForm && (
           <div className="space-y-4 py-4">
             {/* Action Buttons */}
             <div className="grid grid-cols-2 gap-3">
               <Button
-                onClick={() => setShowCustomItemModal(true)}
+                onClick={() => setShowCustomItemForm(true)}
                 variant="outline"
                 className="h-14 gap-2 touch-target"
               >
@@ -210,7 +293,150 @@ export const AddItemModal = ({ open, onOpenChange, onAddItem, context = "invoice
           </div>
         )}
 
+        {/* Custom Item Form (Inline) */}
+        {showCustomItemForm && !selectedInventory && (
+          <div className="space-y-6 py-4">
+            {/* Back Button */}
+            <Button
+              variant="ghost"
+              onClick={() => setShowCustomItemForm(false)}
+              className="gap-2 -ml-2"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back to Inventory
+            </Button>
 
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleCreateCustomItem();
+              }}
+              className="space-y-6"
+            >
+              {/* Custom Item Name */}
+              <div className="space-y-2">
+                <Label htmlFor="customItemName" className="text-base font-semibold">
+                  Custom Item Name *
+                </Label>
+                <Input
+                  id="customItemName"
+                  value={customItemName}
+                  onChange={(e) => {
+                    setCustomItemName(e.target.value);
+                    if (validationErrors.name) {
+                      setValidationErrors((prev) => ({ ...prev, name: "" }));
+                    }
+                  }}
+                  placeholder="Enter item name"
+                  className={`h-12 text-base ${validationErrors.name ? "border-destructive" : ""}`}
+                  required
+                />
+                {validationErrors.name && (
+                  <p className="text-sm text-destructive">{validationErrors.name}</p>
+                )}
+              </div>
+
+              {/* Price */}
+              <div className="space-y-2">
+                <Label htmlFor="customItemPrice" className="text-base font-semibold">
+                  Price *
+                </Label>
+                <div className="relative">
+                  <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                  <Input
+                    id="customItemPrice"
+                    type="text"
+                    value={customItemPrice}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/[^0-9.]/g, "");
+                      setCustomItemPrice(value);
+                      if (validationErrors.price) {
+                        setValidationErrors((prev) => ({ ...prev, price: "" }));
+                      }
+                    }}
+                    placeholder="0.00"
+                    className={`pl-10 h-12 text-base ${validationErrors.price ? "border-destructive" : ""}`}
+                    required
+                  />
+                </div>
+                {validationErrors.price && (
+                  <p className="text-sm text-destructive">{validationErrors.price}</p>
+                )}
+              </div>
+
+              {/* Upload Image */}
+              <div className="space-y-2">
+                <Label className="text-base font-semibold">Upload Image</Label>
+                <div
+                  className="border-2 border-dashed border-muted rounded-lg p-6 flex flex-col items-center justify-center bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer min-h-[200px]"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  {imagePreview ? (
+                    <div className="relative w-full max-w-xs">
+                      <img
+                        src={imagePreview}
+                        alt="Preview"
+                        className="max-h-[180px] mx-auto object-contain rounded-lg"
+                      />
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="icon"
+                        className="absolute top-2 right-2 h-8 w-8"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleRemoveImage();
+                        }}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="relative mb-4">
+                        <Camera className="h-16 w-16 text-muted-foreground" />
+                        <div className="absolute -top-2 -right-2 bg-primary rounded-full p-2">
+                          <Upload className="h-5 w-5 text-primary-foreground" />
+                        </div>
+                      </div>
+                      <p className="text-sm text-muted-foreground text-center">
+                        Click to upload or drag and drop
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        PNG, JPG up to 10MB
+                      </p>
+                    </>
+                  )}
+                </div>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="hidden"
+                />
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex justify-end gap-3 pt-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setShowCustomItemForm(false)}
+                  className="min-w-[120px] h-12 text-base"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  className="min-w-[120px] h-12 text-base gradient-primary"
+                >
+                  Add Item
+                </Button>
+              </div>
+            </form>
+          </div>
+        )}
 
         {selectedInventory && (
           <div className="space-y-4 py-4">
@@ -256,20 +482,6 @@ export const AddItemModal = ({ open, onOpenChange, onAddItem, context = "invoice
         open={showSelectInventoryModal}
         onOpenChange={setShowSelectInventoryModal}
         onSelectInventory={handleInventorySelected}
-      />
-      <AddCustomItemModal
-        open={showCustomItemModal}
-        onOpenChange={(open) => {
-          setShowCustomItemModal(open);
-          if (!open) {
-            // Don't close parent modal when custom item modal closes
-          }
-        }}
-        onAddItem={(item) => {
-          onAddItem(item);
-          setShowCustomItemModal(false);
-          resetModal();
-        }}
       />
     </Dialog>
   );

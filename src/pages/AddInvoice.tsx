@@ -5,10 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Trash2, UserPlus, Repeat, FileText, Minus, Tag, X, Percent, DollarSign, Camera, ArrowLeft, RefreshCw, List } from "lucide-react";
+import { Plus, Trash2, UserPlus, Repeat, FileText, Minus, Tag, X, Percent, DollarSign, Camera, ArrowLeft, RefreshCw, List, Package } from "lucide-react";
 import { mockCustomers, mockJobs, mockEmployees, mockDiscounts, mockInvoices } from "@/data/mockData";
 import { QuickAddCustomerModal } from "@/components/modals/QuickAddCustomerModal";
-import { AddItemModal } from "@/components/modals/AddItemModal";
+import { SelectInventoryModal } from "@/components/modals/SelectInventoryModal";
+import { AddCustomItemModal } from "@/components/modals/AddCustomItemModal";
+import { InventoryFormModal } from "@/components/modals/InventoryFormModal";
 import { FollowUpAppointmentModal } from "@/components/modals/FollowUpAppointmentModal";
 import { AddAppointmentModal } from "@/components/modals/AddAppointmentModal";
 import { Switch } from "@/components/ui/switch";
@@ -44,7 +46,9 @@ const AddInvoice = () => {
 
   const [items, setItems] = useState(invoiceData?.items || []);
   const [showAddCustomerModal, setShowAddCustomerModal] = useState(false);
-  const [showAddItemModal, setShowAddItemModal] = useState(false);
+  const [showSelectInventoryModal, setShowSelectInventoryModal] = useState(false);
+  const [showAddCustomItemModal, setShowAddCustomItemModal] = useState(false);
+  const [showAddInventoryModal, setShowAddInventoryModal] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
   const [termsConditions, setTermsConditions] = useState(invoiceData?.termsConditions || "");
   const [cancellationPolicy, setCancellationPolicy] = useState(invoiceData?.cancellationPolicy || "");
@@ -369,15 +373,25 @@ const AddInvoice = () => {
 
               {/* Line Items Section */}
               <div className="border-t pt-4">
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-3">
                   <div>
                     <Label className="text-lg font-semibold">Items / Services</Label>
                     <p className="text-xs text-muted-foreground">Add items to this invoice</p>
                   </div>
-                  <Button type="button" onClick={() => setShowAddItemModal(true)} className="gap-2 shadow-md hover:shadow-lg transition-all">
-                    <Plus className="h-4 w-4" />
-                    ADD ITEM
-                  </Button>
+                  <div className="flex flex-wrap gap-2">
+                    <Button type="button" onClick={() => setShowSelectInventoryModal(true)} className="gap-2 shadow-md hover:shadow-lg transition-all">
+                      <Package className="h-4 w-4" />
+                      Add Existing Item
+                    </Button>
+                    <Button type="button" onClick={() => setShowAddCustomItemModal(true)} variant="outline" className="gap-2">
+                      <Plus className="h-4 w-4" />
+                      Add Custom Item
+                    </Button>
+                    <Button type="button" onClick={() => setShowAddInventoryModal(true)} variant="outline" className="gap-2">
+                      <Plus className="h-4 w-4" />
+                      Add to Inventory
+                    </Button>
+                  </div>
                 </div>
 
                 {items.length > 0 ? (
@@ -459,10 +473,20 @@ const AddInvoice = () => {
                   <div className="text-center py-12 bg-muted/20 rounded-xl border-2 border-dashed border-border">
                     <FileText className="h-12 w-12 mx-auto mb-3 text-muted-foreground/50" />
                     <p className="text-muted-foreground mb-4">No items added yet</p>
-                    <Button type="button" onClick={() => setShowAddItemModal(true)} variant="outline">
-                      <Plus className="h-4 w-4 mr-2" />
-                      Add Your First Item
-                    </Button>
+                    <div className="flex flex-wrap gap-2 justify-center">
+                      <Button type="button" onClick={() => setShowSelectInventoryModal(true)} variant="outline">
+                        <Package className="h-4 w-4 mr-2" />
+                        Add Existing Item
+                      </Button>
+                      <Button type="button" onClick={() => setShowAddCustomItemModal(true)} variant="outline">
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Custom Item
+                      </Button>
+                      <Button type="button" onClick={() => setShowAddInventoryModal(true)} variant="outline">
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add to Inventory
+                      </Button>
+                    </div>
                   </div>
                 )}
 
@@ -695,10 +719,38 @@ const AddInvoice = () => {
         onOpenChange={setShowAddCustomerModal}
       />
 
-      <AddItemModal
-        open={showAddItemModal}
-        onOpenChange={setShowAddItemModal}
+      <SelectInventoryModal
+        open={showSelectInventoryModal}
+        onOpenChange={setShowSelectInventoryModal}
+        onSelectInventory={(item, customPrice) => {
+          const price = customPrice !== undefined ? customPrice : item.price;
+          const typeLabel = item.type === "Variable" ? "V" : item.type === "Fixed" ? "F" : "U";
+          
+          handleAddItem({
+            description: `${item.name} (${typeLabel})`,
+            quantity: 1,
+            rate: price,
+            amount: price,
+            type: "inventory",
+            inventoryId: item.id,
+            sku: item.sku,
+          });
+        }}
+      />
+
+      <AddCustomItemModal
+        open={showAddCustomItemModal}
+        onOpenChange={setShowAddCustomItemModal}
         onAddItem={handleAddItem}
+      />
+
+      <InventoryFormModal
+        open={showAddInventoryModal}
+        onOpenChange={setShowAddInventoryModal}
+        onSave={(inventory) => {
+          toast.success("Item added to inventory successfully!");
+          setShowAddInventoryModal(false);
+        }}
       />
 
       <Dialog open={showDiscountModal} onOpenChange={setShowDiscountModal}>
