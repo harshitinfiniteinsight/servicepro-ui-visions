@@ -43,25 +43,25 @@ export const ShareAddressModal = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px]">
-        <DialogHeader className="bg-primary text-primary-foreground p-6 -mt-6 -mx-6 mb-4">
+      <DialogContent className="w-[95vw] max-w-[600px] p-0 sm:p-6 mx-4 sm:mx-auto">
+        <DialogHeader className="bg-primary text-primary-foreground p-4 sm:p-6 -mt-6 -mx-6 mb-4 sm:mb-6">
           <div className="flex items-center justify-between">
-            <DialogTitle className="text-2xl">Share Address</DialogTitle>
+            <DialogTitle className="text-xl sm:text-2xl font-bold">Share Address</DialogTitle>
             <Button
               variant="ghost"
-              className="text-primary-foreground hover:bg-primary-foreground/20 h-8 w-8 p-0"
+              className="text-primary-foreground hover:bg-primary-foreground/20 h-10 w-10 sm:h-8 sm:w-8 p-0 touch-target"
               onClick={() => onOpenChange(false)}
             >
-              <X className="h-5 w-5" />
+              <X className="h-5 w-5 sm:h-5 sm:w-5" />
             </Button>
           </div>
         </DialogHeader>
 
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6 px-4 sm:px-6 pb-4 sm:pb-6">
           <div className="space-y-2">
-            <Label className="text-lg text-muted-foreground">Select Employee</Label>
+            <Label className="text-base sm:text-lg text-muted-foreground font-medium">Select Employee</Label>
             <Select value={selectedEmployee} onValueChange={setSelectedEmployee}>
-              <SelectTrigger>
+              <SelectTrigger className="h-12 sm:h-10 text-base">
                 <SelectValue placeholder="Choose employee" />
               </SelectTrigger>
               <SelectContent className="z-50 bg-popover">
@@ -69,7 +69,7 @@ export const ShareAddressModal = ({
                 {mockEmployees
                   .filter((emp) => emp.status === "Active")
                   .map((employee) => (
-                    <SelectItem key={employee.id} value={employee.id}>
+                    <SelectItem key={employee.id} value={employee.id} className="text-base">
                       {employee.name} - {employee.role}
                     </SelectItem>
                   ))}
@@ -77,15 +77,15 @@ export const ShareAddressModal = ({
             </Select>
           </div>
 
-          <div className="text-center text-2xl font-semibold text-muted-foreground">
+          <div className="text-center text-xl sm:text-2xl font-semibold text-muted-foreground py-2">
             OR
           </div>
 
           <div className="space-y-2">
-            <Label className="text-lg text-muted-foreground">Enter Phone Number</Label>
-            <div className="flex gap-2">
+            <Label className="text-base sm:text-lg text-muted-foreground font-medium">Enter Phone Number</Label>
+            <div className="flex gap-2 sm:gap-2">
               <Select value={countryCode} onValueChange={setCountryCode}>
-                <SelectTrigger className="w-24">
+                <SelectTrigger className="w-20 sm:w-24 h-12 sm:h-10 text-base">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="z-50 bg-popover">
@@ -104,15 +104,15 @@ export const ShareAddressModal = ({
                 value={phoneNumber}
                 onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, ''))}
                 placeholder="Phone number"
-                className="flex-1"
+                className="flex-1 h-12 sm:h-10 text-base"
               />
             </div>
           </div>
 
-          <div className="flex justify-center pt-4">
+          <div className="flex justify-center pt-2 sm:pt-4">
             <Button
               onClick={handleSend}
-              className="w-64 h-14 text-lg"
+              className="w-full sm:w-64 h-12 sm:h-14 text-base sm:text-lg font-semibold touch-target"
               variant="outline"
             >
               SEND
