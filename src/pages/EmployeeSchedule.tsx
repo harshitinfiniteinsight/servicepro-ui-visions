@@ -187,7 +187,7 @@ const EmployeeSchedule = () => {
                   <th className="px-4 py-4 text-left text-sm font-semibold">Scheduled Date</th>
                   <th className="px-4 py-4 text-left text-sm font-semibold">Timezone</th>
                   <th className="px-4 py-4 text-left text-sm font-semibold">Start Time</th>
-                  <th className="px-4 py-4 text-left text-sm font-semibold">Deactivate</th>
+                  <th className="px-4 py-4 text-left text-sm font-semibold">End Time</th>
                   <th className="px-4 py-4 text-left text-sm font-semibold">Time Interval</th>
                   <th className="px-4 py-4 text-left text-sm font-semibold">Action</th>
                 </tr>
