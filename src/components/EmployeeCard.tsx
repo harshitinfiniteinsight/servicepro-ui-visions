@@ -1,8 +1,11 @@
+import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Mail, Phone, Calendar, Briefcase, Edit, UserX } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Mail, Phone, Calendar, Briefcase, Edit, UserX, Palette } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface EmployeeCardProps {
   id: string;
@@ -17,7 +20,19 @@ interface EmployeeCardProps {
   color?: string;
   onEdit?: () => void;
   onDeactivate?: () => void;
+  onColorChange?: (color: string) => void;
 }
+
+const EMPLOYEE_COLORS = [
+  { name: "Blue", value: "#3B82F6" },
+  { name: "Green", value: "#10B981" },
+  { name: "Purple", value: "#8B5CF6" },
+  { name: "Orange", value: "#F97316" },
+  { name: "Pink", value: "#EC4899" },
+  { name: "Yellow", value: "#EAB308" },
+  { name: "Red", value: "#EF4444" },
+  { name: "Teal", value: "#14B8A6" },
+];
 
 export const EmployeeCard = ({
   id,
@@ -32,12 +47,22 @@ export const EmployeeCard = ({
   color = "#3B82F6",
   onEdit,
   onDeactivate,
+  onColorChange,
 }: EmployeeCardProps) => {
+  const [colorPickerOpen, setColorPickerOpen] = useState(false);
+  
   const initials = name
     .split(" ")
     .map((n) => n[0])
     .join("")
     .toUpperCase();
+
+  const handleColorSelect = (selectedColor: string) => {
+    if (onColorChange) {
+      onColorChange(selectedColor);
+      setColorPickerOpen(false);
+    }
+  };
 
   return (
     <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 relative overflow-hidden">
@@ -58,6 +83,45 @@ export const EmployeeCard = ({
               className="absolute -bottom-1 -right-1 h-5 w-5 rounded-full border-2 border-background"
               style={{ backgroundColor: color }}
             />
+            {onColorChange && (
+              <Popover open={colorPickerOpen} onOpenChange={setColorPickerOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="absolute -top-1 -right-1 h-6 w-6 rounded-full bg-background border-2 shadow-sm hover:scale-110 transition-transform p-0"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setColorPickerOpen(true);
+                    }}
+                  >
+                    <Palette className="h-3 w-3" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-64 p-3" align="start" onClick={(e) => e.stopPropagation()}>
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium mb-3">Assign Color</p>
+                    <div className="grid grid-cols-4 gap-2">
+                      {EMPLOYEE_COLORS.map((colorOption) => (
+                        <button
+                          key={colorOption.value}
+                          type="button"
+                          onClick={() => handleColorSelect(colorOption.value)}
+                          className={cn(
+                            "h-10 w-10 rounded-md border-2 transition-all hover:scale-110",
+                            color === colorOption.value
+                              ? "border-foreground scale-110 shadow-md"
+                              : "border-border hover:border-foreground/50"
+                          )}
+                          style={{ backgroundColor: colorOption.value }}
+                          title={colorOption.name}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </PopoverContent>
+              </Popover>
+            )}
           </div>
           <div className="flex-1">
             <h3 className="font-semibold text-lg text-foreground">{name}</h3>

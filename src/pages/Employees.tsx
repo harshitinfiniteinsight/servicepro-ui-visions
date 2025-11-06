@@ -15,6 +15,16 @@ const Employees = () => {
   const [activeTab, setActiveTab] = useState("active");
   const [selectedEmployee, setSelectedEmployee] = useState<any>(null);
   const [modalMode, setModalMode] = useState<"create" | "edit">("create");
+  const [employeeColors, setEmployeeColors] = useState<Record<string, string>>(() => {
+    // Initialize with colors from mockEmployees
+    const colors: Record<string, string> = {};
+    mockEmployees.forEach((emp) => {
+      if (emp.color) {
+        colors[emp.id] = emp.color;
+      }
+    });
+    return colors;
+  });
 
   const filteredEmployees = mockEmployees.filter((employee) =>
     employee.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -40,6 +50,14 @@ const Employees = () => {
 
   const handleActivate = (employeeId: string, employeeName: string) => {
     toast.success(`${employeeName} has been activated`);
+  };
+
+  const handleColorChange = (employeeId: string, color: string) => {
+    setEmployeeColors((prev) => ({
+      ...prev,
+      [employeeId]: color,
+    }));
+    toast.success("Employee color updated");
   };
 
   return (
@@ -85,9 +103,10 @@ const Employees = () => {
                   hireDate={employee.hireDate}
                   totalJobs={employee.totalJobs}
                   avatar={employee.avatar}
-                  color={employee.color}
+                  color={employeeColors[employee.id] || employee.color || "#3B82F6"}
                   onEdit={() => handleEdit(employee.id, employee.name)}
                   onDeactivate={() => handleDeactivate(employee.id, employee.name)}
+                  onColorChange={(color) => handleColorChange(employee.id, color)}
                 />
               ))}
             </div>
