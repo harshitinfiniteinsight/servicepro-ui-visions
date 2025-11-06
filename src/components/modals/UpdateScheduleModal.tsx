@@ -128,7 +128,7 @@ export function UpdateScheduleModal({ open, onOpenChange, schedule, onUpdate }: 
         </DialogHeader>
 
         <div className="space-y-6 py-4">
-          {/* Employee Selection */}
+          {/* 1. Select Employee */}
           <div>
             <Label className="text-sm font-medium mb-2 block">Select Employee</Label>
             <Select value={selectedEmployee} onValueChange={setSelectedEmployee}>
@@ -145,120 +145,120 @@ export function UpdateScheduleModal({ open, onOpenChange, schedule, onUpdate }: 
             </Select>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Schedule Date */}
-            <div>
-              <Label className="text-sm font-medium mb-2 block">Select Schedule Date</Label>
+          {/* 2. Select Schedule Date */}
+          <div>
+            <Label className="text-sm font-medium mb-2 block">Select Schedule Date</Label>
+            <Input
+              type="date"
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+            />
+          </div>
+
+          {/* 3. Select Week Days */}
+          <div>
+            <Label className="text-sm font-medium mb-2 block">Select Week Days</Label>
+            <div className="flex items-center gap-2 mb-3">
+              <input
+                type="checkbox"
+                id="allDaysEdit"
+                checked={allDaysSelected}
+                onChange={toggleAllDays}
+                className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+              />
+              <Label htmlFor="allDaysEdit" className="text-sm cursor-pointer">
+                Select All
+              </Label>
+            </div>
+            <div className="flex gap-2">
+              {weekDaysLabels.map((day) => (
+                <button
+                  key={day}
+                  type="button"
+                  onClick={() => toggleWeekDay(day)}
+                  className={`h-12 w-12 rounded-full font-semibold transition-all ${
+                    weekDays.includes(day)
+                      ? "bg-primary text-primary-foreground shadow-md"
+                      : "bg-muted hover:bg-muted/80"
+                  }`}
+                >
+                  {day}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* 4. Select Time Slot */}
+          <div>
+            <Label className="text-sm font-medium mb-2 block">Select Time Slot</Label>
+            <Select value={timeSlot} onValueChange={setTimeSlot}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select time slot" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="5">5 min</SelectItem>
+                <SelectItem value="10">10 min</SelectItem>
+                <SelectItem value="15">15 min</SelectItem>
+                <SelectItem value="20">20 min</SelectItem>
+                <SelectItem value="25">25 min</SelectItem>
+                <SelectItem value="30">30 min</SelectItem>
+                <SelectItem value="35">35 min</SelectItem>
+                <SelectItem value="40">40 min</SelectItem>
+                <SelectItem value="45">45 min</SelectItem>
+                <SelectItem value="50">50 min</SelectItem>
+                <SelectItem value="55">55 min</SelectItem>
+                <SelectItem value="60">60 min</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* 5. Select Timezone */}
+          <div>
+            <Label className="text-sm font-medium mb-2 block">Select Timezone</Label>
+            <Select value={timezone} onValueChange={setTimezone}>
+              <SelectTrigger>
+                <SelectValue placeholder="Choose timezone" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Asia/Kolkata">Asia/Kolkata</SelectItem>
+                <SelectItem value="America/New_York">America/New York</SelectItem>
+                <SelectItem value="Europe/London">Europe/London</SelectItem>
+                <SelectItem value="Asia/Tokyo">Asia/Tokyo</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* 6. Start Time */}
+          <div>
+            <Label className="text-sm font-medium mb-2 block">Start Time</Label>
+            <div className="relative">
+              <Clock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
-                type="date"
-                value={selectedDate}
-                onChange={(e) => setSelectedDate(e.target.value)}
+                type="time"
+                value={startTime}
+                onChange={(e) => setStartTime(e.target.value)}
+                className="pl-10"
+                placeholder="HH:MM"
               />
             </div>
+          </div>
 
-            {/* Week Days */}
-            <div>
-              <Label className="text-sm font-medium mb-2 block">Select Weeks Days</Label>
-              <div className="flex gap-2 mb-3">
-                {weekDaysLabels.map((day) => (
-                  <button
-                    key={day}
-                    type="button"
-                    onClick={() => toggleWeekDay(day)}
-                    className={`h-12 w-12 rounded-full font-semibold transition-all ${
-                      weekDays.includes(day)
-                        ? "bg-primary text-primary-foreground shadow-md"
-                        : "bg-muted hover:bg-muted/80"
-                    }`}
-                  >
-                    {day}
-                  </button>
-                ))}
-              </div>
-              {/* All Days Checkbox */}
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id="allDaysEdit"
-                  checked={allDaysSelected}
-                  onChange={toggleAllDays}
-                  className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-                />
-                <Label htmlFor="allDaysEdit" className="text-sm cursor-pointer">
-                  All Days
-                </Label>
-              </div>
+          {/* 7. End Time */}
+          <div>
+            <Label className="text-sm font-medium mb-2 block">End Time</Label>
+            <div className="relative">
+              <Clock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="time"
+                value={endTime}
+                onChange={(e) => setEndTime(e.target.value)}
+                className="pl-10"
+                placeholder="HH:MM"
+              />
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Time Slot */}
-            <div>
-              <Label className="text-sm font-medium mb-2 block">Select Time Slot</Label>
-              <Select value={timeSlot} onValueChange={setTimeSlot}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="5">5 min</SelectItem>
-                  <SelectItem value="10">10 min</SelectItem>
-                  <SelectItem value="15">15 min</SelectItem>
-                  <SelectItem value="20">20 min</SelectItem>
-                  <SelectItem value="30">30 min</SelectItem>
-                  <SelectItem value="60">60 min</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Timezone */}
-            <div>
-              <Label className="text-sm font-medium mb-2 block">Select Timezone</Label>
-              <Select value={timezone} onValueChange={setTimezone}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Choose timezone" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Asia/Kolkata">Asia/Kolkata</SelectItem>
-                  <SelectItem value="America/New_York">America/New York</SelectItem>
-                  <SelectItem value="Europe/London">Europe/London</SelectItem>
-                  <SelectItem value="Asia/Tokyo">Asia/Tokyo</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Start Time */}
-            <div>
-              <Label className="text-sm font-medium mb-2 block">Start Time</Label>
-              <div className="relative">
-                <Clock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                  type="time"
-                  value={startTime}
-                  onChange={(e) => setStartTime(e.target.value)}
-                  className="pl-10"
-                  placeholder="Start Time"
-                />
-              </div>
-            </div>
-
-            {/* End Time */}
-            <div>
-              <Label className="text-sm font-medium mb-2 block">End Time</Label>
-              <div className="relative">
-                <Clock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                  type="time"
-                  value={endTime}
-                  onChange={(e) => setEndTime(e.target.value)}
-                  className="pl-10"
-                  placeholder="End Time"
-                />
-              </div>
-            </div>
-          </div>
-
+          {/* 8. Update Button */}
           <Button
             onClick={handleUpdateSchedule}
             className="w-full gradient-primary text-lg py-6"
