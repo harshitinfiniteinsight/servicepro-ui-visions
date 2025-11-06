@@ -263,44 +263,47 @@ export const EmployeeFormModal = ({ open, onOpenChange, employee, mode }: Employ
                 </Label>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="timezone">Select Timezone</Label>
-                <Select value={timezone} onValueChange={setTimezone}>
-                  <SelectTrigger className="h-10">
-                    <SelectValue placeholder="Choose timezone" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {TIMEZONES.map((tz) => (
-                      <SelectItem key={tz} value={tz}>
-                        {tz}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+              {/* Timezone and Days in one row */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="timezone">Select Timezone</Label>
+                  <Select value={timezone} onValueChange={setTimezone}>
+                    <SelectTrigger className="h-10">
+                      <SelectValue placeholder="Choose timezone" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {TIMEZONES.map((tz) => (
+                        <SelectItem key={tz} value={tz}>
+                          {tz}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
 
-              <div className="space-y-3">
-                <Label>Select Days</Label>
-                <div className="flex gap-2 flex-wrap">
-                  {WEEK_DAYS.map((day) => {
-                    const isSelected = selectedDays.includes(day.value);
-                    return (
-                      <button
-                        key={day.value}
-                        type="button"
-                        onClick={() => toggleDay(day.value)}
-                        className={cn(
-                          "h-10 w-10 rounded-full border-2 font-semibold text-sm transition-all",
-                          isSelected
-                            ? "bg-orange-500 text-white border-orange-500 shadow-md"
-                            : "bg-background text-muted-foreground border-border hover:border-orange-300 hover:text-orange-600"
-                        )}
-                        title={day.fullLabel}
-                      >
-                        {day.label}
-                      </button>
-                    );
-                  })}
+                <div className="space-y-2">
+                  <Label>Select Days</Label>
+                  <div className="flex gap-2 flex-wrap">
+                    {WEEK_DAYS.map((day) => {
+                      const isSelected = selectedDays.includes(day.value);
+                      return (
+                        <button
+                          key={day.value}
+                          type="button"
+                          onClick={() => toggleDay(day.value)}
+                          className={cn(
+                            "h-10 w-10 rounded-full border-2 font-semibold text-sm transition-all",
+                            isSelected
+                              ? "bg-orange-500 text-white border-orange-500 shadow-md"
+                              : "bg-background text-muted-foreground border-border hover:border-orange-300 hover:text-orange-600"
+                          )}
+                          title={day.fullLabel}
+                        >
+                          {day.label}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
 
