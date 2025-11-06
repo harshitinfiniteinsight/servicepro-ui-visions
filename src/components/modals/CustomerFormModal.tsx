@@ -20,7 +20,7 @@ export const CustomerFormModal = ({ open, onOpenChange, customer, mode }: Custom
     email: customer?.email || "",
     phone: customer?.phone || "",
     address: customer?.address || "",
-    gender: customer?.gender || "M",
+    gender: customer?.gender || "",
     profilePicture: customer?.avatar || "",
   });
   const [previewImage, setPreviewImage] = useState<string>(customer?.avatar || "");
@@ -142,11 +142,12 @@ export const CustomerFormModal = ({ open, onOpenChange, customer, mode }: Custom
             </div>
             <div className="grid gap-2">
               <Label htmlFor="gender">Gender</Label>
-              <Select value={formData.gender} onValueChange={(value) => setFormData({ ...formData, gender: value })}>
+              <Select value={formData.gender || ""} onValueChange={(value) => setFormData({ ...formData, gender: value })}>
                 <SelectTrigger>
-                  <SelectValue />
+                  <SelectValue placeholder="Select gender (optional)" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="">Not specified</SelectItem>
                   <SelectItem value="M">Male</SelectItem>
                   <SelectItem value="F">Female</SelectItem>
                   <SelectItem value="O">Other</SelectItem>
