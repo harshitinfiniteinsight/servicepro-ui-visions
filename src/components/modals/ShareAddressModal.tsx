@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 import { mockEmployees } from "@/data/mockData";
 import { useToast } from "@/hooks/use-toast";
 import { X } from "lucide-react";
@@ -25,7 +24,6 @@ export const ShareAddressModal = ({
   const [selectedEmployee, setSelectedEmployee] = useState<string>("all");
   const [countryCode, setCountryCode] = useState("+1");
   const [phoneNumber, setPhoneNumber] = useState("");
-  const [message, setMessage] = useState(`Job Address for ${jobId}: ${jobAddress}`);
   const { toast } = useToast();
 
   const handleSend = () => {
@@ -41,7 +39,6 @@ export const ShareAddressModal = ({
     setSelectedEmployee("all");
     setPhoneNumber("");
     setCountryCode("+1");
-    setMessage(`Job Address for ${jobId}: ${jobAddress}`);
   };
 
   return (
@@ -108,20 +105,6 @@ export const ShareAddressModal = ({
                 onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, ''))}
                 placeholder="Phone number"
                 className="flex-1"
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <div className="flex items-start gap-3">
-              <div className="w-16 h-16 rounded border-2 border-input flex items-center justify-center text-2xl text-primary font-semibold flex-shrink-0">
-                1
-              </div>
-              <Textarea
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                placeholder="Enter custom message..."
-                className="flex-1 min-h-[100px]"
               />
             </div>
           </div>
