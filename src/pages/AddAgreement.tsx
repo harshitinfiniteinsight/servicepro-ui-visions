@@ -41,7 +41,7 @@ const AddAgreement = () => {
 
   // Step 1 data
   const [selectedCustomer, setSelectedCustomer] = useState(agreement?.customerId || "");
-  const [selectedEmployee, setSelectedEmployee] = useState(agreement?.employeeId || "");
+  const [selectedEmployee, setSelectedEmployee] = useState((agreement as any)?.employeeId || "");
 
   // Step 2 data
   const [agreementType, setAgreementType] = useState(agreement?.type || "one-time");
@@ -53,30 +53,31 @@ const AddAgreement = () => {
 
   // Step 3 data
   const [selectedServices, setSelectedServices] = useState<Set<string>>(
-    new Set(agreement?.services?.map((s: any) => s.id) || [])
+    new Set((agreement as any)?.services?.map((s: any) => s.id) || [])
   );
   const [servicePrices, setServicePrices] = useState<Record<string, number>>(
-    agreement?.services?.reduce((acc: Record<string, number>, s: any) => {
+    (agreement as any)?.services?.reduce((acc: Record<string, number>, s: any) => {
       acc[s.id] = s.price;
       return acc;
     }, {}) || {}
   );
 
   // Step 4 data
-  const [workDescription, setWorkDescription] = useState(agreement?.description || "");
+  const [workDescription, setWorkDescription] = useState((agreement as any)?.description || "");
 
   useEffect(() => {
     if (agreement) {
+      const agreementData = agreement as any;
       // Pre-fill form data when editing
-      setSelectedCustomer(agreement.customerId || "");
-      setSelectedEmployee(agreement.employeeId || "");
-      setAgreementType(agreement.type || "one-time");
-      setAgreementDuration(agreement.endDate ? new Date(agreement.endDate) : undefined);
-      setWorkDescription(agreement.description || "");
-      if (agreement.services) {
-        setSelectedServices(new Set(agreement.services.map((s: any) => s.id)));
+      setSelectedCustomer(agreementData.customerId || "");
+      setSelectedEmployee(agreementData.employeeId || "");
+      setAgreementType(agreementData.type || "one-time");
+      setAgreementDuration(agreementData.endDate ? new Date(agreementData.endDate) : undefined);
+      setWorkDescription(agreementData.description || "");
+      if (agreementData.services) {
+        setSelectedServices(new Set(agreementData.services.map((s: any) => s.id)));
         const prices: Record<string, number> = {};
-        agreement.services.forEach((s: any) => {
+        agreementData.services.forEach((s: any) => {
           prices[s.id] = s.price;
         });
         setServicePrices(prices);

@@ -26,14 +26,15 @@ const AddInvoice = () => {
   const { id } = useParams();
   const mode = id ? "edit" : "create";
   const invoice = id ? mockInvoices.find(inv => inv.id === id) : null;
+  const invoiceData = invoice as any;
 
   const [formData, setFormData] = useState({
-    customerId: invoice?.customerId || "",
-    employeeId: invoice?.employeeId || "",
-    jobId: invoice?.jobId || "",
-    terms: invoice?.terms || "net 30",
-    invoiceType: invoice?.invoiceType || "single",
-    memo: invoice?.memo || "",
+    customerId: invoiceData?.customerId || "",
+    employeeId: invoiceData?.employeeId || "",
+    jobId: invoiceData?.jobId || "",
+    terms: invoiceData?.terms || "net 30",
+    invoiceType: invoiceData?.invoiceType || "single",
+    memo: invoiceData?.memo || "",
   });
 
   const [memoAttachment, setMemoAttachment] = useState<File | null>(null);
@@ -41,14 +42,14 @@ const AddInvoice = () => {
   const [showFollowUpDialog, setShowFollowUpDialog] = useState(false);
   const [showAppointmentModal, setShowAppointmentModal] = useState(false);
 
-  const [items, setItems] = useState(invoice?.items || []);
+  const [items, setItems] = useState(invoiceData?.items || []);
   const [showAddCustomerModal, setShowAddCustomerModal] = useState(false);
   const [showAddItemModal, setShowAddItemModal] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
-  const [termsConditions, setTermsConditions] = useState(invoice?.termsConditions || "");
-  const [cancellationPolicy, setCancellationPolicy] = useState(invoice?.cancellationPolicy || "");
-  const [taxRate, setTaxRate] = useState(invoice?.taxRate || 0);
-  const [selectedDiscount, setSelectedDiscount] = useState<any>(invoice?.discount || null);
+  const [termsConditions, setTermsConditions] = useState(invoiceData?.termsConditions || "");
+  const [cancellationPolicy, setCancellationPolicy] = useState(invoiceData?.cancellationPolicy || "");
+  const [taxRate, setTaxRate] = useState(invoiceData?.taxRate || 0);
+  const [selectedDiscount, setSelectedDiscount] = useState<any>(invoiceData?.discount || null);
   const [showDiscountModal, setShowDiscountModal] = useState(false);
   const [discountError, setDiscountError] = useState("");
   

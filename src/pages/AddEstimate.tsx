@@ -23,21 +23,23 @@ const AddEstimate = () => {
   const mode = id ? "edit" : "create";
   const estimate = id ? mockEstimates.find(est => est.id === id) : null;
 
+  const estimateData = estimate as any;
+  
   const [formData, setFormData] = useState({
-    customerId: estimate?.customerId || "",
-    employeeId: estimate?.employeeId || "",
-    terms: estimate?.terms || "net 30",
-    memo: estimate?.memo || "",
+    customerId: estimateData?.customerId || "",
+    employeeId: estimateData?.employeeId || "",
+    terms: estimateData?.terms || "net 30",
+    memo: estimateData?.memo || "",
   });
 
-  const [items, setItems] = useState(estimate?.items || []);
+  const [items, setItems] = useState(estimateData?.items || []);
   const [showAddCustomerModal, setShowAddCustomerModal] = useState(false);
   const [showAddItemModal, setShowAddItemModal] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
-  const [termsConditions, setTermsConditions] = useState(estimate?.termsConditions || "");
-  const [cancellationPolicy, setCancellationPolicy] = useState(estimate?.cancellationPolicy || "");
-  const [taxRate, setTaxRate] = useState(estimate?.taxRate || 0);
-  const [selectedDiscount, setSelectedDiscount] = useState<any>(estimate?.discount || null);
+  const [termsConditions, setTermsConditions] = useState(estimateData?.termsConditions || "");
+  const [cancellationPolicy, setCancellationPolicy] = useState(estimateData?.cancellationPolicy || "");
+  const [taxRate, setTaxRate] = useState(estimateData?.taxRate || 0);
+  const [selectedDiscount, setSelectedDiscount] = useState<any>(estimateData?.discount || null);
   const [showDiscountModal, setShowDiscountModal] = useState(false);
   const [discountError, setDiscountError] = useState("");
   const [memoAttachment, setMemoAttachment] = useState<File | null>(null);
