@@ -4,29 +4,14 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { MessageCircle, X, Send, Bot, User, Hash, Bell } from "lucide-react";
+import { MessageCircle, X, Send, Bot, User } from "lucide-react";
 import { toast } from "sonner";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
 
 interface Message {
   id: string;
-  role: "user" | "assistant" | "system";
+  role: "user" | "assistant";
   content: string;
   timestamp: Date;
-  channel?: string;
-}
-
-interface Channel {
-  id: string;
-  name: string;
-  unread: number;
 }
 
 const dummyResponses = [
@@ -44,81 +29,23 @@ const dummyResponses = [
 
 export const AIChatWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [currentChannel, setCurrentChannel] = useState("general");
-  const [channels, setChannels] = useState<Channel[]>([
-    { id: "general", name: "General", unread: 0 },
-    { id: "support", name: "Support", unread: 2 },
-    { id: "sales", name: "Sales", unread: 1 },
-    { id: "tech", name: "Tech Team", unread: 0 },
-  ]);
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",
       role: "assistant",
       content: "👋 Hi! I'm your AI assistant. How can I help you manage your service business today?",
-      timestamp: new Date(),
-      channel: "general"
+      timestamp: new Date()
     }
   ]);
   const [inputValue, setInputValue] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
-  // Demo team notifications
-  useEffect(() => {
-    const notifications = [
-      { channel: "support", message: "Sarah replied to customer ticket #1234", user: "Sarah" },
-      { channel: "sales", message: "New lead assigned to you", user: "System" },
-      { channel: "tech", message: "Mike completed the deployment", user: "Mike" },
-      { channel: "support", message: "Urgent: Priority ticket requires attention", user: "System" },
-    ];
-
-    const interval = setInterval(() => {
-      const notification = notifications[Math.floor(Math.random() * notifications.length)];
-      
-      toast.success(`📢 ${notification.channel.toUpperCase()}`, {
-        description: notification.message,
-        action: {
-          label: "View",
-          onClick: () => {
-            setCurrentChannel(notification.channel);
-            setIsOpen(true);
-          },
-        },
-      });
-
-      // Add unread count
-      setChannels(prev => prev.map(ch => 
-        ch.id === notification.channel 
-          ? { ...ch, unread: ch.unread + 1 }
-          : ch
-      ));
-
-      // Add system message to channel
-      setMessages(prev => [...prev, {
-        id: Date.now().toString(),
-        role: "system",
-        content: `${notification.user}: ${notification.message}`,
-        timestamp: new Date(),
-        channel: notification.channel
-      }]);
-    }, 8000);
-
-    return () => clearInterval(interval);
-  }, []);
-
   useEffect(() => {
     if (scrollAreaRef.current) {
       scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
     }
   }, [messages, isTyping]);
-
-  // Clear unread when switching channels
-  useEffect(() => {
-    setChannels(prev => prev.map(ch => 
-      ch.id === currentChannel ? { ...ch, unread: 0 } : ch
-    ));
-  }, [currentChannel]);
 
   const handleSend = () => {
     if (!inputValue.trim()) return;
@@ -128,8 +55,7 @@ export const AIChatWidget = () => {
       id: Date.now().toString(),
       role: "user",
       content: inputValue,
-      timestamp: new Date(),
-      channel: currentChannel
+      timestamp: new Date()
     };
 
     setMessages(prev => [...prev, userMessage]);
@@ -143,16 +69,12 @@ export const AIChatWidget = () => {
         id: (Date.now() + 1).toString(),
         role: "assistant",
         content: randomResponse,
-        timestamp: new Date(),
-        channel: currentChannel
+        timestamp: new Date()
       };
       setMessages(prev => [...prev, aiMessage]);
       setIsTyping(false);
     }, 1000 + Math.random() * 1000);
   };
-
-  const totalUnread = channels.reduce((sum, ch) => sum + ch.unread, 0);
-  const channelMessages = messages.filter(m => m.channel === currentChannel);
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -171,13 +93,9 @@ export const AIChatWidget = () => {
             className="h-14 w-14 rounded-full shadow-2xl gradient-primary hover:scale-110 transition-all duration-300 group relative"
           >
             <MessageCircle className="h-6 w-6" />
-            {totalUnread > 0 && (
-              <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs bg-destructive">
-                {totalUnread}
-              </Badge>
-            )}
+            <span className="absolute -top-1 -right-1 h-4 w-4 bg-destructive rounded-full animate-pulse" />
             <div className="absolute right-full mr-3 px-4 py-2 bg-card text-card-foreground rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap border">
-              <span className="text-sm font-medium">Team Chat & AI Assistant</span>
+              <span className="text-sm font-medium">Chat with AI Assistant</span>
             </div>
           </Button>
         )}
@@ -186,126 +104,76 @@ export const AIChatWidget = () => {
         {isOpen && (
           <Card className="w-[380px] h-[600px] shadow-2xl flex flex-col border-2 animate-in slide-in-from-bottom-5 duration-300">
             {/* Header */}
-            <div className="p-4 border-b bg-gradient-to-r from-primary/10 to-accent/10">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-3">
-                  <div className="relative">
-                    <Avatar className="h-10 w-10 border-2 border-primary">
-                      <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-white">
-                        <Bot className="h-5 w-5" />
-                      </AvatarFallback>
-                    </Avatar>
-                    <span className="absolute bottom-0 right-0 h-3 w-3 bg-success rounded-full border-2 border-card" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-foreground">Team Chat</h3>
-                    <p className="text-xs text-success font-medium">● {channels.length} channels</p>
-                  </div>
+            <div className="p-4 border-b bg-gradient-to-r from-primary/10 to-accent/10 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="relative">
+                  <Avatar className="h-10 w-10 border-2 border-primary">
+                    <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-white">
+                      <Bot className="h-5 w-5" />
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="absolute bottom-0 right-0 h-3 w-3 bg-success rounded-full border-2 border-card" />
                 </div>
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 rounded-full relative"
-                  >
-                    <Bell className="h-4 w-4" />
-                    {totalUnread > 0 && (
-                      <span className="absolute -top-1 -right-1 h-4 w-4 bg-destructive rounded-full text-[10px] text-white flex items-center justify-center">
-                        {totalUnread}
-                      </span>
-                    )}
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setIsOpen(false)}
-                    className="h-8 w-8 rounded-full hover:bg-destructive/10 hover:text-destructive"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
+                <div>
+                  <h3 className="font-bold text-foreground">AI Assistant</h3>
+                  <p className="text-xs text-success font-medium">● Online</p>
                 </div>
               </div>
-              
-              {/* Channel Selector */}
-              <Select value={currentChannel} onValueChange={setCurrentChannel}>
-                <SelectTrigger className="w-full">
-                  <div className="flex items-center gap-2">
-                    <Hash className="h-4 w-4" />
-                    <SelectValue />
-                  </div>
-                </SelectTrigger>
-                <SelectContent>
-                  {channels.map(channel => (
-                    <SelectItem key={channel.id} value={channel.id}>
-                      <div className="flex items-center justify-between w-full gap-4">
-                        <span>{channel.name}</span>
-                        {channel.unread > 0 && (
-                          <Badge variant="destructive" className="ml-2 h-5 w-5 flex items-center justify-center p-0 text-xs">
-                            {channel.unread}
-                          </Badge>
-                        )}
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsOpen(false)}
+                className="h-8 w-8 rounded-full hover:bg-destructive/10 hover:text-destructive"
+              >
+                <X className="h-4 w-4" />
+              </Button>
             </div>
 
             {/* Messages Area */}
             <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
               <div className="space-y-4">
-                {channelMessages.map((message) => (
+                {messages.map((message) => (
                   <div
                     key={message.id}
                     className={`flex gap-3 ${
-                      message.role === "user" ? "flex-row-reverse" : 
-                      message.role === "system" ? "justify-center" : "flex-row"
+                      message.role === "user" ? "flex-row-reverse" : "flex-row"
                     }`}
                   >
-                    {message.role !== "system" && (
-                      <Avatar className="h-8 w-8 flex-shrink-0">
-                        <AvatarFallback
-                          className={
-                            message.role === "user"
-                              ? "bg-secondary text-secondary-foreground"
-                              : "bg-gradient-to-br from-primary to-accent text-white"
-                          }
-                        >
-                          {message.role === "user" ? (
-                            <User className="h-4 w-4" />
-                          ) : (
-                            <Bot className="h-4 w-4" />
-                          )}
-                        </AvatarFallback>
-                      </Avatar>
-                    )}
+                    <Avatar className="h-8 w-8 flex-shrink-0">
+                      <AvatarFallback
+                        className={
+                          message.role === "user"
+                            ? "bg-secondary text-secondary-foreground"
+                            : "bg-gradient-to-br from-primary to-accent text-white"
+                        }
+                      >
+                        {message.role === "user" ? (
+                          <User className="h-4 w-4" />
+                        ) : (
+                          <Bot className="h-4 w-4" />
+                        )}
+                      </AvatarFallback>
+                    </Avatar>
                     <div
                       className={`flex-1 ${
-                        message.role === "user" ? "items-end" : 
-                        message.role === "system" ? "items-center" : "items-start"
+                        message.role === "user" ? "items-end" : "items-start"
                       } flex flex-col`}
                     >
                       <div
-                        className={`rounded-2xl px-4 py-2 ${
-                          message.role === "system" 
-                            ? "bg-accent/20 text-accent-foreground text-center text-xs max-w-full"
-                            : message.role === "user"
-                            ? "bg-primary text-primary-foreground ml-auto max-w-[85%]"
-                            : "bg-muted text-foreground max-w-[85%]"
+                        className={`rounded-2xl px-4 py-2 max-w-[85%] ${
+                          message.role === "user"
+                            ? "bg-primary text-primary-foreground ml-auto"
+                            : "bg-muted text-foreground"
                         }`}
                       >
-                        <p className={`${message.role === "system" ? "text-xs" : "text-sm"} leading-relaxed`}>
-                          {message.content}
-                        </p>
+                        <p className="text-sm leading-relaxed">{message.content}</p>
                       </div>
-                      {message.role !== "system" && (
-                        <span className="text-xs text-muted-foreground mt-1 px-1">
-                          {message.timestamp.toLocaleTimeString([], {
-                            hour: "2-digit",
-                            minute: "2-digit"
-                          })}
-                        </span>
-                      )}
+                      <span className="text-xs text-muted-foreground mt-1 px-1">
+                        {message.timestamp.toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit"
+                        })}
+                      </span>
                     </div>
                   </div>
                 ))}
