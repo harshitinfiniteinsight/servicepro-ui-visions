@@ -112,6 +112,11 @@ const Invoices = () => {
     setLinkModalOpen(true);
   };
 
+  const handleDocHistory = (invoice: any) => {
+    // Navigate to customer details page
+    navigate(`/customers/${invoice.customerId}`);
+  };
+
   const handleReassignEmployee = (invoice: any) => {
     setSelectedInvoiceForReassign(invoice);
     // Find employee ID by matching employee name
@@ -246,7 +251,10 @@ const Invoices = () => {
                       <DropdownMenuSeparator />
                       {invoice.status === "Open" && (
                         <>
-                          <DropdownMenuItem className="gap-2">
+                          <DropdownMenuItem 
+                            className="gap-2"
+                            onClick={() => handleDocHistory(invoice)}
+                          >
                             <FileText className="h-4 w-4" />
                             Doc History
                           </DropdownMenuItem>
@@ -392,7 +400,10 @@ const Invoices = () => {
                       <DropdownMenuSeparator />
                       {invoice.status === "Open" && (
                         <>
-                          <DropdownMenuItem className="gap-2">
+                          <DropdownMenuItem 
+                            className="gap-2"
+                            onClick={() => handleDocHistory(invoice)}
+                          >
                             <FileText className="h-4 w-4" />
                             Doc History
                           </DropdownMenuItem>
