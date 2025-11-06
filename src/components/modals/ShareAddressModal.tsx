@@ -43,21 +43,21 @@ export const ShareAddressModal = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[95vw] max-w-[600px] p-0 sm:p-6 mx-4 sm:mx-auto">
-        <DialogHeader className="bg-primary text-primary-foreground p-4 sm:p-6 -mt-6 -mx-6 mb-4 sm:mb-6">
-          <div className="flex items-center justify-between">
-            <DialogTitle className="text-xl sm:text-2xl font-bold">Share Address</DialogTitle>
+      <DialogContent className="w-[95vw] max-w-[600px] p-0 mx-auto overflow-hidden sm:rounded-lg [&>button]:hidden">
+        <DialogHeader className="bg-primary text-primary-foreground p-4 sm:p-6 rounded-t-lg sm:rounded-t-lg">
+          <div className="flex items-center justify-between gap-2">
+            <DialogTitle className="text-xl sm:text-2xl font-bold text-white">Share Address</DialogTitle>
             <Button
               variant="ghost"
-              className="text-primary-foreground hover:bg-primary-foreground/20 h-10 w-10 sm:h-8 sm:w-8 p-0 touch-target"
+              className="text-primary-foreground hover:bg-primary-foreground/20 h-10 w-10 sm:h-8 sm:w-8 p-0 touch-target flex-shrink-0"
               onClick={() => onOpenChange(false)}
             >
-              <X className="h-5 w-5 sm:h-5 sm:w-5" />
+              <X className="h-5 w-5" />
             </Button>
           </div>
         </DialogHeader>
 
-        <div className="space-y-4 sm:space-y-6 px-4 sm:px-6 pb-4 sm:pb-6">
+        <div className="space-y-4 sm:space-y-6 p-4 sm:p-6">
           <div className="space-y-2">
             <Label className="text-base sm:text-lg text-muted-foreground font-medium">Select Employee</Label>
             <Select value={selectedEmployee} onValueChange={setSelectedEmployee}>
