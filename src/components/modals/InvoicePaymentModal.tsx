@@ -6,6 +6,7 @@ import { ArrowLeft, Zap, Wifi, MoreVertical, CreditCard, DollarSign, RefreshCw, 
 import { toast } from "sonner";
 import { CardDetailsModal } from "./CardDetailsModal";
 import { ACHPaymentModal } from "./ACHPaymentModal";
+import { PayCashModal } from "./PayCashModal";
 
 interface InvoicePaymentModalProps {
   open: boolean;
@@ -17,6 +18,7 @@ export const InvoicePaymentModal = ({ open, onOpenChange, invoice }: InvoicePaym
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<"tap" | "card" | "cash" | "ach" | null>(null);
   const [showCardDetailsModal, setShowCardDetailsModal] = useState(false);
   const [showACHModal, setShowACHModal] = useState(false);
+  const [showPayCashModal, setShowPayCashModal] = useState(false);
 
   if (!invoice) return null;
 
@@ -25,8 +27,7 @@ export const InvoicePaymentModal = ({ open, onOpenChange, invoice }: InvoicePaym
   const handlePaymentMethodSelect = (method: "tap" | "card" | "cash" | "ach") => {
     setSelectedPaymentMethod(method);
     if (method === "cash") {
-      toast.success("Cash payment selected");
-      // Handle cash payment
+      setShowPayCashModal(true);
     } else if (method === "card") {
       setShowCardDetailsModal(true);
     } else if (method === "tap") {
@@ -186,6 +187,14 @@ export const InvoicePaymentModal = ({ open, onOpenChange, invoice }: InvoicePaym
         open={showACHModal}
         onOpenChange={setShowACHModal}
         totalAmount={totalAmount}
+        onPaymentComplete={handlePaymentComplete}
+      />
+
+      <PayCashModal
+        open={showPayCashModal}
+        onOpenChange={setShowPayCashModal}
+        orderAmount={totalAmount}
+        orderId={invoice.id || invoice.orderId || ""}
         onPaymentComplete={handlePaymentComplete}
       />
     </Dialog>
