@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Label } from "@/components/ui/label";
 import { SendEmailModal } from "@/components/modals/SendEmailModal";
 import { toast } from "sonner";
 import {
@@ -197,7 +198,7 @@ const EstimateReport = () => {
         {/* Filters */}
         <div className="flex items-end gap-4 flex-wrap">
           <div className="space-y-2">
-            <label className="text-sm font-medium text-muted-foreground">Date Range</label>
+            <Label className="text-sm font-medium text-muted-foreground">Date Range</Label>
             <Popover>
               <PopoverTrigger asChild>
                 <Button variant="outline" className="w-[200px] justify-start text-left font-normal gap-2 h-10">
@@ -223,7 +224,7 @@ const EstimateReport = () => {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-muted-foreground">Days</label>
+            <Label className="text-sm font-medium text-muted-foreground">Days</Label>
             <Select value={days} onValueChange={setDays}>
               <SelectTrigger className="w-[200px]">
                 <SelectValue placeholder="All" />
@@ -238,7 +239,7 @@ const EstimateReport = () => {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-muted-foreground">Status</label>
+            <Label className="text-sm font-medium text-muted-foreground">Status</Label>
             <Select value={status} onValueChange={setStatus}>
               <SelectTrigger className="w-[200px]">
                 <SelectValue placeholder="All" />
@@ -252,7 +253,7 @@ const EstimateReport = () => {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-muted-foreground">Employee</label>
+            <Label className="text-sm font-medium text-muted-foreground">Employee</Label>
             <Select value={employee} onValueChange={setEmployee}>
               <SelectTrigger className="w-[200px]">
                 <SelectValue placeholder="All" />
@@ -266,7 +267,7 @@ const EstimateReport = () => {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-muted-foreground opacity-0">Actions</label>
+            <Label className="text-sm font-medium text-muted-foreground opacity-0">Actions</Label>
             <div className="flex items-center gap-2">
               <Button
                 variant="outline"
