@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -124,8 +124,8 @@ export const EmployeeFormModal = ({ open, onOpenChange, employee, mode }: Employ
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto p-0">
         {/* Header with orange gradient */}
-        <DialogHeader className="bg-gradient-to-r from-orange-500 to-orange-600 text-white p-6 rounded-t-lg">
-          <div className="flex items-center justify-between">
+        <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white p-4 rounded-t-lg">
+          <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-3">
               <Button
                 variant="ghost"
@@ -135,9 +135,9 @@ export const EmployeeFormModal = ({ open, onOpenChange, employee, mode }: Employ
               >
                 <ChevronLeft className="h-5 w-5" />
               </Button>
-              <DialogTitle className="text-2xl font-bold text-white">
+              <h2 className="text-2xl font-bold text-white">
                 {mode === "create" ? "Add New Employee" : "Edit Employee"}
-              </DialogTitle>
+              </h2>
             </div>
             <Button
               variant="ghost"
@@ -148,10 +148,10 @@ export const EmployeeFormModal = ({ open, onOpenChange, employee, mode }: Employ
               <X className="h-5 w-5" />
             </Button>
           </div>
-          <DialogDescription className="text-white/90 mt-2">
+          <p className="text-white/90 text-sm ml-11">
             {mode === "create" ? "Add a new team member to your organization." : "Update employee information."}
-          </DialogDescription>
-        </DialogHeader>
+          </p>
+        </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           {/* Employee Details Section */}
