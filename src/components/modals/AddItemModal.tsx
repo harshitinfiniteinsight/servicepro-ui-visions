@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { InventoryFormModal } from "./InventoryFormModal";
 import { AddCustomItemModal } from "./AddCustomItemModal";
+import { SelectInventoryModal } from "./SelectInventoryModal";
 
 interface AddItemModalProps {
   open: boolean;
@@ -22,6 +23,7 @@ export const AddItemModal = ({ open, onOpenChange, onAddItem, context = "invoice
   const [searchQuery, setSearchQuery] = useState("");
   const [showCustomItemModal, setShowCustomItemModal] = useState(false);
   const [showInventoryModal, setShowInventoryModal] = useState(false);
+  const [showSelectInventoryModal, setShowSelectInventoryModal] = useState(false);
   const [selectedInventory, setSelectedInventory] = useState<any>(null);
   const [customPrice, setCustomPrice] = useState("");
 
@@ -78,8 +80,26 @@ export const AddItemModal = ({ open, onOpenChange, onAddItem, context = "invoice
     resetModal();
   };
 
+  const handleInventorySelected = (inventory: any, customPrice?: number) => {
+    const price = customPrice !== undefined ? customPrice : inventory.price;
+    const typeLabel = inventory.type === "Variable" ? "V" : inventory.type === "Fixed" ? "F" : "U";
+    
+    onAddItem({
+      description: `${inventory.name} (${typeLabel})`,
+      quantity: 1,
+      rate: price,
+      amount: price,
+      type: "inventory",
+      inventoryId: inventory.id,
+      sku: inventory.sku,
+    });
+    setShowSelectInventoryModal(false);
+    resetModal();
+  };
+
   const resetModal = () => {
     setShowCustomItemModal(false);
+    setShowSelectInventoryModal(false);
     setSelectedInventory(null);
     setCustomPrice("");
     setSearchQuery("");
@@ -119,7 +139,7 @@ export const AddItemModal = ({ open, onOpenChange, onAddItem, context = "invoice
                 Add Custom Item
               </Button>
               <Button
-                onClick={() => setShowInventoryModal(true)}
+                onClick={() => setShowSelectInventoryModal(true)}
                 variant="outline"
                 className="h-14 gap-2 touch-target"
               >
@@ -232,11 +252,10 @@ export const AddItemModal = ({ open, onOpenChange, onAddItem, context = "invoice
         )}
       </DialogContent>
 
-      <InventoryFormModal
-        open={showInventoryModal}
-        onOpenChange={setShowInventoryModal}
-        mode="create"
-        onInventoryAdded={handleInventoryAdded}
+      <SelectInventoryModal
+        open={showSelectInventoryModal}
+        onOpenChange={setShowSelectInventoryModal}
+        onSelectInventory={handleInventorySelected}
       />
       <AddCustomItemModal
         open={showCustomItemModal}
