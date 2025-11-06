@@ -205,12 +205,12 @@ const InvoiceReport = () => {
         </div>
 
         {/* Filters */}
-        <div className="flex items-center gap-4 flex-wrap">
+        <div className="flex items-end gap-4 flex-wrap">
           <div className="space-y-2">
             <label className="text-sm font-medium text-muted-foreground">Date Range</label>
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="outline" className="w-[200px] justify-start text-left font-normal gap-2">
+                <Button variant="outline" className="w-[200px] justify-start text-left font-normal gap-2 h-10">
                   <CalendarRange className="h-4 w-4" />
                   {dateRange.from && dateRange.to ? (
                     <>
@@ -288,44 +288,47 @@ const InvoiceReport = () => {
             </Select>
           </div>
 
-          <div className="flex items-end gap-2">
-            <Button
-              variant="outline"
-              onClick={handleClearFilters}
-              className="gap-2"
-            >
-              Clear Filter
-              <Filter className="h-4 w-4" />
-            </Button>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="h-10 w-10"
-                >
-                  <Download className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={handleDownloadPDF} className="gap-2">
-                  <FileText className="h-4 w-4" />
-                  Download as PDF
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleDownloadCSV} className="gap-2">
-                  <FileSpreadsheet className="h-4 w-4" />
-                  Download as CSV
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={handleSendEmail}
-              className="h-10 w-10"
-            >
-              <Mail className="h-4 w-4" />
-            </Button>
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-muted-foreground opacity-0">Actions</label>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                onClick={handleClearFilters}
+                className="gap-2 h-10"
+              >
+                Clear Filter
+                <Filter className="h-4 w-4" />
+              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="h-10 w-10"
+                  >
+                    <Download className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={handleDownloadPDF} className="gap-2">
+                    <FileText className="h-4 w-4" />
+                    Download as PDF
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleDownloadCSV} className="gap-2">
+                    <FileSpreadsheet className="h-4 w-4" />
+                    Download as CSV
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={handleSendEmail}
+                className="h-10 w-10"
+              >
+                <Mail className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </div>
 
