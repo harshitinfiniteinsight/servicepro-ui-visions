@@ -193,6 +193,21 @@ const InvoiceReport = () => {
         {/* Filters */}
         <div className="flex items-center gap-4 flex-wrap">
           <div className="space-y-2">
+            <label className="text-sm font-medium text-muted-foreground">Days</label>
+            <Select value={days} onValueChange={setDays}>
+              <SelectTrigger className="w-[200px]">
+                <SelectValue placeholder="All" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="7">Last 7 days</SelectItem>
+                <SelectItem value="30">Last 30 days</SelectItem>
+                <SelectItem value="90">Last 90 days</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
             <label className="text-sm font-medium text-muted-foreground">Status</label>
             <Select value={status} onValueChange={setStatus}>
               <SelectTrigger className="w-[200px]">
@@ -216,21 +231,6 @@ const InvoiceReport = () => {
                 <SelectItem value="all">All</SelectItem>
                 <SelectItem value="recurring">Recurring</SelectItem>
                 <SelectItem value="single">Single</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-muted-foreground">Days</label>
-            <Select value={days} onValueChange={setDays}>
-              <SelectTrigger className="w-[200px]">
-                <SelectValue placeholder="All" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All</SelectItem>
-                <SelectItem value="7">Last 7 days</SelectItem>
-                <SelectItem value="30">Last 30 days</SelectItem>
-                <SelectItem value="90">Last 90 days</SelectItem>
               </SelectContent>
             </Select>
           </div>
