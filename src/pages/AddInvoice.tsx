@@ -747,7 +747,8 @@ const AddInvoice = () => {
       <InventoryFormModal
         open={showAddInventoryModal}
         onOpenChange={setShowAddInventoryModal}
-        onSave={(inventory) => {
+        mode="create"
+        onInventoryAdded={(inventory) => {
           toast.success("Item added to inventory successfully!");
           setShowAddInventoryModal(false);
         }}

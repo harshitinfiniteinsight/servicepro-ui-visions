@@ -78,25 +78,6 @@ export const InvoicePaymentModal = ({ open, onOpenChange, invoice }: InvoicePaym
             <p className="text-4xl font-bold text-foreground">${totalAmount.toFixed(2)}</p>
           </div>
 
-          {/* Floating Overlay Bar */}
-          <div className="bg-gray-800 rounded-lg px-4 py-3 flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="relative">
-                <Zap className="h-5 w-5 text-white" />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="h-6 w-0.5 bg-white rotate-45" />
-                </div>
-              </div>
-              <div className="h-5 w-px bg-gray-600" />
-              <div className="relative">
-                <Wifi className="h-5 w-5 text-white" />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="h-6 w-0.5 bg-white rotate-45" />
-                </div>
-              </div>
-            </div>
-            <MoreVertical className="h-5 w-5 text-white" />
-          </div>
 
           {/* Payment Options Section */}
           <div>
