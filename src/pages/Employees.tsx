@@ -13,6 +13,8 @@ const Employees = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("active");
+  const [selectedEmployee, setSelectedEmployee] = useState<any>(null);
+  const [modalMode, setModalMode] = useState<"create" | "edit">("create");
 
   const filteredEmployees = mockEmployees.filter((employee) =>
     employee.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -24,7 +26,12 @@ const Employees = () => {
   const deactivatedEmployees = filteredEmployees.filter((e) => e.status === "Deactivated");
 
   const handleEdit = (employeeId: string, employeeName: string) => {
-    toast.info(`Edit ${employeeName}`);
+    const employee = mockEmployees.find((e) => e.id === employeeId);
+    if (employee) {
+      setSelectedEmployee(employee);
+      setModalMode("edit");
+      setModalOpen(true);
+    }
   };
 
   const handleDeactivate = (employeeId: string, employeeName: string) => {
@@ -45,7 +52,14 @@ const Employees = () => {
             <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Employees</h1>
             <p className="text-sm sm:text-base text-muted-foreground">Manage your team members</p>
           </div>
-          <Button onClick={() => setModalOpen(true)} className="gap-2 touch-target w-full sm:w-auto">
+          <Button 
+            onClick={() => {
+              setSelectedEmployee(null);
+              setModalMode("create");
+              setModalOpen(true);
+            }} 
+            className="gap-2 touch-target w-full sm:w-auto"
+          >
             <Plus className="h-4 w-4 sm:h-5 sm:w-5" />
             Add Employee
           </Button>
@@ -103,7 +117,17 @@ const Employees = () => {
           </TabsContent>
         </Tabs>
 
-        <EmployeeFormModal open={modalOpen} onOpenChange={setModalOpen} mode="create" />
+        <EmployeeFormModal 
+          open={modalOpen} 
+          onOpenChange={(open) => {
+            setModalOpen(open);
+            if (!open) {
+              setSelectedEmployee(null);
+            }
+          }} 
+          employee={selectedEmployee}
+          mode={modalMode} 
+        />
       </main>
     </div>
   );

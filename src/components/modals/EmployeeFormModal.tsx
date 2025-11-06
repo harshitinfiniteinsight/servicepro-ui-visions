@@ -1,10 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Palette } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Separator } from "@/components/ui/separator";
+import { Clock, ChevronLeft, X } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface EmployeeFormModalProps {
   open: boolean;
@@ -13,131 +16,354 @@ interface EmployeeFormModalProps {
   mode: "create" | "edit";
 }
 
-const EMPLOYEE_COLORS = [
-  { name: "Blue", value: "#3B82F6" },
-  { name: "Green", value: "#10B981" },
-  { name: "Purple", value: "#8B5CF6" },
-  { name: "Orange", value: "#F97316" },
-  { name: "Pink", value: "#EC4899" },
-  { name: "Yellow", value: "#EAB308" },
-  { name: "Red", value: "#EF4444" },
-  { name: "Teal", value: "#14B8A6" },
+const WEEK_DAYS = [
+  { label: "S", value: "Sunday", fullLabel: "Sunday" },
+  { label: "M", value: "Monday", fullLabel: "Monday" },
+  { label: "T", value: "Tuesday", fullLabel: "Tuesday" },
+  { label: "W", value: "Wednesday", fullLabel: "Wednesday" },
+  { label: "T", value: "Thursday", fullLabel: "Thursday" },
+  { label: "F", value: "Friday", fullLabel: "Friday" },
+  { label: "S", value: "Saturday", fullLabel: "Saturday" },
+];
+
+const TIMEZONES = [
+  "America/Los_Angeles",
+  "America/New_York",
+  "America/Chicago",
+  "America/Denver",
+  "Europe/London",
+  "Europe/Paris",
+  "Asia/Kolkata",
+  "Asia/Tokyo",
+  "Australia/Sydney",
 ];
 
 export const EmployeeFormModal = ({ open, onOpenChange, employee, mode }: EmployeeFormModalProps) => {
-  const [formData, setFormData] = useState({
-    name: employee?.name || "",
-    email: employee?.email || "",
-    phone: employee?.phone || "",
-    role: employee?.role || "Employee",
-    hireDate: employee?.hireDate || "",
-    color: employee?.color || "#3B82F6",
-  });
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [birthdate, setBirthdate] = useState("");
+  const [role, setRole] = useState("Employee");
+  const [allowLoginOutsideHours, setAllowLoginOutsideHours] = useState(false);
+  const [timezone, setTimezone] = useState("America/Los_Angeles");
+  const [selectedDays, setSelectedDays] = useState<string[]>([]);
+  const [dayTimes, setDayTimes] = useState<Record<string, { start: string; end: string }>>({});
+
+  useEffect(() => {
+    if (employee && open) {
+      // Split name into first and last name
+      const nameParts = (employee.name || "").split(" ");
+      setFirstName(nameParts[0] || "");
+      setLastName(nameParts.slice(1).join(" ") || "");
+      setEmail(employee.email || "");
+      setPhoneNumber(employee.phone || "");
+      setBirthdate(employee.birthdate || "");
+      setRole(employee.role || "Employee");
+      setAllowLoginOutsideHours(employee.allowLoginOutsideHours || false);
+      setTimezone(employee.timezone || "America/Los_Angeles");
+      setSelectedDays(employee.workingDays || []);
+      setDayTimes(employee.dayTimes || {});
+    } else if (!employee && open) {
+      // Reset form for new employee
+      setFirstName("");
+      setLastName("");
+      setEmail("");
+      setPhoneNumber("");
+      setBirthdate("");
+      setRole("Employee");
+      setAllowLoginOutsideHours(false);
+      setTimezone("America/Los_Angeles");
+      setSelectedDays([]);
+      setDayTimes({});
+    }
+  }, [employee, open]);
+
+  const toggleDay = (dayValue: string) => {
+    setSelectedDays((prev) => {
+      if (prev.includes(dayValue)) {
+        const newDays = prev.filter((d) => d !== dayValue);
+        const newDayTimes = { ...dayTimes };
+        delete newDayTimes[dayValue];
+        setDayTimes(newDayTimes);
+        return newDays;
+      } else {
+        return [...prev, dayValue];
+      }
+    });
+  };
+
+  const updateDayTime = (dayValue: string, field: "start" | "end", value: string) => {
+    setDayTimes((prev) => ({
+      ...prev,
+      [dayValue]: {
+        ...prev[dayValue],
+        [field]: value,
+      },
+    }));
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Form submitted:", formData);
+    console.log("Form submitted:", {
+      firstName,
+      lastName,
+      email,
+      phoneNumber,
+      birthdate,
+      role,
+      allowLoginOutsideHours,
+      timezone,
+      selectedDays,
+      dayTimes,
+    });
     onOpenChange(false);
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[550px]">
-        <DialogHeader>
-          <DialogTitle>{mode === "create" ? "Add New Employee" : "Edit Employee"}</DialogTitle>
-          <DialogDescription>
+      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto p-0">
+        {/* Header with orange gradient */}
+        <DialogHeader className="bg-gradient-to-r from-orange-500 to-orange-600 text-white p-6 rounded-t-lg">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-white hover:bg-white/20 h-8 w-8"
+                onClick={() => onOpenChange(false)}
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </Button>
+              <DialogTitle className="text-2xl font-bold text-white">
+                {mode === "create" ? "Add New Employee" : "Edit Employee"}
+              </DialogTitle>
+            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-white hover:bg-white/20 h-8 w-8"
+              onClick={() => onOpenChange(false)}
+            >
+              <X className="h-5 w-5" />
+            </Button>
+          </div>
+          <DialogDescription className="text-white/90 mt-2">
             {mode === "create" ? "Add a new team member to your organization." : "Update employee information."}
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit}>
-          <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
-              <Label htmlFor="name">Full Name *</Label>
-              <Input
-                id="name"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                placeholder="John Doe"
-                required
-              />
-            </div>
+
+        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+          {/* Employee Details Section */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-foreground">Employee Details</h3>
             
-            <div className="grid gap-2">
-              <Label htmlFor="email">Email *</Label>
-              <Input
-                id="email"
-                type="email"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                placeholder="john@servicepro911.com"
-                required
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="firstName">First Name *</Label>
+                <Input
+                  id="firstName"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  placeholder="Harry"
+                  required
+                  className="h-10"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="lastName">Last Name *</Label>
+                <Input
+                  id="lastName"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  placeholder="Potter"
+                  required
+                  className="h-10"
+                />
+              </div>
             </div>
-            
-            <div className="grid gap-2">
-              <Label htmlFor="phone">Phone Number *</Label>
-              <Input
-                id="phone"
-                value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                placeholder="+1 (555) 123-4567"
-                required
-              />
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email *</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="harry@yopmail.com"
+                  required
+                  className="h-10"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="phoneNumber">Phone Number *</Label>
+                <Input
+                  id="phoneNumber"
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  placeholder="11247528655"
+                  required
+                  className="h-10"
+                />
+              </div>
             </div>
-            
-            <div className="grid gap-2">
-              <Label htmlFor="role">Role *</Label>
-              <Select value={formData.role} onValueChange={(value) => setFormData({ ...formData, role: value })}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Admin">Admin</SelectItem>
-                  <SelectItem value="Manager">Manager</SelectItem>
-                  <SelectItem value="Employee">Employee</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div className="grid gap-2">
-              <Label htmlFor="hireDate">Hire Date *</Label>
-              <Input
-                id="hireDate"
-                type="date"
-                value={formData.hireDate}
-                onChange={(e) => setFormData({ ...formData, hireDate: e.target.value })}
-                required
-              />
-            </div>
-            
-            <div className="grid gap-2">
-              <Label className="flex items-center gap-2">
-                <Palette className="h-4 w-4" />
-                Assign Color
-              </Label>
-              <div className="grid grid-cols-8 gap-2">
-                {EMPLOYEE_COLORS.map((color) => (
-                  <button
-                    key={color.value}
-                    type="button"
-                    onClick={() => setFormData({ ...formData, color: color.value })}
-                    className={`h-10 w-10 rounded-md border-2 transition-all ${
-                      formData.color === color.value
-                        ? "border-foreground scale-110 shadow-md"
-                        : "border-border hover:scale-105"
-                    }`}
-                    style={{ backgroundColor: color.value }}
-                    title={color.name}
-                  />
-                ))}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="birthdate">Birthdate : MM/DD/YYYY</Label>
+                <Input
+                  id="birthdate"
+                  type="date"
+                  value={birthdate}
+                  onChange={(e) => setBirthdate(e.target.value)}
+                  className="h-10"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="role">Role *</Label>
+                <Select value={role} onValueChange={setRole}>
+                  <SelectTrigger className="h-10">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Admin">Admin</SelectItem>
+                    <SelectItem value="Manager">Manager</SelectItem>
+                    <SelectItem value="Employee">Employee</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </div>
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+
+          <Separator />
+
+          {/* Working Hours Section */}
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-lg font-semibold text-orange-600 mb-2">Working Hours</h3>
+              <p className="text-sm text-muted-foreground">
+                Set up the time slots during which the employee may log into the system. Share the scheduled times with the employee. 
+                If you do not set up employee specific times the employee will be able to log in at any time.
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="allowLoginOutsideHours"
+                  checked={allowLoginOutsideHours}
+                  onCheckedChange={(checked) => setAllowLoginOutsideHours(checked as boolean)}
+                />
+                <Label htmlFor="allowLoginOutsideHours" className="text-sm font-medium cursor-pointer">
+                  Allow employee to login outside working hours
+                </Label>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="timezone">Select Timezone</Label>
+                <Select value={timezone} onValueChange={setTimezone}>
+                  <SelectTrigger className="h-10">
+                    <SelectValue placeholder="Choose timezone" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {TIMEZONES.map((tz) => (
+                      <SelectItem key={tz} value={tz}>
+                        {tz}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-3">
+                <Label>Select Days</Label>
+                <div className="flex gap-2 flex-wrap">
+                  {WEEK_DAYS.map((day) => {
+                    const isSelected = selectedDays.includes(day.value);
+                    return (
+                      <button
+                        key={day.value}
+                        type="button"
+                        onClick={() => toggleDay(day.value)}
+                        className={cn(
+                          "h-10 w-10 rounded-full border-2 font-semibold text-sm transition-all",
+                          isSelected
+                            ? "bg-orange-500 text-white border-orange-500 shadow-md"
+                            : "bg-background text-muted-foreground border-border hover:border-orange-300 hover:text-orange-600"
+                        )}
+                        title={day.fullLabel}
+                      >
+                        {day.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Time inputs for selected days */}
+              {selectedDays.length > 0 && (
+                <div className="space-y-3 pt-2">
+                  <Label>Working Hours for Selected Days</Label>
+                  <div className="space-y-3">
+                    {selectedDays.map((dayValue) => {
+                      const day = WEEK_DAYS.find((d) => d.value === dayValue);
+                      const times = dayTimes[dayValue] || { start: "", end: "" };
+                      return (
+                        <div key={dayValue} className="p-4 border rounded-lg bg-muted/30">
+                          <div className="flex items-center justify-between mb-3">
+                            <span className="font-medium text-foreground">{day?.fullLabel}</span>
+                          </div>
+                          <div className="grid grid-cols-2 gap-3">
+                            <div className="space-y-2">
+                              <Label className="text-xs text-muted-foreground">Start Time</Label>
+                              <div className="relative">
+                                <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                <Input
+                                  type="time"
+                                  value={times.start}
+                                  onChange={(e) => updateDayTime(dayValue, "start", e.target.value)}
+                                  className="pl-10 h-10"
+                                  required
+                                />
+                              </div>
+                            </div>
+                            <div className="space-y-2">
+                              <Label className="text-xs text-muted-foreground">End Time</Label>
+                              <div className="relative">
+                                <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                <Input
+                                  type="time"
+                                  value={times.end}
+                                  onChange={(e) => updateDayTime(dayValue, "end", e.target.value)}
+                                  className="pl-10 h-10"
+                                  required
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <DialogFooter className="pt-4 border-t">
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="h-10">
               Cancel
             </Button>
-            <Button type="submit">{mode === "create" ? "Add Employee" : "Save Changes"}</Button>
+            <Button 
+              type="submit" 
+              className="h-10 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold"
+            >
+              {mode === "create" ? "Add Employee" : "Edit Employee"}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>
