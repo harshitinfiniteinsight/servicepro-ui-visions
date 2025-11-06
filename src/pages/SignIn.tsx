@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { Eye, EyeOff, Lock, Mail, Wrench, Hammer, Zap, Wind } from "lucide-react";
+import { Eye, EyeOff, Lock, Mail, Wrench, Hammer, Zap, Wind, Briefcase } from "lucide-react";
 import { ForgotPasswordModal } from "@/components/modals/ForgotPasswordModal";
 
 const demoBusinesses = [
@@ -37,6 +37,13 @@ const demoBusinesses = [
     icon: Wind,
     color: "from-cyan-500 to-blue-600",
     description: "Heating, Cooling & Air Quality",
+  },
+  {
+    id: "general",
+    name: "General Service",
+    icon: Briefcase,
+    color: "from-purple-500 to-indigo-600",
+    description: "Multi-Service & General Contractor",
   },
 ];
 

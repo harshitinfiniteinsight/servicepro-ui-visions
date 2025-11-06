@@ -1,10 +1,18 @@
 import { useState } from "react";
-import { ChevronLeft, Info, Search, Filter } from "lucide-react";
+import { ChevronLeft, Info, Search, Filter, Download, FileText, Mail, FileSpreadsheet } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { SendEmailModal } from "@/components/modals/SendEmailModal";
+import { toast } from "sonner";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 // Mock data for Invoice Report
 const invoiceData = [
@@ -31,6 +39,7 @@ const InvoiceReport = () => {
   const [paymentType, setPaymentType] = useState("all");
   const [days, setDays] = useState("all");
   const [employee, setEmployee] = useState("all");
+  const [emailModalOpen, setEmailModalOpen] = useState(false);
 
   const handleClearFilters = () => {
     setSearch("");
@@ -38,6 +47,98 @@ const InvoiceReport = () => {
     setPaymentType("all");
     setDays("all");
     setEmployee("all");
+  };
+
+  const handleDownloadPDF = () => {
+    // Create PDF content
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) return;
+
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Invoice Report</title>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 20px; }
+            h1 { color: #333; }
+            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+            th { background-color: #f2f2f2; font-weight: bold; }
+          </style>
+        </head>
+        <body>
+          <h1>Service Pro911 - Invoice Report</h1>
+          <p>Date Range: 08/01/2025 TO 10/27/2025</p>
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>OrderID</th>
+                <th>Customer Name</th>
+                <th>Employee Name</th>
+                <th>Order Amount</th>
+                <th>Status</th>
+                <th>Payment Type</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${invoiceData.map(invoice => `
+                <tr>
+                  <td>${invoice.date}</td>
+                  <td>${invoice.orderId}</td>
+                  <td>${invoice.customerName}</td>
+                  <td>${invoice.employeeName}</td>
+                  <td>${invoice.amount}</td>
+                  <td>${invoice.status}</td>
+                  <td>${invoice.paymentType}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </body>
+      </html>
+    `;
+    
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+    printWindow.print();
+    toast.success("PDF download initiated");
+  };
+
+  const handleDownloadCSV = () => {
+    // Create CSV content
+    const headers = ['Date', 'OrderID', 'Customer Name', 'Employee Name', 'Order Amount', 'Status', 'Payment Type'];
+    const csvRows = [
+      headers.join(','),
+      ...invoiceData.map(invoice => [
+        invoice.date,
+        invoice.orderId,
+        `"${invoice.customerName}"`,
+        `"${invoice.employeeName}"`,
+        invoice.amount,
+        invoice.status,
+        invoice.paymentType
+      ].join(','))
+    ];
+    
+    const csvContent = csvRows.join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    
+    link.setAttribute('href', url);
+    link.setAttribute('download', `invoice-report-${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    toast.success("CSV file downloaded successfully");
+  };
+
+  const handleSendEmail = () => {
+    setEmailModalOpen(true);
   };
 
   return (
@@ -55,7 +156,36 @@ const InvoiceReport = () => {
             </Button>
             <h1 className="text-2xl font-bold">Service Pro911 - Invoiced Reports</h1>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 font-semibold gap-2"
+                >
+                  <Download className="h-4 w-4" />
+                  <span className="hidden sm:inline">Download</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={handleDownloadPDF} className="gap-2">
+                  <FileText className="h-4 w-4" />
+                  Download as PDF
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleDownloadCSV} className="gap-2">
+                  <FileSpreadsheet className="h-4 w-4" />
+                  Download as CSV
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <Button
+              variant="outline"
+              onClick={handleSendEmail}
+              className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 font-semibold gap-2"
+            >
+              <Mail className="h-4 w-4" />
+              <span className="hidden sm:inline">Send Email</span>
+            </Button>
             <Button
               variant="ghost"
               size="icon"
@@ -194,6 +324,12 @@ const InvoiceReport = () => {
           </Table>
         </div>
       </div>
+
+      <SendEmailModal
+        open={emailModalOpen}
+        onOpenChange={setEmailModalOpen}
+        customerEmail=""
+      />
     </div>
   );
 };
