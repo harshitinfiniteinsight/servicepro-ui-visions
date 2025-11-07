@@ -20,7 +20,7 @@ const EstimateCard = ({ estimate, onClick }: EstimateCardProps) => {
 
   return (
     <div
-      className="p-4 rounded-xl border bg-card active:scale-98 transition-transform cursor-pointer"
+      className="p-4 rounded-xl border border-gray-200 bg-white active:scale-[0.98] transition-all duration-200 cursor-pointer hover:shadow-md hover:border-primary/30"
       onClick={onClick}
     >
       <div className="flex items-start justify-between mb-3">

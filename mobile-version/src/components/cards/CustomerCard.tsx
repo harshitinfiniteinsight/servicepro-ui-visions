@@ -22,11 +22,11 @@ const CustomerCard = ({ customer }: CustomerCardProps) => {
 
   return (
     <div
-      className="p-4 rounded-xl border bg-card active:scale-98 transition-transform cursor-pointer"
+      className="p-4 rounded-xl border border-gray-200 bg-white active:scale-[0.98] transition-all duration-200 cursor-pointer hover:shadow-md hover:border-primary/30"
       onClick={() => navigate(`/customers/${customer.id}`)}
     >
       <div className="flex items-start gap-3">
-        <div className="flex-shrink-0 w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+        <div className="flex-shrink-0 w-12 h-12 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center border-2 border-primary/20">
           <span className="font-bold text-primary text-lg">{initials}</span>
         </div>
         <div className="flex-1 min-w-0">

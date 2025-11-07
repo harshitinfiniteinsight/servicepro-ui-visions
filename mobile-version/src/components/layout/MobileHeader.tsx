@@ -15,7 +15,7 @@ const MobileHeader = ({ title, showBack = false, actions, className }: MobileHea
 
   return (
     <header className={cn(
-      "fixed top-0 left-0 right-0 z-40 bg-background/95 backdrop-blur-sm border-b border-border safe-top",
+      "fixed top-0 left-0 right-0 z-40 bg-white/98 backdrop-blur-md border-b-2 border-gray-200 safe-top shadow-sm",
       className
     )}>
       <div className="flex items-center justify-between h-14 px-4 max-w-md mx-auto">
@@ -25,12 +25,12 @@ const MobileHeader = ({ title, showBack = false, actions, className }: MobileHea
               variant="ghost"
               size="icon"
               onClick={() => navigate(-1)}
-              className="touch-target"
+              className="touch-target hover:bg-gray-100"
             >
-              <ArrowLeft className="h-5 w-5" />
+              <ArrowLeft className="h-5 w-5 text-gray-700" />
             </Button>
           )}
-          <h1 className="text-lg font-bold truncate">{title}</h1>
+          <h1 className="text-lg font-bold truncate text-gray-900">{title}</h1>
         </div>
         {actions && (
           <div className="flex items-center gap-2">

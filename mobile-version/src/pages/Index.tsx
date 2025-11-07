@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Plus, FileText, Briefcase, DollarSign, Calendar, TrendingUp, Users, ClipboardList, Package, BarChart3, Settings } from "lucide-react";
 import { mockAppointments, mockInvoices, mockEstimates, mockJobs } from "@/data/mobileMockData";
+import { cn } from "@/lib/utils";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -70,21 +71,48 @@ const Index = () => {
         <div className="grid grid-cols-2 gap-3">
           {stats.map((stat, index) => {
             const Icon = stat.icon;
+            const isPrimary = index === 0;
             return (
               <MobileCard 
                 key={index} 
-                className="p-4 cursor-pointer active:scale-98 transition-transform"
+                className={cn(
+                  "p-4 cursor-pointer relative overflow-hidden",
+                  isPrimary && "bg-gradient-to-br from-primary/5 to-primary/10 border-primary/30"
+                )}
                 onClick={() => navigate(stat.path)}
               >
-                <div className="flex items-start justify-between mb-2">
-                  <div className={`p-2 rounded-lg bg-muted ${stat.color}`}>
+                {isPrimary && (
+                  <div className="absolute top-0 right-0 w-20 h-20 bg-primary/5 rounded-full -mr-10 -mt-10" />
+                )}
+                <div className="flex items-start justify-between mb-2 relative z-10">
+                  <div className={cn(
+                    "p-2.5 rounded-xl",
+                    isPrimary ? "bg-primary text-white" : `bg-gray-100 ${stat.color}`
+                  )}>
                     <Icon className="h-5 w-5" />
                   </div>
-                  <TrendingUp className="h-4 w-4 text-success" />
+                  {index === 0 && <TrendingUp className="h-4 w-4 text-primary" />}
                 </div>
-                <p className="text-xs text-muted-foreground mb-1">{stat.label}</p>
-                <p className="text-2xl font-bold">{stat.value}</p>
-                {stat.amount && <p className="text-xs text-muted-foreground">{stat.amount}</p>}
+                <p className={cn(
+                  "text-xs mb-1 relative z-10",
+                  isPrimary ? "text-primary font-medium" : "text-muted-foreground"
+                )}>
+                  {stat.label}
+                </p>
+                <p className={cn(
+                  "text-2xl font-bold relative z-10",
+                  isPrimary && "text-primary"
+                )}>
+                  {stat.value}
+                </p>
+                {stat.amount && (
+                  <p className={cn(
+                    "text-xs mt-1 relative z-10",
+                    isPrimary ? "text-primary/70" : "text-muted-foreground"
+                  )}>
+                    {stat.amount}
+                  </p>
+                )}
               </MobileCard>
             );
           })}
@@ -92,7 +120,7 @@ const Index = () => {
 
         {/* Quick Actions */}
         <div>
-          <h3 className="font-semibold mb-3">Quick Actions</h3>
+          <h3 className="font-semibold mb-3 text-gray-900">Quick Actions</h3>
           <div className="grid grid-cols-4 gap-2">
             {quickActions.map((action, index) => {
               const Icon = action.icon;
@@ -100,11 +128,11 @@ const Index = () => {
                 <Button
                   key={index}
                   variant="outline"
-                  className="h-auto flex-col gap-2 py-3"
+                  className="h-auto flex-col gap-2 py-3 border-gray-200 hover:border-primary/50 hover:bg-primary/5 transition-all"
                   onClick={() => navigate(action.path)}
                 >
-                  <Icon className="h-5 w-5" />
-                  <span className="text-xs text-center leading-tight">{action.label}</span>
+                  <Icon className="h-5 w-5 text-gray-700 group-hover:text-primary" />
+                  <span className="text-xs text-center leading-tight text-gray-700">{action.label}</span>
                 </Button>
               );
             })}
@@ -113,21 +141,25 @@ const Index = () => {
 
         {/* Operational Modules */}
         <div>
-          <h3 className="font-semibold mb-3">All Modules</h3>
+          <h3 className="font-semibold mb-3 text-gray-900">All Modules</h3>
           <div className="grid grid-cols-3 gap-3">
             {operationalModules.map((module, index) => {
               const Icon = module.icon;
+              const isPrimary = module.path === "/customers" || module.path === "/invoices";
               return (
                 <Button
                   key={index}
                   variant="outline"
-                  className="h-auto flex-col gap-2 py-4 px-2"
+                  className={cn(
+                    "h-auto flex-col gap-2 py-4 px-2 border-gray-200 transition-all",
+                    isPrimary ? "hover:border-primary/50 hover:bg-primary/5" : "hover:border-gray-300 hover:bg-gray-50"
+                  )}
                   onClick={() => navigate(module.path)}
                 >
-                  <div className={`p-3 rounded-lg ${module.color}`}>
+                  <div className={`p-3 rounded-xl ${module.color} transition-transform group-hover:scale-110`}>
                     <Icon className="h-6 w-6" />
                   </div>
-                  <span className="text-xs text-center leading-tight font-medium">{module.label}</span>
+                  <span className="text-xs text-center leading-tight font-medium text-gray-700">{module.label}</span>
                 </Button>
               );
             })}

@@ -11,8 +11,8 @@ const MobileCard = ({ children, className, onClick }: MobileCardProps) => {
   return (
     <Card
       className={cn(
-        "p-4 cursor-pointer active:scale-98 transition-transform touch-target",
-        onClick && "hover:bg-accent/5",
+        "p-4 cursor-pointer active:scale-[0.98] transition-all duration-200 touch-target",
+        onClick && "hover:bg-gray-50 hover:border-primary/20",
         className
       )}
       onClick={onClick}

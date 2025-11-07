@@ -22,7 +22,7 @@ const JobCard = ({ job, onClick }: JobCardProps) => {
 
   return (
     <div
-      className="p-4 rounded-xl border bg-card active:scale-98 transition-transform cursor-pointer"
+      className="p-4 rounded-xl border border-gray-200 bg-white active:scale-[0.98] transition-all duration-200 cursor-pointer hover:shadow-md hover:border-primary/30"
       onClick={onClick}
     >
       <div className="flex items-start justify-between mb-3">
@@ -48,9 +48,9 @@ const JobCard = ({ job, onClick }: JobCardProps) => {
           <span className="truncate">{job.location}</span>
         </div>
         
-        <div className="flex items-center gap-2 pt-2 border-t">
-          <div className="flex-shrink-0 w-6 h-6 rounded-full bg-accent/10 flex items-center justify-center">
-            <span className="text-xs font-bold text-accent">{techInitials}</span>
+        <div className="flex items-center gap-2 pt-2 border-t border-gray-200">
+          <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20">
+            <span className="text-xs font-bold text-primary">{techInitials}</span>
           </div>
           <span className="text-sm text-muted-foreground">{job.technicianName}</span>
         </div>
