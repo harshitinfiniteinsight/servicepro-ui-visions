@@ -10,7 +10,9 @@ import SignUp from "./pages/SignUp";
 import Index from "./pages/Index";
 import Customers from "./pages/Customers";
 import CustomerDetails from "./pages/CustomerDetails";
+import AddCustomer from "./pages/AddCustomer";
 import Jobs from "./pages/Jobs";
+import AddJob from "./pages/AddJob";
 import Invoices from "./pages/Invoices";
 import AddInvoice from "./pages/AddInvoice";
 import InvoiceDueAlert from "./pages/InvoiceDueAlert";
@@ -24,11 +26,14 @@ import AgreementDetails from "./pages/AgreementDetails";
 import MinimumDepositPercentage from "./pages/MinimumDepositPercentage";
 import Employees from "./pages/Employees";
 import EmployeeDetails from "./pages/EmployeeDetails";
+import AddEmployee from "./pages/AddEmployee";
 import EmployeeSchedule from "./pages/EmployeeSchedule";
 import EmployeeTracking from "./pages/EmployeeTracking";
 import JobDetails from "./pages/JobDetails";
 import Inventory from "./pages/Inventory";
 import InventoryItemDetails from "./pages/InventoryItemDetails";
+import AddInventoryItem from "./pages/AddInventoryItem";
+import AddDiscount from "./pages/AddDiscount";
 import InventoryStockInOut from "./pages/InventoryStockInOut";
 import InventoryRefund from "./pages/InventoryRefund";
 import Discounts from "./pages/Discounts";
@@ -70,11 +75,14 @@ const AppContent = () => {
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/customers" element={<Customers />} />
+            <Route path="/customers/new" element={<AddCustomer />} />
             <Route path="/customers/:id" element={<CustomerDetails />} />
             <Route path="/jobs" element={<Jobs />} />
+            <Route path="/jobs/new" element={<AddJob />} />
             <Route path="/jobs/:id" element={<JobDetails />} />
             <Route path="/appointments/manage" element={<ManageAppointments />} />
             <Route path="/appointments/add" element={<AddAppointment />} />
+            <Route path="/appointments/new" element={<AddAppointment />} />
             <Route path="/invoices" element={<Invoices />} />
             <Route path="/invoices/:id" element={<InvoiceDetails />} />
             <Route path="/invoices/new" element={<AddInvoice />} />
@@ -87,15 +95,18 @@ const AppContent = () => {
             <Route path="/agreements/new" element={<AddAgreement />} />
             <Route path="/agreements/minimum-deposit" element={<MinimumDepositPercentage />} />
             <Route path="/employees" element={<Employees />} />
+            <Route path="/employees/new" element={<AddEmployee />} />
             <Route path="/employees/:id" element={<EmployeeDetails />} />
             <Route path="/employees/schedule" element={<EmployeeSchedule />} />
             <Route path="/employees/tracking" element={<EmployeeTracking />} />
             <Route path="/inventory" element={<Inventory />} />
+            <Route path="/inventory/new" element={<AddInventoryItem />} />
             <Route path="/inventory/:id" element={<InventoryItemDetails />} />
             <Route path="/inventory/alert-settings" element={<LowInventoryAlertSettings />} />
             <Route path="/inventory/stock-in-out" element={<InventoryStockInOut />} />
             <Route path="/inventory/refunds" element={<InventoryRefund />} />
             <Route path="/inventory/discounts" element={<Discounts />} />
+            <Route path="/inventory/discounts/new" element={<AddDiscount />} />
             <Route path="/reports" element={<Reports />} />
             <Route path="/reports/invoice" element={<InvoiceReport />} />
             <Route path="/reports/estimate" element={<EstimateReport />} />
