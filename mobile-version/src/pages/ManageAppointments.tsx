@@ -30,6 +30,7 @@ const ManageAppointments = () => {
     <div className="h-full flex flex-col overflow-hidden">
       <MobileHeader 
         title="Appointments"
+        showBack={true}
         actions={
           <Button size="sm" onClick={() => navigate("/appointments/new")}>
             <Plus className="h-4 w-4" />
@@ -37,7 +38,7 @@ const ManageAppointments = () => {
         }
       />
       
-      <div className="flex-1 overflow-y-auto scrollable pt-14">
+      <div className="flex-1 overflow-y-auto scrollable" style={{ paddingTop: 'calc(3.5rem + env(safe-area-inset-top) + 0.5rem)' }}>
         {/* Week Calendar */}
         <div className="px-4 py-4 border-b bg-muted/30">
           <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">

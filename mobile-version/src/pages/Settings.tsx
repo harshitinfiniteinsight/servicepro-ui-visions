@@ -7,14 +7,19 @@ const Settings = () => {
 
   const operationalModules = [
     {
+      title: "Sales",
+      items: [
+        { icon: FileTextIcon, label: "Invoices", route: "/invoices" },
+        { icon: TrendingUp, label: "Estimates", route: "/estimates" },
+        { icon: ClipboardList, label: "Agreements", route: "/agreements" },
+      ],
+    },
+    {
       title: "Operations",
       items: [
         { icon: Users, label: "Customers", route: "/customers" },
-        { icon: FileTextIcon, label: "Invoices", route: "/invoices" },
-        { icon: TrendingUp, label: "Estimates", route: "/estimates" },
         { icon: Briefcase, label: "Jobs", route: "/jobs" },
         { icon: Calendar, label: "Appointments", route: "/appointments/manage" },
-        { icon: ClipboardList, label: "Agreements", route: "/agreements" },
         { icon: Users, label: "Employees", route: "/employees" },
         { icon: Package, label: "Inventory", route: "/inventory" },
         { icon: BarChart3, label: "Reports", route: "/reports" },

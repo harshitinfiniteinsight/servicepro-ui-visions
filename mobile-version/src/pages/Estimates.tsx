@@ -7,32 +7,83 @@ import { mockEstimates } from "@/data/mobileMockData";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Search, FileText, DollarSign } from "lucide-react";
+import { Plus, Search, FileText, DollarSign, CreditCard, CheckCircle, MoreVertical, Eye, Mail, MessageSquare, Edit, MapPin, UserCog, History, X, RotateCcw } from "lucide-react";
+import { toast } from "sonner";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const Estimates = () => {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("activate");
   
   const filteredEstimates = mockEstimates.filter(est => {
     const matchesSearch = est.id.toLowerCase().includes(search.toLowerCase()) ||
                          est.customerName.toLowerCase().includes(search.toLowerCase());
-    const matchesStatus = statusFilter === "all" || est.status.toLowerCase() === statusFilter.toLowerCase();
-    return matchesSearch && matchesStatus;
+    // Filter by tab
+    // Activate: Both Paid and Unpaid estimates
+    // Deactivated: Only Unpaid estimates
+    if (statusFilter === "activate") {
+      return matchesSearch; // Show all estimates in activate tab
+    } else {
+      return matchesSearch && est.status === "Unpaid"; // Show only Unpaid in deactivated tab
+    }
   });
 
-  const summary = {
-    total: mockEstimates.length,
-    draft: mockEstimates.filter(e => e.status === "Draft").length,
-    sent: mockEstimates.filter(e => e.status === "Sent").length,
-    approved: mockEstimates.filter(e => e.status === "Approved").length,
-    totalValue: mockEstimates.reduce((sum, e) => sum + e.amount, 0),
+  const handlePayNow = (estimateId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    toast.success("Redirecting to payment...");
+    navigate(`/invoices/new?estimateId=${estimateId}`);
+  };
+
+  const handleActivate = (estimateId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    toast.success("Estimate activated successfully");
+  };
+
+  const handleMenuAction = (action: string, estimateId: string) => {
+    switch (action) {
+      case "preview":
+        navigate(`/estimates/${estimateId}`);
+        break;
+      case "send-email":
+        toast.success("Email sent successfully");
+        break;
+      case "send-sms":
+        toast.success("SMS sent successfully");
+        break;
+      case "edit":
+        navigate(`/estimates/${estimateId}/edit`);
+        break;
+      case "share-address":
+        toast.success("Job address shared");
+        break;
+      case "reassign":
+        toast.success("Employee reassigned");
+        break;
+      case "doc-history":
+        toast.success("Opening document history...");
+        break;
+      case "deactivate":
+        toast.success("Estimate deactivated");
+        break;
+      case "refund":
+        toast.success("Processing refund...");
+        break;
+      default:
+        break;
+    }
   };
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
       <MobileHeader 
         title="Estimates"
+        showBack={true}
         actions={
           <Button size="sm" onClick={() => navigate("/estimates/new")}>
             <Plus className="h-4 w-4" />
@@ -40,7 +91,7 @@ const Estimates = () => {
         }
       />
       
-      <div className="flex-1 overflow-y-auto scrollable pt-14 px-4 pb-6 space-y-4">
+      <div className="flex-1 overflow-y-auto scrollable px-4 pb-6 space-y-4" style={{ paddingTop: 'calc(3.5rem + env(safe-area-inset-top) + 0.5rem)' }}>
         {/* Search */}
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -51,42 +102,124 @@ const Estimates = () => {
             className="pl-10"
           />
         </div>
-        
-        {/* Summary Cards */}
-        <div className="grid grid-cols-2 gap-3">
-          <div className="p-4 rounded-xl bg-primary/5 border border-primary/20">
-            <div className="flex items-center gap-2 mb-1">
-              <FileText className="h-4 w-4 text-primary" />
-              <span className="text-xs font-medium">Total</span>
-            </div>
-            <p className="text-2xl font-bold">{summary.total}</p>
-          </div>
-          <div className="p-4 rounded-xl bg-success/5 border border-success/20">
-            <div className="flex items-center gap-2 mb-1">
-              <DollarSign className="h-4 w-4 text-success" />
-              <span className="text-xs font-medium">Total Value</span>
-            </div>
-            <p className="text-xl font-bold">${summary.totalValue.toLocaleString()}</p>
-          </div>
-        </div>
 
         {/* Status Tabs */}
         <Tabs value={statusFilter} onValueChange={setStatusFilter}>
-          <TabsList className="w-full grid grid-cols-5">
-            <TabsTrigger value="all">All</TabsTrigger>
-            <TabsTrigger value="draft">Draft</TabsTrigger>
-            <TabsTrigger value="sent">Sent</TabsTrigger>
-            <TabsTrigger value="approved">Approved</TabsTrigger>
-            <TabsTrigger value="rejected">Rejected</TabsTrigger>
+          <TabsList className="w-full grid grid-cols-2">
+            <TabsTrigger value="activate">Activate</TabsTrigger>
+            <TabsTrigger value="deactivated">Deactivated</TabsTrigger>
           </TabsList>
 
           <TabsContent value={statusFilter} className="mt-4 space-y-3">
             {filteredEstimates.length > 0 ? (
               filteredEstimates.map(estimate => (
                 <EstimateCard 
-                  key={estimate.id} 
+                  key={estimate.id}
                   estimate={estimate}
                   onClick={() => navigate(`/estimates/${estimate.id}`)}
+                  actionButtons={
+                    statusFilter === "activate" && estimate.status === "Unpaid" ? (
+                      <>
+                        <Button
+                          size="sm"
+                          variant="default"
+                          className="h-8 px-3 text-xs font-semibold touch-target whitespace-nowrap bg-primary hover:bg-primary/90 shadow-sm hover:shadow-md transition-all"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handlePayNow(estimate.id, e);
+                          }}
+                        >
+                          <CreditCard className="h-3.5 w-3.5 mr-1.5" />
+                          Pay Now
+                        </Button>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7 touch-target"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-56">
+                            <DropdownMenuItem onClick={() => handleMenuAction("preview", estimate.id)}>
+                              <Eye className="h-4 w-4 mr-2" />
+                              Preview estimate
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleMenuAction("send-email", estimate.id)}>
+                              <Mail className="h-4 w-4 mr-2" />
+                              Send email
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleMenuAction("send-sms", estimate.id)}>
+                              <MessageSquare className="h-4 w-4 mr-2" />
+                              Send SMS
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleMenuAction("edit", estimate.id)}>
+                              <Edit className="h-4 w-4 mr-2" />
+                              Edit estimate
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleMenuAction("share-address", estimate.id)}>
+                              <MapPin className="h-4 w-4 mr-2" />
+                              Share job address
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleMenuAction("reassign", estimate.id)}>
+                              <UserCog className="h-4 w-4 mr-2" />
+                              Reassign employee
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleMenuAction("doc-history", estimate.id)}>
+                              <History className="h-4 w-4 mr-2" />
+                              Doc history
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => handleMenuAction("deactivate", estimate.id)}
+                              className="text-destructive"
+                            >
+                              <X className="h-4 w-4 mr-2" />
+                              Deactivate
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </>
+                    ) : statusFilter === "activate" && estimate.status === "Paid" ? (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 touch-target"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-56">
+                          <DropdownMenuItem onClick={() => handleMenuAction("preview", estimate.id)}>
+                            <Eye className="h-4 w-4 mr-2" />
+                            Preview
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleMenuAction("refund", estimate.id)}>
+                            <RotateCcw className="h-4 w-4 mr-2" />
+                            Refund
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    ) : statusFilter === "deactivated" && estimate.status === "Unpaid" ? (
+                      <Button
+                        size="sm"
+                        variant="default"
+                        className="h-7 px-3 text-xs touch-target"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleActivate(estimate.id, e);
+                        }}
+                      >
+                        <CheckCircle className="h-3 w-3 mr-1" />
+                        Activate
+                      </Button>
+                    ) : undefined
+                  }
                 />
               ))
             ) : (

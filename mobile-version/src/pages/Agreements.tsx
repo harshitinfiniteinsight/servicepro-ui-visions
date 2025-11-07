@@ -27,7 +27,7 @@ const Agreements = () => {
         }
       />
       
-      <div className="flex-1 overflow-y-auto scrollable pt-14 px-4 pb-6 space-y-4">
+      <div className="flex-1 overflow-y-auto scrollable px-4 pb-6 space-y-4" style={{ paddingTop: 'calc(3.5rem + env(safe-area-inset-top) + 0.5rem)' }}>
         {/* Filters */}
         <div className="flex gap-2">
           {["All", "Active", "Expiring Soon"].map(f => (

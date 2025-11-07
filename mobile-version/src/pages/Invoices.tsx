@@ -33,6 +33,7 @@ const Invoices = () => {
     <div className="h-full flex flex-col overflow-hidden">
       <MobileHeader 
         title="Invoices"
+        showBack={true}
         actions={
           <Button size="sm" onClick={() => navigate("/invoices/new")}>
             <Plus className="h-4 w-4" />
@@ -40,7 +41,7 @@ const Invoices = () => {
         }
       />
       
-      <div className="flex-1 overflow-y-auto scrollable pt-14 px-4 pb-6 space-y-4">
+      <div className="flex-1 overflow-y-auto scrollable px-4 pb-6 space-y-4" style={{ paddingTop: 'calc(3.5rem + env(safe-area-inset-top) + 0.5rem)' }}>
         {/* Search */}
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />

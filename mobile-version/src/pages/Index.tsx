@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, FileText, Briefcase, DollarSign, Calendar, TrendingUp, Users, ClipboardList, Package, BarChart3, Settings } from "lucide-react";
 import { mockAppointments, mockInvoices, mockEstimates, mockJobs } from "@/data/mobileMockData";
 import { cn } from "@/lib/utils";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -26,7 +27,7 @@ const Index = () => {
   const today = new Date().toISOString().split('T')[0];
   const todaysAppointments = mockAppointments.filter(apt => apt.date === today);
   const openInvoices = mockInvoices.filter(inv => inv.status === "Open");
-  const sentEstimates = mockEstimates.filter(est => est.status === "Sent");
+  const sentEstimates = mockEstimates.filter(est => est.status === "Paid");
   const activeJobs = mockJobs.filter(job => job.status === "In Progress" || job.status === "Scheduled");
 
   const stats = [
@@ -36,13 +37,16 @@ const Index = () => {
     { label: "Today's Appointments", value: todaysAppointments.length.toString(), icon: Calendar, color: "text-success", path: "/appointments/manage" },
   ];
 
-  const operationalModules = [
-    { label: "Customers", icon: Users, path: "/customers", color: "bg-primary/10 text-primary" },
+  const salesModules = [
     { label: "Invoices", icon: FileText, path: "/invoices", color: "bg-success/10 text-success" },
     { label: "Estimates", icon: TrendingUp, path: "/estimates", color: "bg-accent/10 text-accent" },
+    { label: "Agreements", icon: ClipboardList, path: "/agreements", color: "bg-purple-500/10 text-purple-500" },
+  ];
+
+  const operationalModules = [
+    { label: "Customers", icon: Users, path: "/customers", color: "bg-primary/10 text-primary" },
     { label: "Jobs", icon: Briefcase, path: "/jobs", color: "bg-warning/10 text-warning" },
     { label: "Appointments", icon: Calendar, path: "/appointments/manage", color: "bg-info/10 text-info" },
-    { label: "Agreements", icon: ClipboardList, path: "/agreements", color: "bg-purple-500/10 text-purple-500" },
     { label: "Employees", icon: Users, path: "/employees", color: "bg-blue-500/10 text-blue-500" },
     { label: "Inventory", icon: Package, path: "/inventory", color: "bg-orange-500/10 text-orange-500" },
     { label: "Reports", icon: BarChart3, path: "/reports", color: "bg-indigo-500/10 text-indigo-500" },
@@ -52,7 +56,7 @@ const Index = () => {
     { label: "New Estimate", path: "/estimates/new", icon: FileText },
     { label: "New Invoice", path: "/invoices/new", icon: DollarSign },
     { label: "Add Appointment", path: "/appointments/add", icon: Calendar },
-    { label: "New Job", path: "/jobs/new", icon: Briefcase },
+    { label: "New Agreement", path: "/agreements/new", icon: ClipboardList },
   ];
 
   return (
@@ -66,7 +70,7 @@ const Index = () => {
         }
       />
 
-      <div className="flex-1 overflow-y-auto scrollable pt-14 px-4 pb-6 space-y-4">
+      <div className="flex-1 overflow-y-auto scrollable px-4 pb-6 space-y-4" style={{ paddingTop: 'calc(3.5rem + env(safe-area-inset-top) + 0.5rem)' }}>
         {/* Stats Grid */}
         <div className="grid grid-cols-2 gap-3">
           {stats.map((stat, index) => {
@@ -84,55 +88,88 @@ const Index = () => {
                 {isPrimary && (
                   <div className="absolute top-0 right-0 w-20 h-20 bg-primary/5 rounded-full -mr-10 -mt-10" />
                 )}
-                <div className="flex items-start justify-between mb-2 relative z-10">
-                  <div className={cn(
-                    "p-2.5 rounded-xl",
-                    isPrimary ? "bg-primary text-white" : `bg-gray-100 ${stat.color}`
-                  )}>
-                    <Icon className="h-5 w-5" />
+                <div className="flex items-start justify-between mb-3 relative z-10">
+                  <div className="flex items-start gap-2 flex-1 min-w-0">
+                    <div className={cn(
+                      "p-2 rounded-lg flex-shrink-0 mt-0.5",
+                      isPrimary ? "bg-primary text-white" : `bg-gray-100 ${stat.color}`
+                    )}>
+                      <Icon className="h-4 w-4" />
+                    </div>
+                    <p className={cn(
+                      "text-xs font-medium line-clamp-2 relative z-10 leading-tight",
+                      isPrimary ? "text-primary" : "text-muted-foreground"
+                    )}>
+                      {stat.label}
+                    </p>
                   </div>
-                  {index === 0 && <TrendingUp className="h-4 w-4 text-primary" />}
+                  {index === 0 && <TrendingUp className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />}
                 </div>
-                <p className={cn(
-                  "text-xs mb-1 relative z-10",
-                  isPrimary ? "text-primary font-medium" : "text-muted-foreground"
-                )}>
-                  {stat.label}
-                </p>
-                <p className={cn(
-                  "text-2xl font-bold relative z-10",
-                  isPrimary && "text-primary"
-                )}>
-                  {stat.value}
-                </p>
-                {stat.amount && (
+                <div className="flex items-baseline gap-2 relative z-10">
                   <p className={cn(
-                    "text-xs mt-1 relative z-10",
-                    isPrimary ? "text-primary/70" : "text-muted-foreground"
+                    "text-2xl font-bold",
+                    isPrimary && "text-primary"
                   )}>
-                    {stat.amount}
+                    {stat.value}
                   </p>
-                )}
+                  {stat.amount && (
+                    <p className={cn(
+                      "text-sm font-medium",
+                      isPrimary ? "text-primary/70" : "text-muted-foreground"
+                    )}>
+                      {stat.amount}
+                    </p>
+                  )}
+                </div>
               </MobileCard>
             );
           })}
         </div>
 
+        {/* Recent Activity */}
+        <div>
+          <h3 className="font-semibold mb-3">Recent Activity</h3>
+          <div className="space-y-2">
+            <MobileCard className="cursor-pointer active:scale-98 transition-transform" onClick={() => navigate("/invoices")}>
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-success/10">
+                  <DollarSign className="h-5 w-5 text-success" />
+                </div>
+                <div className="flex-1">
+                  <p className="font-medium">Payment Received</p>
+                  <p className="text-sm text-muted-foreground">$320.33 • 2 days ago</p>
+                </div>
+              </div>
+            </MobileCard>
+            <MobileCard className="cursor-pointer active:scale-98 transition-transform" onClick={() => navigate("/estimates")}>
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-primary/10">
+                  <FileText className="h-5 w-5 text-primary" />
+                </div>
+                <div className="flex-1">
+                  <p className="font-medium">Estimate Sent</p>
+                  <p className="text-sm text-muted-foreground">Sharon Mcdonald • 3 days ago</p>
+                </div>
+              </div>
+            </MobileCard>
+          </div>
+        </div>
+
         {/* Quick Actions */}
         <div>
           <h3 className="font-semibold mb-3 text-gray-900">Quick Actions</h3>
-          <div className="grid grid-cols-4 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
             {quickActions.map((action, index) => {
               const Icon = action.icon;
               return (
                 <Button
                   key={index}
                   variant="outline"
-                  className="h-auto flex-col gap-2 py-3 border-gray-200 hover:border-primary/50 hover:bg-primary/5 transition-all"
+                  className="h-auto flex-col gap-2 py-3 px-2 border-gray-200 hover:border-primary/50 hover:bg-primary/5 transition-all touch-target min-w-0"
                   onClick={() => navigate(action.path)}
                 >
-                  <Icon className="h-5 w-5 text-gray-700 group-hover:text-primary" />
-                  <span className="text-xs text-center leading-tight text-gray-700">{action.label}</span>
+                  <Icon className="h-5 w-5 text-gray-700 flex-shrink-0" />
+                  <span className="text-xs text-center leading-tight text-gray-700 break-words">{action.label}</span>
                 </Button>
               );
             })}
@@ -141,11 +178,11 @@ const Index = () => {
 
         {/* Operational Modules */}
         <div>
-          <h3 className="font-semibold mb-3 text-gray-900">All Modules</h3>
+          <h3 className="font-semibold mb-3 text-gray-900">Others</h3>
           <div className="grid grid-cols-3 gap-3">
             {operationalModules.map((module, index) => {
               const Icon = module.icon;
-              const isPrimary = module.path === "/customers" || module.path === "/invoices";
+              const isPrimary = module.path === "/customers";
               return (
                 <Button
                   key={index}
@@ -199,35 +236,6 @@ const Index = () => {
             ))}
           </div>
         )}
-
-        {/* Recent Activity */}
-        <div>
-          <h3 className="font-semibold mb-3">Recent Activity</h3>
-          <div className="space-y-2">
-            <MobileCard className="cursor-pointer active:scale-98 transition-transform" onClick={() => navigate("/invoices")}>
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-success/10">
-                  <DollarSign className="h-5 w-5 text-success" />
-                </div>
-                <div className="flex-1">
-                  <p className="font-medium">Payment Received</p>
-                  <p className="text-sm text-muted-foreground">$320.33 • 2 days ago</p>
-                </div>
-              </div>
-            </MobileCard>
-            <MobileCard className="cursor-pointer active:scale-98 transition-transform" onClick={() => navigate("/estimates")}>
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-primary/10">
-                  <FileText className="h-5 w-5 text-primary" />
-                </div>
-                <div className="flex-1">
-                  <p className="font-medium">Estimate Sent</p>
-                  <p className="text-sm text-muted-foreground">Sharon Mcdonald • 3 days ago</p>
-                </div>
-              </div>
-            </MobileCard>
-          </div>
-        </div>
       </div>
     </div>
   );
