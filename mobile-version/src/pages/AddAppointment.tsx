@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import MobileHeader from "@/components/layout/MobileHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,6 +25,11 @@ interface AddAppointmentProps {
 const AddAppointment = ({ mode = "create" }: AddAppointmentProps) => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const fromView = searchParams.get("fromView") || "calendar";
+  const fromDashboard = searchParams.get("from") === "dashboard";
+  const preselectedCustomerId = searchParams.get("customerId");
+  const preselectedCustomerName = searchParams.get("customerName");
   const [subject, setSubject] = useState("");
   const [employeeId, setEmployeeId] = useState("");
   const [customerId, setCustomerId] = useState("");
@@ -46,6 +51,7 @@ const AddAppointment = ({ mode = "create" }: AddAppointmentProps) => {
     [customerId]
   );
 
+  // Handle edit mode
   useEffect(() => {
     if (mode === "edit" && id) {
       const appointment = mockAppointments.find(apt => apt.id === id);
@@ -72,45 +78,74 @@ const AddAppointment = ({ mode = "create" }: AddAppointmentProps) => {
     }
   }, [mode, id]);
 
+  // Handle pre-selected customer from query params
+  useEffect(() => {
+    if (mode === "create" && preselectedCustomerId && preselectedCustomerName) {
+      // Find the customer by ID to get full details
+      const customer = mockCustomers.find(c => c.id === preselectedCustomerId);
+      if (customer) {
+        setCustomerId(customer.id);
+        setEmail(customer.email);
+        setPhone(customer.phone);
+        setAddress(customer.address || "");
+      } else if (preselectedCustomerId) {
+        // If customer ID exists but not found in mock data, still set it
+        setCustomerId(preselectedCustomerId);
+      }
+    }
+  }, [preselectedCustomerId, preselectedCustomerName, mode]);
+
   const handleSubmit = () => {
-    navigate("/appointments/manage");
+    if (fromDashboard) {
+      navigate("/");
+    } else {
+      navigate(`/appointments/manage?view=${fromView}`);
+    }
+  };
+
+  const handleBack = () => {
+    if (fromDashboard) {
+      navigate("/");
+    } else {
+      navigate(`/appointments/manage?view=${fromView}`);
+    }
   };
 
   const isFormValid = subject && employeeId && customerId && category && email && phone && date && time;
 
   return (
     <div className="h-full flex flex-col overflow-hidden bg-muted/10">
-      <MobileHeader title={mode === "edit" ? "Edit Appointment" : "Add Appointment"} showBack />
+      <MobileHeader 
+        title={mode === "edit" ? "Edit Appointment" : "Add Appointment"} 
+        showBack 
+        onBack={handleBack}
+      />
 
-      <div className="flex-1 overflow-y-auto scrollable pt-14 pb-6">
+      <div className="flex-1 overflow-y-auto scrollable pt-16 pb-6">
         <div className="mx-4 rounded-3xl border border-gray-100 bg-white shadow-sm">
-          <div className="px-5 py-5 border-b border-gray-100">
-            <h2 className="text-lg font-semibold text-gray-900">Schedule a new appointment</h2>
-            <p className="text-sm text-muted-foreground mt-1">Provide the details below to confirm the booking.</p>
-          </div>
-
-          <div className="px-5 py-6 space-y-6">
+          <div className="px-4 pt-4 pb-4 space-y-4">
             <div className="space-y-2">
-              <Label className="text-xs font-semibold uppercase text-muted-foreground flex items-center gap-1">
-                <span>Appointment Subject</span>
-                <span className="text-destructive">*</span>
+              <Label htmlFor="appointment-subject" className="inline-flex items-center gap-1 text-sm font-medium text-gray-700">
+                Appointment Subject <span className="text-destructive">*</span>
               </Label>
               <Input
+                id="appointment-subject"
                 placeholder="e.g., HVAC Maintenance Check"
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
+                className="h-11 border-gray-300"
               />
             </div>
 
             <div className="space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-start sm:gap-4">
                 <div className="flex-1 space-y-2">
-                  <Label className="text-xs font-semibold uppercase text-muted-foreground flex items-center gap-1">
+                  <Label className="text-sm font-medium text-gray-700 flex items-center gap-1">
                     <span>Employee</span>
                     <span className="text-destructive">*</span>
                   </Label>
                   <Select value={employeeId} onValueChange={setEmployeeId}>
-                    <SelectTrigger className="h-12">
+                    <SelectTrigger className="h-11 border-gray-300">
                       <SelectValue placeholder="Choose employee" />
                     </SelectTrigger>
                     <SelectContent>
@@ -125,21 +160,21 @@ const AddAppointment = ({ mode = "create" }: AddAppointmentProps) => {
 
                 <div className="flex-1 space-y-2 mt-4 sm:mt-0">
                   <div className="flex items-center justify-between">
-                    <Label className="text-xs font-semibold uppercase text-muted-foreground flex items-center gap-1">
+                    <Label className="text-sm font-medium text-gray-700 flex items-center gap-1">
                       <span>Customers</span>
                       <span className="text-destructive">*</span>
                     </Label>
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-8 w-8 rounded-xl border border-dashed border-gray-300 text-primary"
+                      className="h-8 w-8 rounded-lg border border-dashed border-gray-300 text-primary hover:bg-gray-50"
                       onClick={() => navigate("/customers/new")}
                     >
                       <UserRoundPlus className="h-4 w-4" />
                     </Button>
                   </div>
                   <Select value={customerId} onValueChange={setCustomerId}>
-                    <SelectTrigger className="h-12">
+                    <SelectTrigger className="h-11 border-gray-300">
                       <SelectValue placeholder="Choose customer" />
                     </SelectTrigger>
                     <SelectContent>
@@ -160,21 +195,21 @@ const AddAppointment = ({ mode = "create" }: AddAppointmentProps) => {
 
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Label className="text-xs font-semibold uppercase text-muted-foreground flex items-center gap-1">
+                  <Label className="text-sm font-medium text-gray-700 flex items-center gap-1">
                     <span>Category</span>
                     <span className="text-destructive">*</span>
                   </Label>
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8 rounded-xl border border-dashed border-gray-300 text-primary"
+                    className="h-8 w-8 rounded-lg border border-dashed border-gray-300 text-primary hover:bg-gray-50"
                     onClick={() => navigate("/services/new")}
                   >
                     <Plus className="h-4 w-4" />
                   </Button>
                 </div>
                 <Select value={category} onValueChange={setCategory}>
-                  <SelectTrigger className="h-12">
+                  <SelectTrigger className="h-11 border-gray-300">
                     <SelectValue placeholder="Choose category" />
                   </SelectTrigger>
                   <SelectContent>
@@ -190,11 +225,11 @@ const AddAppointment = ({ mode = "create" }: AddAppointmentProps) => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="text-xs font-semibold uppercase text-muted-foreground">Email *</Label>
+                <Label className="text-sm font-medium text-gray-700">Email *</Label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                   <Input
-                    className="pl-10"
+                    className="pl-10 h-11 border-gray-300"
                     placeholder="customer@example.com"
                     type="email"
                     value={email}
@@ -203,11 +238,11 @@ const AddAppointment = ({ mode = "create" }: AddAppointmentProps) => {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label className="text-xs font-semibold uppercase text-muted-foreground">Phone Number *</Label>
+                <Label className="text-sm font-medium text-gray-700">Phone Number *</Label>
                 <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                   <Input
-                    className="pl-10"
+                    className="pl-10 h-11 border-gray-300"
                     placeholder="+1 (555) 123-4567"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
@@ -217,65 +252,65 @@ const AddAppointment = ({ mode = "create" }: AddAppointmentProps) => {
             </div>
 
             <div className="space-y-2">
-              <Label className="text-xs font-semibold uppercase text-muted-foreground">Address</Label>
+              <Label className="text-sm font-medium text-gray-700">Address</Label>
               <Textarea
                 placeholder="123 Main St, City, State"
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
-                className="min-h-[80px]"
+                className="min-h-[80px] border-gray-300"
               />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="text-xs font-semibold uppercase text-muted-foreground flex items-center gap-1">
+                <Label className="text-sm font-medium text-gray-700 flex items-center gap-1">
                   <span>Appointment Date</span>
                   <span className="text-destructive">*</span>
                 </Label>
                 <div className="relative">
-                  <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                   <Input
                     type="date"
                     value={date}
                     onChange={(e) => setDate(e.target.value)}
                     min={new Date().toISOString().split("T")[0]}
-                    className="pl-10"
+                    className="pl-10 h-11 border-gray-300"
                   />
                 </div>
               </div>
               <div className="space-y-2">
-                <Label className="text-xs font-semibold uppercase text-muted-foreground flex items-center gap-1">
+                <Label className="text-sm font-medium text-gray-700 flex items-center gap-1">
                   <span>Appointment Time</span>
                   <span className="text-destructive">*</span>
                 </Label>
                 <div className="relative">
-                  <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                   <Input
                     type="time"
                     value={time}
                     onChange={(e) => setTime(e.target.value)}
-                    className="pl-10"
+                    className="pl-10 h-11 border-gray-300"
                   />
                 </div>
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label className="text-xs font-semibold uppercase text-muted-foreground">Appointment Note</Label>
+              <Label className="text-sm font-medium text-gray-700">Appointment Note</Label>
               <Textarea
                 placeholder="Additional notes or special instructions..."
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
-                className="min-h-[90px]"
+                className="min-h-[80px] border-gray-300"
               />
             </div>
 
             <div className="space-y-2">
-              <Label className="text-xs font-semibold uppercase text-muted-foreground">Reminder Before</Label>
+              <Label className="text-sm font-medium text-gray-700">Reminder Before</Label>
               <div className="relative">
-                <Bell className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Bell className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <Select value={reminder} onValueChange={setReminder}>
-                  <SelectTrigger className="pl-10 h-12">
+                  <SelectTrigger className="pl-10 h-11 border-gray-300">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -302,7 +337,7 @@ const AddAppointment = ({ mode = "create" }: AddAppointmentProps) => {
           <Button
             variant="outline"
             className="w-full rounded-full py-3 text-sm font-semibold text-gray-700 border-gray-200 hover:bg-muted"
-            onClick={() => navigate(-1)}
+            onClick={handleBack}
             type="button"
           >
             Cancel

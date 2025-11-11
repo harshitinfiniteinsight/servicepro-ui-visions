@@ -33,7 +33,7 @@ const SalesSubmenu = ({ isOpen, onClose }: SalesSubmenuProps) => {
       />
       
       {/* Submenu */}
-      <div className="fixed bottom-20 left-0 right-0 z-50 bg-white border-t-2 border-gray-200 shadow-2xl safe-bottom">
+      <div className="fixed bottom-20 left-0 right-0 z-50 bg-white border-t-2 border-gray-200 shadow-2xl safe-bottom transition-all duration-200">
         <div className="max-w-md mx-auto">
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b border-gray-200">

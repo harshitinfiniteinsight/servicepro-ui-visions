@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import MobileHeader from "@/components/layout/MobileHeader";
 import { mockCustomers, mockInvoices } from "@/data/mobileMockData";
 import { Button } from "@/components/ui/button";
@@ -9,13 +9,16 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Phone, Mail, MapPin, DollarSign, Calendar, Edit, Camera } from "lucide-react";
+import { Phone, Mail, MapPin, DollarSign, Calendar, Edit, Camera, ChevronDown, ChevronUp, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { statusColors } from "@/data/mobileMockData";
+import { toast } from "sonner";
+import CustomerAddNoteModal from "@/components/modals/CustomerAddNoteModal";
 
 const CustomerDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const customer = mockCustomers.find(c => c.id === id);
   
   if (!customer) {
@@ -28,14 +31,43 @@ const CustomerDetails = () => {
 
   const customerInvoices = mockInvoices.filter(i => i.customerId === id);
   const initials = customer.name.split(" ").map(n => n[0]).join("");
-  const [isEditing, setIsEditing] = useState(false);
+  
+  // Check for edit parameter in URL
+  const editParam = searchParams.get("edit");
+  const [isEditing, setIsEditing] = useState(editParam === "true");
+  const [isDetailsExpanded, setIsDetailsExpanded] = useState(true);
+  const [addNoteModalOpen, setAddNoteModalOpen] = useState(false);
+  
   const [formState, setFormState] = useState({
     name: customer.name,
     email: customer.email,
     phone: customer.phone,
     company: customer.notes ?? "",
     address: customer.address,
+    gender: (customer as any).gender || "Male", // Default to Male if not available
   });
+
+  // Determine if customer is active
+  const isActive = customer.status === "Active";
+
+  // Reset form state when customer changes
+  useEffect(() => {
+    setFormState({
+      name: customer.name,
+      email: customer.email,
+      phone: customer.phone,
+      company: customer.notes ?? "",
+      address: customer.address,
+      gender: (customer as any).gender || "Male",
+    });
+  }, [customer]);
+
+  // Set edit mode based on URL parameter
+  useEffect(() => {
+    if (editParam === "true") {
+      setIsEditing(true);
+    }
+  }, [editParam]);
 
   const handleChange = (field: keyof typeof formState) => (value: string) => {
     setFormState(prev => ({
@@ -44,167 +76,230 @@ const CustomerDetails = () => {
     }));
   };
 
+  const handleBack = () => {
+    if (isEditing) {
+      // If in edit mode, exit edit mode and remove URL parameter
+      setIsEditing(false);
+      navigate(`/customers/${id}`, { replace: true });
+    } else {
+      // Otherwise, navigate back normally
+      navigate(-1);
+    }
+  };
+
   return (
     <div className="h-full flex flex-col overflow-hidden">
       <MobileHeader 
-        title="Customer Details"
+        title={`Customer History of ${customer.name}`}
         showBack={true}
+        onBack={handleBack}
       />
       
-      <div className="flex-1 overflow-y-auto scrollable pt-14 pb-6 space-y-6 px-4">
-        {/* Customer Information */}
-        <Card className="rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
-          <CardHeader className="flex flex-col gap-4 pt-6">
-            <div className="flex items-start justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-24 h-24 rounded-full bg-primary/10 border-2 border-primary/20 flex items-center justify-center">
-                  <span className="text-3xl font-bold text-primary">{initials}</span>
-                </div>
-                <Button variant="outline" size="sm" className="gap-2">
-                  <Camera className="h-4 w-4" />
-                  Upload Photo
+      <div className="flex-1 overflow-y-auto scrollable pt-12 pb-6 space-y-4 px-4">
+        {/* Customer Details Card */}
+        <Card className="bg-white shadow-sm rounded-xl border border-gray-100 overflow-hidden">
+          <CardHeader className="p-3">
+            <div className="flex justify-between items-center border-b border-gray-200 pb-1">
+              <CardTitle className="text-base font-semibold text-gray-800">Customer Details</CardTitle>
+              <div className="flex items-center space-x-2">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setIsEditing(prev => !prev)}
+                  className="h-7 w-7 text-gray-500 hover:text-orange-500"
+                >
+                  <Edit className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setIsDetailsExpanded(!isDetailsExpanded)}
+                  className="h-7 w-7 text-gray-400 hover:text-gray-600"
+                >
+                  {isDetailsExpanded ? (
+                    <ChevronUp className="h-4 w-4" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4" />
+                  )}
                 </Button>
               </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setIsEditing(prev => !prev)}
-                className="h-9 w-9"
-              >
-                <Edit className="h-4 w-4" />
-              </Button>
             </div>
           </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="grid gap-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <p className="text-xs uppercase font-semibold text-muted-foreground">Name</p>
+          
+          {isDetailsExpanded && (
+            <CardContent className="p-3 space-y-2">
+              <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                {/* Name */}
+                <div>
+                  <p className="font-medium text-gray-600 mb-1">Name</p>
                   {isEditing ? (
                     <Input
                       value={formState.name}
                       onChange={e => handleChange("name")(e.target.value)}
+                      className="h-9 text-sm"
                     />
                   ) : (
-                    <p className="text-lg font-semibold text-gray-900">{formState.name}</p>
+                    <p className="text-gray-900">{formState.name}</p>
                   )}
                 </div>
-                <div className="space-y-2">
-                  <p className="text-xs uppercase font-semibold text-muted-foreground">Email Address</p>
+
+                {/* Email */}
+                <div>
+                  <p className="font-medium text-gray-600 mb-1">Email</p>
                   {isEditing ? (
                     <Input
                       value={formState.email}
                       onChange={e => handleChange("email")(e.target.value)}
+                      className="h-9 text-sm"
                     />
                   ) : (
-                    <p className="text-sm text-gray-700">{formState.email}</p>
+                    <p className="text-gray-900">{formState.email}</p>
                   )}
                 </div>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <p className="text-xs uppercase font-semibold text-muted-foreground">Phone Number</p>
+
+                {/* Phone */}
+                <div>
+                  <p className="font-medium text-gray-600 mb-1">Phone</p>
                   {isEditing ? (
                     <Input
                       value={formState.phone}
                       onChange={e => handleChange("phone")(e.target.value)}
+                      className="h-9 text-sm"
                     />
                   ) : (
-                    <p className="text-sm text-gray-700">{formState.phone}</p>
+                    <p className="text-gray-900">{formState.phone}</p>
                   )}
                 </div>
-                <div className="space-y-2">
-                  <p className="text-xs uppercase font-semibold text-muted-foreground">Company Name</p>
+
+                {/* Company Name */}
+                <div>
+                  <p className="font-medium text-gray-600 mb-1">Company Name</p>
                   {isEditing ? (
                     <Input
                       value={formState.company}
                       onChange={e => handleChange("company")(e.target.value)}
+                      className="h-9 text-sm"
                     />
                   ) : (
-                    <p className="text-sm text-gray-700">{formState.company || "-"}</p>
+                    <p className="text-gray-900">{formState.company || "-"}</p>
                   )}
                 </div>
-              </div>
-              <div className="space-y-2">
-                <p className="text-xs uppercase font-semibold text-muted-foreground">Address</p>
-                {isEditing ? (
-                  <Textarea
-                    value={formState.address}
-                    onChange={e => handleChange("address")(e.target.value)}
-                    className="min-h-[80px]"
-                  />
-                ) : (
-                  <p className="text-sm text-gray-700 whitespace-pre-line">{formState.address}</p>
-                )}
-              </div>
-              <div className="flex items-center gap-3">
+
+                {/* Address */}
                 <div>
-                  <p className="text-xs uppercase font-semibold text-muted-foreground">Status</p>
-                  <Badge className={cn("mt-1", statusColors[customer.status])}>
-                    {customer.status}
-                  </Badge>
+                  <p className="font-medium text-gray-600 mb-1">Address</p>
+                  {isEditing ? (
+                    <Textarea
+                      value={formState.address}
+                      onChange={e => handleChange("address")(e.target.value)}
+                      className="min-h-[60px] text-sm"
+                    />
+                  ) : (
+                    <p className="text-gray-900 whitespace-pre-line">{formState.address || "-"}</p>
+                  )}
                 </div>
+
+                {/* Active */}
                 <div>
-                  <p className="text-xs uppercase font-semibold text-muted-foreground">Joined</p>
-                  <p className="text-sm text-gray-700">{new Date(customer.joinedDate).toLocaleDateString()}</p>
+                  <p className="font-medium text-gray-600 mb-1">Active</p>
+                  {isEditing ? (
+                    <Select
+                      value={isActive ? "Yes" : "No"}
+                      onValueChange={(value) => {
+                        // Handle active status change
+                        console.info("Active status changed to", value);
+                      }}
+                    >
+                      <SelectTrigger className="h-9 text-sm">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Yes">Yes</SelectItem>
+                        <SelectItem value="No">No</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <p className="text-gray-900">{isActive ? "YES" : "NO"}</p>
+                  )}
+                </div>
+
+                {/* Gender */}
+                <div>
+                  <p className="font-medium text-gray-600 mb-1">Gender</p>
+                  {isEditing ? (
+                    <Select
+                      value={formState.gender}
+                      onValueChange={(value) => handleChange("gender")(value)}
+                    >
+                      <SelectTrigger className="h-9 text-sm">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Male">Male</SelectItem>
+                        <SelectItem value="Female">Female</SelectItem>
+                        <SelectItem value="Other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <p className="text-gray-900">{formState.gender}</p>
+                  )}
+                </div>
+
+                {/* Add Memo */}
+                <div className="flex items-center space-x-2">
+                  <p className="font-medium text-gray-600">Add Memo</p>
+                  <Button
+                    onClick={() => setAddNoteModalOpen(true)}
+                    className="flex items-center space-x-1 bg-orange-50 text-orange-600 px-2 py-1 rounded-lg hover:bg-orange-100 transition h-auto text-xs font-normal"
+                  >
+                    <span>Memo</span>
+                    <Plus className="h-3 w-3" />
+                  </Button>
                 </div>
               </div>
-              <div>
-                <p className="text-xs uppercase font-semibold text-muted-foreground">Total Spent</p>
-                <p className="text-sm font-semibold text-gray-900">
-                  ${customer.totalSpent.toLocaleString()}
-                </p>
-              </div>
-            </div>
-            <div className="space-y-2">
-              <p className="text-xs uppercase font-semibold text-muted-foreground">Memo</p>
-              <div className="relative">
-                <Textarea
-                  placeholder="Add a memo about this customer..."
-                  className="min-h-[120px] pr-12"
-                  disabled={!isEditing}
-                  value={formState.company}
-                  onChange={e => handleChange("company")(e.target.value)}
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="absolute bottom-3 right-3 h-9 w-9 rounded-full hover:bg-muted"
-                  onClick={() => isEditing && toast.info("Upload feature coming soon")}
-                  disabled={!isEditing}
-                >
-                  <Camera className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-            {isEditing && (
-              <div className="flex justify-end gap-2">
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setFormState({
-                      name: customer.name,
-                      email: customer.email,
-                      phone: customer.phone,
-                      company: customer.notes ?? "",
-                      address: customer.address,
-                    });
-                    setIsEditing(false);
-                  }}
-                >
-                  Cancel
-                </Button>
-                <Button onClick={() => setIsEditing(false)}>Save Changes</Button>
-              </div>
-            )}
-          </CardContent>
+
+              {isEditing && (
+                <div className="flex justify-end gap-2 pt-3 border-t border-gray-200 mt-3">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setFormState({
+                        name: customer.name,
+                        email: customer.email,
+                        phone: customer.phone,
+                        company: customer.notes ?? "",
+                        address: customer.address,
+                        gender: (customer as any).gender || "Male",
+                      });
+                      setIsEditing(false);
+                      navigate(`/customers/${id}`, { replace: true });
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                  <Button 
+                    size="sm"
+                    onClick={() => {
+                      console.info("Saving customer", formState);
+                      setIsEditing(false);
+                      navigate(`/customers/${id}`, { replace: true });
+                      toast.success("Customer updated successfully");
+                    }}
+                    className="bg-primary text-white hover:bg-primary/90"
+                  >
+                    Save Changes
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          )}
         </Card>
 
         {/* Orders */}
-        <Card className="rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
-          <CardHeader className="flex flex-col gap-3">
-            <CardTitle>Orders</CardTitle>
+        <Card className="rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+          <CardHeader className="flex flex-col gap-2 p-3">
+            <CardTitle className="text-base font-semibold">Orders</CardTitle>
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <Input
                 placeholder="Search orders..."
@@ -267,6 +362,17 @@ const CustomerDetails = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Add Note Modal */}
+      <CustomerAddNoteModal
+        open={addNoteModalOpen}
+        onClose={() => setAddNoteModalOpen(false)}
+        customer={customer}
+        onAddNote={(customerId, noteText) => {
+          console.info("Adding note to customer", customerId, noteText);
+          toast.success("Note added successfully");
+        }}
+      />
     </div>
   );
 };

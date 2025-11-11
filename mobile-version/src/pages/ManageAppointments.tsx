@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useMemo, useState, useEffect } from "react";
+import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import MobileHeader from "@/components/layout/MobileHeader";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -34,9 +34,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import ShareAppointmentModal from "@/components/modals/ShareAppointmentModal";
+import AppointmentDetailsModal from "@/components/modals/AppointmentDetailsModal";
+import AddNoteModal from "@/components/modals/AddNoteModal";
 
 const ManageAppointments = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
   const todayISO = useMemo(() => toISODate(new Date()), []);
   const [selectedDate, setSelectedDate] = useState(todayISO);
   const [focusedMonth, setFocusedMonth] = useState(() => {
@@ -44,9 +48,38 @@ const ManageAppointments = () => {
     date.setDate(1);
     return date;
   });
-  const [viewMode, setViewMode] = useState<"calendar" | "list">("calendar");
+  
+  // Get view from URL params or default to calendar
+  const viewFromUrl = searchParams.get("view") as "calendar" | "list" | null;
+  const [viewMode, setViewMode] = useState<"calendar" | "list">(viewFromUrl || "calendar");
+
+  // Initialize URL param if not present
+  useEffect(() => {
+    if (!viewFromUrl) {
+      setSearchParams({ view: viewMode }, { replace: true });
+    }
+  }, [viewFromUrl, viewMode, setSearchParams]);
+
+  // Sync view mode with URL params
+  useEffect(() => {
+    if (viewFromUrl && viewFromUrl !== viewMode) {
+      setViewMode(viewFromUrl);
+    }
+  }, [viewFromUrl, viewMode]);
+
+  // Update URL when view mode changes
+  const handleViewModeChange = (value: "calendar" | "list") => {
+    setViewMode(value);
+    setSearchParams({ view: value });
+  };
   const [selectedAppointments, setSelectedAppointments] = useState<string[]>([]);
   const [shareModalOpen, setShareModalOpen] = useState(false);
+  const [singleAppointmentToShare, setSingleAppointmentToShare] = useState<typeof mockAppointments[0] | null>(null);
+  const [detailsModalOpen, setDetailsModalOpen] = useState(false);
+  const [selectedAppointment, setSelectedAppointment] = useState<typeof mockAppointments[0] | null>(null);
+  const [addNoteModalOpen, setAddNoteModalOpen] = useState(false);
+  const [selectedAppointmentForNote, setSelectedAppointmentForNote] = useState<string | null>(null);
+  const [appointmentNotes, setAppointmentNotes] = useState<Record<string, Array<{ id: string; text: string; createdBy: string; createdAt: string }>>>({});
   
   // Get appointments for selected date
   const dayAppointments = mockAppointments.filter(apt => apt.date === selectedDate);
@@ -168,14 +201,14 @@ const ManageAppointments = () => {
         title="Appointments"
         showBack={true}
         actions={
-          <Button size="sm" onClick={() => navigate("/appointments/new")}>
+          <Button size="sm" onClick={() => navigate(`/appointments/new?fromView=${viewMode}`)}>
             <Plus className="h-4 w-4" />
           </Button>
         }
       />
       
       <div className="flex-1 overflow-y-auto scrollable" style={{ paddingTop: 'calc(3.5rem + env(safe-area-inset-top) + 0.5rem)' }}>
-        <Tabs value={viewMode} onValueChange={(value) => setViewMode(value as "calendar" | "list")} className="flex flex-col h-full">
+        <Tabs value={viewMode} onValueChange={(value) => handleViewModeChange(value as "calendar" | "list")} className="flex flex-col h-full">
           <div className="px-4 pt-4 pb-2">
             <TabsList className="grid grid-cols-2 w-full bg-muted/40">
               <TabsTrigger value="calendar" className="text-sm">Calendar View</TabsTrigger>
@@ -213,53 +246,51 @@ const ManageAppointments = () => {
                   const isSelected = iso === selectedDate;
                   const appointments = appointmentsByDate[iso] ?? [];
                   const hasAppointments = appointments.length > 0;
+                  const firstAppointment = appointments[0];
+                  const remainingCount = appointments.length - 1;
 
                   return (
                     <button
                       key={iso}
                       onClick={() => handleSelectDate(iso)}
                       className={cn(
-                        "flex flex-col rounded-3xl border border-gray-200 bg-white p-3 min-h-[140px] transition-all text-left gap-2",
-                        hasAppointments && "border-primary/25 shadow-[0_12px_24px_-20px_rgba(255,99,71,0.5)]",
-                        isSelected && "border-primary ring-2 ring-primary/20 shadow-[0_20px_38px_-22px_rgba(255,99,71,0.6)]",
+                        "flex flex-col items-center justify-center text-center border rounded-xl p-1 h-16 w-full transition-all overflow-hidden",
+                        hasAppointments && "border-primary/25 shadow-sm",
+                        isSelected && "border-primary ring-2 ring-primary/20 bg-primary/5",
                         !isCurrentMonth && "bg-muted/30 text-muted-foreground border-gray-200"
                       )}
                     >
-                      <div className="flex items-center justify-between">
+                      <span
+                        className={cn(
+                          "text-sm font-medium leading-tight",
+                          isSelected ? "text-primary" : "text-gray-900",
+                          !isCurrentMonth && "text-muted-foreground"
+                        )}
+                      >
+                        {date.getDate()}
+                      </span>
+                      {hasAppointments && firstAppointment && (
                         <span
-                          className={cn(
-                            "text-sm font-semibold",
-                            isSelected ? "text-primary" : "text-gray-900",
-                            !isCurrentMonth && "text-muted-foreground"
-                          )}
+                          className="text-[10px] text-gray-600 truncate w-full px-0.5 leading-tight mt-0.5 cursor-pointer hover:text-primary transition-colors"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedAppointment(firstAppointment);
+                            setDetailsModalOpen(true);
+                          }}
                         >
-                          {date.getDate()}
+                          {firstAppointment.service}
                         </span>
-                        {isToday && (
-                          <span className="inline-flex items-center rounded-full bg-primary/10 px-1.5 py-0.5 text-[9px] font-semibold uppercase text-primary">
-                            Today
-                          </span>
-                        )}
-                      </div>
-
-                      <div className="space-y-1.5">
-                        {appointments.slice(0, 3).map(appointment => (
-                          <div
-                            key={appointment.id}
-                            className="rounded-2xl border border-primary/20 bg-primary/10 px-2.5 py-2 text-left"
-                          >
-                            <p className="text-[11px] font-semibold text-primary leading-tight">{appointment.time}</p>
-                            <p className="text-[11px] font-medium text-primary/90 leading-tight truncate">
-                              {appointment.service}
-                            </p>
-                          </div>
-                        ))}
-                        {appointments.length > 3 && (
-                          <div className="text-[10px] font-semibold text-primary">
-                            +{appointments.length - 3} more
-                          </div>
-                        )}
-                      </div>
+                      )}
+                      {remainingCount > 0 && (
+                        <span className="text-[9px] font-semibold text-primary mt-0.5">
+                          +{remainingCount} more
+                        </span>
+                      )}
+                      {isToday && !hasAppointments && (
+                        <span className="inline-flex items-center rounded-full bg-primary/10 px-1 py-0.5 text-[8px] font-semibold uppercase text-primary mt-0.5">
+                          Today
+                        </span>
+                      )}
                     </button>
                   );
                 })}
@@ -419,19 +450,33 @@ const ManageAppointments = () => {
                                     className="gap-2 rounded-xl px-3 py-2 text-[11px] font-medium"
                                     onSelect={(event) => {
                                       event.preventDefault();
-                                      navigate(`/appointments/${appointment.id}/edit`);
+                                      navigate(`/appointments/${appointment.id}/edit?fromView=${viewMode}`);
                                     }}
                                   >
                                     <Edit3 className="h-3.5 w-3.5 text-primary" />
                                     Edit
                                   </DropdownMenuItem>
-                                  <DropdownMenuItem className="gap-2 rounded-xl px-3 py-2 text-[11px] font-medium">
+                                  <DropdownMenuItem
+                                    className="gap-2 rounded-xl px-3 py-2 text-[11px] font-medium"
+                                    onSelect={(event) => {
+                                      event.preventDefault();
+                                      setSelectedAppointmentForNote(appointment.id);
+                                      setAddNoteModalOpen(true);
+                                    }}
+                                  >
                                     <FileText className="h-3.5 w-3.5 text-primary" />
                                     Add Note
                                   </DropdownMenuItem>
                                   {isActive ? (
                                     <>
-                                      <DropdownMenuItem className="gap-2 rounded-xl px-3 py-2 text-[11px] font-medium">
+                                      <DropdownMenuItem
+                                        className="gap-2 rounded-xl px-3 py-2 text-[11px] font-medium"
+                                        onSelect={(event) => {
+                                          event.preventDefault();
+                                          setSingleAppointmentToShare(appointment);
+                                          setShareModalOpen(true);
+                                        }}
+                                      >
                                         <Share2 className="h-3.5 w-3.5 text-primary" />
                                         Share
                                       </DropdownMenuItem>
@@ -461,14 +506,85 @@ const ManageAppointments = () => {
 
       <ShareAppointmentModal
         open={shareModalOpen}
-        selectedCount={selectedAppointments.length}
-        onClose={() => setShareModalOpen(false)}
+        selectedCount={singleAppointmentToShare ? 1 : selectedAppointments.length}
+        appointmentName={singleAppointmentToShare?.service}
+        onClose={() => {
+          setShareModalOpen(false);
+          setSingleAppointmentToShare(null);
+        }}
         onShare={({ via, audience }) => {
+          const appointmentsToShare = singleAppointmentToShare 
+            ? [singleAppointmentToShare.id] 
+            : selectedAppointments;
+          
           console.info("Sharing appointments", {
-            appointments: selectedAppointments,
+            appointments: appointmentsToShare,
             via,
             audience,
           });
+          
+          setSingleAppointmentToShare(null);
+        }}
+      />
+
+      <AppointmentDetailsModal
+        open={detailsModalOpen}
+        onClose={() => {
+          setDetailsModalOpen(false);
+          setSelectedAppointment(null);
+        }}
+        appointment={selectedAppointment}
+        onSave={(updatedAppointment) => {
+          console.info("Saving appointment", updatedAppointment);
+          // Handle save logic here
+        }}
+        onEdit={(appointmentId) => {
+          navigate(`/appointments/${appointmentId}/edit?fromView=${viewMode}`);
+        }}
+        onCreateEstimate={() => {
+          console.info("Create estimate for appointment", selectedAppointment?.id);
+          navigate(`/estimates/new?appointmentId=${selectedAppointment?.id}`);
+        }}
+        onCreateInvoice={() => {
+          console.info("Create invoice for appointment", selectedAppointment?.id);
+          navigate(`/invoices/new?appointmentId=${selectedAppointment?.id}`);
+        }}
+        onViewCustomer={() => {
+          console.info("View customer", selectedAppointment?.customerId);
+          navigate(`/customers/${selectedAppointment?.customerId}`);
+        }}
+      />
+
+      <AddNoteModal
+        open={addNoteModalOpen}
+        onClose={() => {
+          setAddNoteModalOpen(false);
+          setSelectedAppointmentForNote(null);
+        }}
+        appointmentId={selectedAppointmentForNote}
+        existingNotes={selectedAppointmentForNote ? (appointmentNotes[selectedAppointmentForNote] || []) : []}
+        onAddNote={(appointmentId, noteText) => {
+          const now = new Date();
+          const formattedDate = now.toLocaleDateString('en-US', {
+            month: '2-digit',
+            day: '2-digit',
+            year: 'numeric',
+          });
+          const formattedTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+          
+          const newNote = {
+            id: Date.now().toString(),
+            text: noteText,
+            createdBy: "Current User", // Replace with actual user from auth context
+            createdAt: `${formattedDate} ${formattedTime}`,
+          };
+          
+          setAppointmentNotes(prev => ({
+            ...prev,
+            [appointmentId]: [...(prev[appointmentId] || []), newNote],
+          }));
+          
+          console.info("Note added to appointment", appointmentId, noteText);
         }}
       />
     </div>

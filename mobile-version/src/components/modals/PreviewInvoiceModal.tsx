@@ -1,8 +1,7 @@
 import { useMemo } from "react";
 import { Dialog, DialogContent, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Printer, X, Mail, MessageSquare, UserCog } from "lucide-react";
+import { Printer, X, Mail, MessageSquare, UserCog, Edit } from "lucide-react";
 import { format } from "date-fns";
 import { mockCustomers } from "@/data/mobileMockData";
 import { cn } from "@/lib/utils";
@@ -87,57 +86,57 @@ const PreviewInvoiceModal = ({ isOpen, onClose, invoice, onAction }: PreviewInvo
       <DialogContent className="!fixed !inset-0 !translate-x-0 !translate-y-0 m-0 flex h-full max-h-full w-full max-w-full flex-col gap-0 rounded-none p-0 sm:!left-1/2 sm:!top-1/2 sm:h-auto sm:max-h-[92vh] sm:w-[720px] sm:!translate-x-[-50%] sm:!translate-y-[-50%] sm:rounded-3xl">
         <DialogDescription className="sr-only">Preview invoice {invoice.id}</DialogDescription>
 
-        <div className="bg-[#0E5FFF] px-4 py-4 flex items-center justify-between safe-top">
-          <h2 className="text-lg font-semibold text-white">Preview Invoice</h2>
-          <div className="flex items-center gap-2">
+        <div className="bg-[#0E5FFF] px-3 py-3 flex items-center justify-between safe-top">
+          <h2 className="text-base font-semibold text-white">Preview Invoice</h2>
+          <div className="flex items-center gap-1.5">
             <Button
               variant="ghost"
               size="sm"
               onClick={() => handleAction("print")}
-              className="text-white hover:bg-white/20 h-9 px-3"
+              className="text-white hover:bg-white/20 h-8 px-2"
             >
-              <Printer className="h-4 w-4 mr-1.5" />
-              <span className="text-sm">Printer</span>
+              <Printer className="h-3.5 w-3.5 mr-1" />
+              <span className="text-xs">Print</span>
             </Button>
             <Button
               variant="ghost"
               size="sm"
               onClick={onClose}
-              className="text-white hover:bg-white/20 h-9 w-9 p-0"
+              className="text-white hover:bg-white/20 h-8 w-8 p-0"
             >
-              <X className="h-5 w-5" />
+              <X className="h-4 w-4" />
             </Button>
           </div>
         </div>
 
         <div className="flex-1 overflow-y-auto bg-[#0A1C2F]">
-          <div className="mx-auto w-full max-w-[900px] px-4 py-6">
-            <div className="rounded-3xl bg-white shadow-2xl overflow-hidden border border-gray-100">
-              <div className="bg-[#0E5FFF] text-white px-6 py-5 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+          <div className="mx-auto w-full max-w-[900px] px-3 py-3">
+            <div className="rounded-2xl bg-white shadow-2xl overflow-hidden border border-gray-100">
+              <div className="bg-[#0E5FFF] text-white px-4 py-3 flex flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <p className="text-xs uppercase tracking-wide opacity-80">Invoice No.</p>
-                  <p className="text-lg font-semibold">{invoice.id}</p>
+                  <p className="text-[10px] uppercase tracking-wide opacity-80">Invoice No.</p>
+                  <p className="text-base font-semibold">{invoice.id}</p>
                 </div>
-                <div className="flex gap-6 text-sm">
+                <div className="flex gap-4 text-xs">
                   <div>
-                    <p className="text-xs uppercase tracking-wide opacity-80">Invoice Date</p>
-                    <p className="font-semibold">{invoiceDate}</p>
+                    <p className="text-[10px] uppercase tracking-wide opacity-80">Invoice Date</p>
+                    <p className="font-semibold text-sm">{invoiceDate}</p>
                   </div>
                   <div>
-                    <p className="text-xs uppercase tracking-wide opacity-80">Terms</p>
-                    <p className="font-semibold">{terms}</p>
+                    <p className="text-[10px] uppercase tracking-wide opacity-80">Terms</p>
+                    <p className="font-semibold text-sm">{terms}</p>
                   </div>
                   <div>
-                    <p className="text-xs uppercase tracking-wide opacity-80">Due Date</p>
-                    <p className="font-semibold">{dueDate}</p>
+                    <p className="text-[10px] uppercase tracking-wide opacity-80">Due Date</p>
+                    <p className="font-semibold text-sm">{dueDate}</p>
                   </div>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 px-6 py-5 bg-[#F5F8FF] border-b border-[#E0E7FF]">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 px-4 py-3 bg-[#F5F8FF] border-b border-[#E0E7FF]">
                 <div>
-                  <p className="text-xs font-semibold text-[#0E1E3E] uppercase mb-2">Bill To</p>
-                  <div className="space-y-1 text-xs text-[#1D3A6B]">
+                  <p className="text-[10px] font-semibold text-[#0E1E3E] uppercase mb-1.5">Bill To</p>
+                  <div className="space-y-0.5 text-xs text-[#1D3A6B]">
                     <p className="font-semibold">{customer?.name || invoice.customerName}</p>
                     <p>{customer?.email || "info@email.com"}</p>
                     <p>{customer?.address || "789 Pine Rd, Cambridge, MA 02140"}</p>
@@ -145,8 +144,8 @@ const PreviewInvoiceModal = ({ isOpen, onClose, invoice, onAction }: PreviewInvo
                   </div>
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-[#0E1E3E] uppercase mb-2">Ship To</p>
-                  <div className="space-y-1 text-xs text-[#1D3A6B]">
+                  <p className="text-[10px] font-semibold text-[#0E1E3E] uppercase mb-1.5">Ship To</p>
+                  <div className="space-y-0.5 text-xs text-[#1D3A6B]">
                     <p className="font-semibold">{customer?.name || invoice.customerName}</p>
                     <p>{customer?.email || "info@email.com"}</p>
                     <p>{customer?.address || "456 Oak Ave, Brooklyn, NY 11201"}</p>
@@ -155,150 +154,86 @@ const PreviewInvoiceModal = ({ isOpen, onClose, invoice, onAction }: PreviewInvo
                 </div>
               </div>
 
-              <div className="px-6 py-5 space-y-4 bg-white">
-                <div className="space-y-3 sm:hidden">
-                  {items.map((item, index) => (
-                    <div key={index} className="rounded-2xl border border-gray-200 bg-white px-3 py-3 shadow-sm">
-                      <div className="flex items-start justify-between gap-3">
-                        <div>
-                          <p className="text-sm font-semibold text-gray-900">{item.productService}</p>
-                          <p className="text-[11px] text-gray-500">{item.description}</p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-sm font-semibold text-[#FF8A3C]">${item.subTotal.toFixed(2)}</p>
-                          <p className="text-[11px] text-gray-500">Sub Total</p>
-                        </div>
-                      </div>
-                      <div className="mt-3 space-y-2 text-[11px] text-gray-600">
-                        <div className="grid grid-cols-3 gap-2">
-                          <div>
-                            <p className="font-medium text-gray-800">Service Date</p>
-                            <p>{item.serviceDate}</p>
-                          </div>
-                          <div>
-                            <p className="font-medium text-gray-800">SKU</p>
-                            <p>{item.sku}</p>
-                          </div>
-                          <div>
-                            <p className="font-medium text-gray-800">Qty</p>
-                            <p>{item.qty}</p>
-                          </div>
-                        </div>
-                        <div className="grid grid-cols-3 gap-2">
-                          <div>
-                            <p className="font-medium text-gray-800">Rate</p>
-                            <p>${item.rate.toFixed(2)}</p>
-                          </div>
-                          <div>
-                            <p className="font-medium text-gray-800">Discount</p>
-                            <p>{item.discount.toFixed(2)}%</p>
-                          </div>
-                          <div>
-                            <p className="font-medium text-gray-800">Tax</p>
-                            <p>${item.tax.toFixed(2)}</p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="hidden sm:block overflow-x-auto">
-                  <table className="w-full text-xs border border-[#E0E7FF]">
+              <div className="px-4 py-3 space-y-3 bg-white">
+                <div className="overflow-x-auto -mx-4 px-4">
+                  <table className="w-full text-xs border border-[#E0E7FF] table-auto">
                     <thead>
                       <tr className="bg-[#0E5FFF] text-white">
-                        <th className="px-3 py-2 text-left font-semibold">Service Date</th>
-                        <th className="px-3 py-2 text-left font-semibold">Product/Service</th>
-                        <th className="px-3 py-2 text-left font-semibold">SKU</th>
-                        <th className="px-3 py-2 text-left font-semibold">Description</th>
-                        <th className="px-3 py-2 text-center font-semibold">QTY</th>
-                        <th className="px-3 py-2 text-right font-semibold">Rate</th>
-                        <th className="px-3 py-2 text-right font-semibold">Discount</th>
-                        <th className="px-3 py-2 text-right font-semibold">Sub Total</th>
-                        <th className="px-3 py-2 text-right font-semibold">Tax</th>
+                        <th className="px-1.5 py-1.5 sm:px-2 sm:py-2 text-left font-semibold whitespace-nowrap">Date</th>
+                        <th className="px-1.5 py-1.5 sm:px-2 sm:py-2 text-left font-semibold min-w-[80px]">Product/Service</th>
+                        <th className="px-1.5 py-1.5 sm:px-2 sm:py-2 text-left font-semibold hidden sm:table-cell">SKU</th>
+                        <th className="px-1.5 py-1.5 sm:px-2 sm:py-2 text-left font-semibold min-w-[100px]">Description</th>
+                        <th className="px-1.5 py-1.5 sm:px-2 sm:py-2 text-center font-semibold whitespace-nowrap">QTY</th>
+                        <th className="px-1.5 py-1.5 sm:px-2 sm:py-2 text-right font-semibold whitespace-nowrap">Rate</th>
+                        <th className="px-1.5 py-1.5 sm:px-2 sm:py-2 text-right font-semibold hidden md:table-cell whitespace-nowrap">Discount</th>
+                        <th className="px-1.5 py-1.5 sm:px-2 sm:py-2 text-right font-semibold whitespace-nowrap">Sub Total</th>
+                        <th className="px-1.5 py-1.5 sm:px-2 sm:py-2 text-right font-semibold whitespace-nowrap">Tax</th>
                       </tr>
                     </thead>
                     <tbody>
                       {items.map((item, index) => (
-                        <tr key={index} className="border-b border-[#E0E7FF]">
-                          <td className="px-3 py-2">{item.serviceDate}</td>
-                          <td className="px-3 py-2">{item.productService}</td>
-                          <td className="px-3 py-2">{item.sku}</td>
-                          <td className="px-3 py-2">{item.description}</td>
-                          <td className="px-3 py-2 text-center">{item.qty}</td>
-                          <td className="px-3 py-2 text-right">${item.rate.toFixed(2)}</td>
-                          <td className="px-3 py-2 text-right">{item.discount.toFixed(2)}%</td>
-                          <td className="px-3 py-2 text-right">${item.subTotal.toFixed(2)}</td>
-                          <td className="px-3 py-2 text-right">${item.tax.toFixed(2)}</td>
+                        <tr key={index} className="border-b border-[#E0E7FF] hover:bg-gray-50/50">
+                          <td className="px-1.5 py-1.5 sm:px-2 sm:py-2 whitespace-nowrap">{item.serviceDate}</td>
+                          <td className="px-1.5 py-1.5 sm:px-2 sm:py-2 font-medium">{item.productService}</td>
+                          <td className="px-1.5 py-1.5 sm:px-2 sm:py-2 hidden sm:table-cell">{item.sku}</td>
+                          <td className="px-1.5 py-1.5 sm:px-2 sm:py-2 text-[10px] sm:text-xs break-words">{item.description}</td>
+                          <td className="px-1.5 py-1.5 sm:px-2 sm:py-2 text-center whitespace-nowrap">{item.qty}</td>
+                          <td className="px-1.5 py-1.5 sm:px-2 sm:py-2 text-right whitespace-nowrap">${item.rate.toFixed(2)}</td>
+                          <td className="px-1.5 py-1.5 sm:px-2 sm:py-2 text-right hidden md:table-cell whitespace-nowrap">{item.discount.toFixed(2)}%</td>
+                          <td className="px-1.5 py-1.5 sm:px-2 sm:py-2 text-right font-medium whitespace-nowrap text-[#FF8A3C]">${item.subTotal.toFixed(2)}</td>
+                          <td className="px-1.5 py-1.5 sm:px-2 sm:py-2 text-right whitespace-nowrap">${item.tax.toFixed(2)}</td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  <div className="space-y-2 text-sm text-[#1D3A6B]">
-                    <p>
-                      <span className="font-semibold text-[#0E1E3E]">Message on Invoice:</span> –
-                    </p>
-                    <p>
-                      <span className="font-semibold text-[#0E1E3E]">Terms & Conditions:</span>{" "}
-                      <span className="text-[#0E5FFF]">from global settings</span>
-                    </p>
-                    <p>
-                      <span className="font-semibold text-[#0E1E3E]">Cancellation & Refund Policy:</span> –
-                    </p>
-                    <p className="pt-2 font-semibold text-[#0E1E3E]">Thank You For Your Business!</p>
-                    <p className="text-xs">
-                      If below ‘Pay Now’ button didn’t work, just copy and paste this URL into your web browser’s address bar to complete payment:
-                    </p>
-                  </div>
-
-                  <div className="rounded-2xl bg-[#F8FBFF] border border-[#E0E7FF] px-4 py-4 space-y-2 text-sm text-[#0E1E3E]">
-                    <div className="flex justify-between">
-                      <span>Item Total</span>
-                      <span className="font-medium">${itemTotal.toFixed(2)}</span>
+                <div className="flex justify-end">
+                  <div className="rounded-lg bg-[#F8FBFF] border border-[#E0E7FF] px-3 py-3 space-y-1.5 text-xs text-[#0E1E3E] w-full sm:w-auto sm:min-w-[280px]">
+                    <div className="flex justify-between items-center">
+                      <span className="text-left">Item Total</span>
+                      <span className="font-medium text-right">${itemTotal.toFixed(2)}</span>
                     </div>
-                    <div className="flex justify-between">
-                      <span>Sub Total after Discount</span>
-                      <span className="font-medium">${subtotalAfterDiscount.toFixed(2)}</span>
+                    <div className="flex justify-between items-center">
+                      <span className="text-left">Sub Total after Discount</span>
+                      <span className="font-medium text-right">${subtotalAfterDiscount.toFixed(2)}</span>
                     </div>
-                    <div className="flex justify-between">
-                      <span>Taxes</span>
-                      <span className="font-medium">${totalTax.toFixed(2)}</span>
+                    <div className="flex justify-between items-center">
+                      <span className="text-left">Taxes</span>
+                      <span className="font-medium text-right">${totalTax.toFixed(2)}</span>
                     </div>
-                    <div className="flex justify-between border-t border-[#E0E7FF] pt-2">
-                      <span className="font-semibold text-base">Invoice Total</span>
-                      <span className="font-semibold text-base">${invoiceTotal.toFixed(2)}</span>
+                    <div className="flex justify-between items-center border-t border-[#E0E7FF] pt-1.5 mt-1.5">
+                      <span className="font-semibold text-sm text-left">Invoice Total</span>
+                      <span className="font-semibold text-sm text-right">${invoiceTotal.toFixed(2)}</span>
                     </div>
-                    <div className="flex justify-between">
-                      <span>Invoice Balance due</span>
-                      <span className="font-medium">${balanceDue.toFixed(2)}</span>
+                    <div className="flex justify-between items-center">
+                      <span className="text-left">Invoice Balance due</span>
+                      <span className="font-medium text-right">${balanceDue.toFixed(2)}</span>
                     </div>
-                    <div className="flex justify-between">
-                      <span>Total Balance due</span>
-                      <span className="font-medium">${balanceDue.toFixed(2)}</span>
+                    <div className="flex justify-between items-center">
+                      <span className="text-left">Total Balance due</span>
+                      <span className="font-medium text-right">${balanceDue.toFixed(2)}</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-2">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pt-2">
                   {invoice.status !== "Paid" ? (
                     <Button
                       onClick={() => handleAction("pay-now")}
-                      className="bg-[#FF8A3C] hover:bg-[#ff7a1f] text-white font-semibold px-6 py-2 rounded-full"
+                      className="bg-[#FF8A3C] hover:bg-[#ff7a1f] text-white font-semibold px-4 py-2 h-9 rounded-full text-sm"
                     >
                       Pay Now
                     </Button>
                   ) : (
-                    <div className="border-2 border-green-500 text-green-600 px-4 py-1 rounded-lg inline-flex items-center gap-1 bg-green-50">
-                      <span className="text-sm font-semibold">Paid</span>
+                    <div className="border-2 border-green-500 text-green-600 px-3 py-1.5 rounded-lg inline-flex items-center gap-1 bg-green-50">
+                      <span className="text-xs font-semibold">Paid</span>
                     </div>
                   )}
 
                   <div
                     className={cn(
-                      "px-4 py-1.5 rounded-md border-2 uppercase tracking-[4px] text-sm font-semibold inline-flex items-center",
+                      "px-3 py-1.5 rounded-md border-2 uppercase tracking-[2px] text-xs font-semibold inline-flex items-center",
                       invoice.status === "Paid"
                         ? "border-green-500 text-green-600 bg-green-50"
                         : "border-red-500 text-red-500 bg-red-50"
@@ -307,47 +242,78 @@ const PreviewInvoiceModal = ({ isOpen, onClose, invoice, onAction }: PreviewInvo
                     {invoice.status === "Open" ? "Unpaid" : invoice.status}
                   </div>
                 </div>
+
+                <div className="space-y-1.5 text-xs text-[#1D3A6B] pt-2 border-t border-gray-200">
+                  <p>
+                    <span className="font-semibold text-[#0E1E3E]">Message on Invoice:</span> –
+                  </p>
+                  <p>
+                    <span className="font-semibold text-[#0E1E3E]">Terms & Conditions:</span>{" "}
+                    <span className="text-[#0E5FFF]">from global settings</span>
+                  </p>
+                  <p>
+                    <span className="font-semibold text-[#0E1E3E]">Cancellation & Refund Policy:</span> –
+                  </p>
+                  <p className="pt-1.5 font-semibold text-sm text-[#0E1E3E]">Thank You For Your Business!</p>
+                  <p className="text-[10px]">
+                    If below 'Pay Now' button didn't work, just copy and paste this URL into your web browser's address bar to complete payment:
+                  </p>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="bg-[#0E5FFF] px-4 py-3 flex items-center gap-2 overflow-x-auto safe-bottom">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => handleAction("send-email")}
-            className="text-white hover:bg-white/20 flex-shrink-0"
-          >
-            <Mail className="h-4 w-4 mr-1.5" />
-            <span className="text-xs">Send Email</span>
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => handleAction("send-sms")}
-            className="text-white hover:bg-white/20 flex-shrink-0"
-          >
-            <MessageSquare className="h-4 w-4 mr-1.5" />
-            <span className="text-xs">Send via SMS</span>
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => handleAction("reassign")}
-            className="text-white hover:bg-white/20 flex-shrink-0"
-          >
-            <UserCog className="h-4 w-4 mr-1.5" />
-            <span className="text-xs">Reassign Employee</span>
-          </Button>
-          <div className="flex-1" />
-          <Button
-            onClick={onClose}
-            className="bg-white text-[#0E5FFF] hover:bg-white/90 flex-shrink-0"
-            size="sm"
-          >
-            <span className="text-xs font-semibold">Close</span>
-          </Button>
+        <div className="bg-[#0E5FFF] safe-bottom">
+          <div className="px-3 pt-3 pb-4">
+            <div className="grid grid-cols-2 gap-2 w-full">
+              {invoice.status !== "Paid" && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleAction("edit")}
+                  className="bg-white/10 border-white/30 text-white hover:bg-white/20 h-9 px-3 py-2 w-full justify-center text-xs rounded-lg"
+                >
+                  <Edit className="h-3.5 w-3.5 mr-1.5 flex-shrink-0" />
+                  <span className="whitespace-nowrap">Edit</span>
+                </Button>
+              )}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => handleAction("send-email")}
+                className="text-white hover:bg-white/20 h-9 px-3 py-2 w-full justify-start text-xs rounded-lg"
+              >
+                <Mail className="h-3.5 w-3.5 mr-1.5 flex-shrink-0" />
+                <span className="whitespace-nowrap">Send Email</span>
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => handleAction("send-sms")}
+                className="text-white hover:bg-white/20 h-9 px-3 py-2 w-full justify-start text-xs rounded-lg"
+              >
+                <MessageSquare className="h-3.5 w-3.5 mr-1.5 flex-shrink-0" />
+                <span className="whitespace-nowrap">Send via SMS</span>
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => handleAction("reassign")}
+                className="text-white hover:bg-white/20 h-9 px-3 py-2 w-full justify-start text-xs rounded-lg"
+              >
+                <UserCog className="h-3.5 w-3.5 mr-1.5 flex-shrink-0" />
+                <span className="whitespace-nowrap">Reassign</span>
+              </Button>
+              <Button
+                onClick={onClose}
+                className="bg-white text-[#0E5FFF] hover:bg-white/90 h-9 px-3 py-2 w-full justify-center text-xs font-semibold rounded-lg col-span-2"
+                size="sm"
+              >
+                <span className="whitespace-nowrap">Close</span>
+              </Button>
+            </div>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

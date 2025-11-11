@@ -48,7 +48,7 @@ const Index = () => {
   const quickActions = [
     { label: "New Estimate", path: "/estimates/new", icon: FileText },
     { label: "New Invoice", path: "/invoices/new", icon: DollarSign },
-    { label: "Add Appointment", path: "/appointments/add", icon: Calendar },
+    { label: "Add Appointment", path: "/appointments/add?from=dashboard", icon: Calendar },
     { label: "New Agreement", path: "/agreements/new", icon: ClipboardList },
   ];
 

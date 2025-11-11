@@ -359,30 +359,30 @@ const AddInvoice = () => {
         </DialogContent>
       </Dialog>
 
-      <div className="px-4 pt-16 pb-4">
-        <div className="flex items-center justify-between mb-2">
+      <div className="px-3 pt-14 pb-2">
+        <div className="flex items-center justify-between mb-1.5">
           {steps.map((s, idx) => (
             <div key={s.number} className="flex items-center flex-1">
               <div
                 className={cn(
-                "flex items-center justify-center w-8 h-8 rounded-full text-sm font-semibold",
+                "flex items-center justify-center w-6 h-6 rounded-full text-xs font-semibold",
                 step >= s.number ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
                 )}
               >
                 {step > s.number ? "✓" : s.number}
               </div>
               {idx < steps.length - 1 && (
-                <div className={cn("flex-1 h-1 mx-2", step > s.number ? "bg-primary" : "bg-muted")} />
+                <div className={cn("flex-1 h-0.5 mx-1.5", step > s.number ? "bg-primary" : "bg-muted")} />
               )}
             </div>
           ))}
         </div>
-        <p className="text-sm text-muted-foreground text-center">
+        <p className="text-xs text-muted-foreground text-center">
           Step {step} of {steps.length}: {steps[step - 1].title}
         </p>
       </div>
 
-      <div className="flex-1 overflow-y-auto scrollable px-4 pb-6 space-y-4">
+      <div className="flex-1 overflow-y-auto scrollable px-3 pb-4 space-y-3">
         {step === 1 && (
           <div className="space-y-4">
             <div>
@@ -702,8 +702,8 @@ const AddInvoice = () => {
         )}
 
         {step === 2 && (
-          <div className="space-y-4">
-            <div className="grid grid-cols-3 gap-2">
+          <div className="space-y-2.5">
+            <div className="grid grid-cols-3 gap-1.5">
               <Dialog
                 open={showAddExisting}
                 onOpenChange={open => {
@@ -714,9 +714,9 @@ const AddInvoice = () => {
                 }}
               >
                 <DialogTrigger asChild>
-                  <Button variant="outline" className="flex-1 flex-col h-auto py-2.5 px-1 min-h-[70px]">
-                    <Package className="h-4 w-4 mb-1.5 flex-shrink-0" />
-                    <span className="text-[11px] leading-tight text-center whitespace-normal break-words w-full px-0.5">
+                  <Button variant="outline" className="flex-1 flex-col h-auto py-2 px-1 min-h-[60px]">
+                    <Package className="h-3.5 w-3.5 mb-1 flex-shrink-0" />
+                    <span className="text-[10px] leading-tight text-center whitespace-normal break-words w-full px-0.5">
                       Add Existing Item
                     </span>
                   </Button>
@@ -809,9 +809,9 @@ const AddInvoice = () => {
                 }}
               >
                 <DialogTrigger asChild>
-                  <Button variant="outline" className="flex-1 flex-col h-auto py-2.5 px-1 min-h-[70px]">
-                    <FileText className="h-4 w-4 mb-1.5 flex-shrink-0" />
-                    <span className="text-[11px] leading-tight text-center whitespace-normal break-words w-full px-0.5">
+                  <Button variant="outline" className="flex-1 flex-col h-auto py-2 px-1 min-h-[60px]">
+                    <FileText className="h-3.5 w-3.5 mb-1 flex-shrink-0" />
+                    <span className="text-[10px] leading-tight text-center whitespace-normal break-words w-full px-0.5">
                       Add Custom Item
                     </span>
                   </Button>
@@ -889,9 +889,9 @@ const AddInvoice = () => {
                 }}
               >
                 <DialogTrigger asChild>
-                  <Button variant="outline" className="flex-1 flex-col h-auto py-2.5 px-1 min-h-[70px]">
-                    <Save className="h-4 w-4 mb-1.5 flex-shrink-0" />
-                    <span className="text-[11px] leading-tight text-center whitespace-normal break-words w-full px-0.5">
+                  <Button variant="outline" className="flex-1 flex-col h-auto py-2 px-1 min-h-[60px]">
+                    <Save className="h-3.5 w-3.5 mb-1 flex-shrink-0" />
+                    <span className="text-[10px] leading-tight text-center whitespace-normal break-words w-full px-0.5">
                       Add to Inventory
                     </span>
                   </Button>
@@ -981,28 +981,28 @@ const AddInvoice = () => {
               </Dialog>
             </div>
 
-            <div className="space-y-3">
-              <h3 className="text-lg font-bold text-gray-900">Selected Items</h3>
+            <div className="space-y-2">
+              <h3 className="text-base font-bold text-gray-900">Selected Items</h3>
               {items.length === 0 ? (
-                <div className="text-center py-12 bg-gray-50 rounded-xl border-2 border-dashed">
-                  <p className="text-muted-foreground">No items added yet</p>
+                <div className="text-center py-8 bg-gray-50 rounded-lg border-2 border-dashed">
+                  <p className="text-sm text-muted-foreground">No items added yet</p>
                 </div>
               ) : (
-                <div className="space-y-3">
+                <div className="space-y-2">
                   {items.map(item => {
                     const inventoryItem = mockInventory.find(inv => inv.id === item.id);
                     const itemType = inventoryItem ? (inventoryItem as any).type : item.isCustom ? "Custom" : undefined;
                     return (
                       <div
                         key={item.id}
-                        className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 hover:shadow-md transition-shadow"
+                        className="bg-white rounded-lg border border-gray-200 shadow-sm p-2 hover:shadow-md transition-shadow"
                       >
-                        <div className="flex items-start justify-between mb-3">
+                        <div className="flex items-start justify-between mb-1.5">
                           <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1">
+                            <div className="flex items-center gap-1.5 mb-0.5">
                               <h4 className="text-sm font-semibold text-cyan-600 truncate">{item.name}</h4>
                               {itemType && (
-                                <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-5 flex-shrink-0">
+                                <Badge variant="outline" className="text-[9px] px-1 py-0 h-4 flex-shrink-0">
                                   {itemType}
                                 </Badge>
                               )}
@@ -1012,24 +1012,24 @@ const AddInvoice = () => {
                       <Button
                         size="sm"
                         variant="ghost"
-                            className="h-8 w-8 p-0 text-red-600 hover:bg-red-50 hover:text-red-700 rounded-lg transition-colors flex-shrink-0"
+                            className="h-7 w-7 p-0 text-red-600 hover:bg-red-50 hover:text-red-700 rounded-lg transition-colors flex-shrink-0"
                         onClick={() => removeItem(item.id)}
                       >
-                        <X className="h-4 w-4" />
+                        <X className="h-3.5 w-3.5" />
                       </Button>
-                    </div>
+                        </div>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                          <div>
-                            <span className="text-xs text-gray-600">Quantity</span>
-                            <div className="flex items-center border border-gray-300 rounded-lg bg-white mt-2">
+                        <div className="flex items-center justify-between gap-3">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm text-gray-600 whitespace-nowrap">Quantity:</span>
+                            <div className="flex items-center border border-gray-300 rounded-lg bg-white">
                       <Button
                         size="sm"
                                 variant="ghost"
-                                className="h-8 w-8 p-0 rounded-l-lg hover:bg-green-50 active:bg-green-100 transition-colors"
+                                className="h-7 w-7 p-0 rounded-l-lg hover:bg-green-50 active:bg-green-100 transition-colors"
                         onClick={() => updateQuantity(item.id, -1)}
                       >
-                                <Minus className="h-4 w-4 text-green-600" />
+                                <Minus className="h-3.5 w-3.5 text-green-600" />
                       </Button>
                               <Input
                                 type="number"
@@ -1038,22 +1038,22 @@ const AddInvoice = () => {
                                   const qty = Math.max(1, parseInt(e.target.value) || 1);
                                   setItems(prev => prev.map(i => (i.id === item.id ? { ...i, quantity: qty } : i)));
                                 }}
-                                className="w-12 h-8 text-center border-0 border-x border-gray-300 rounded-none focus-visible:ring-0 focus-visible:ring-offset-0 text-sm font-medium"
+                                className="w-8 h-7 text-center border-0 border-x border-gray-300 rounded-none focus-visible:ring-0 focus-visible:ring-offset-0 text-sm font-medium"
                                 min="1"
                               />
                       <Button
                         size="sm"
                                 variant="ghost"
-                                className="h-8 w-8 p-0 rounded-r-lg hover:bg-green-50 active:bg-green-100 transition-colors"
+                                className="h-7 w-7 p-0 rounded-r-lg hover:bg-green-50 active:bg-green-100 transition-colors"
                         onClick={() => updateQuantity(item.id, 1)}
                       >
-                                <Plus className="h-4 w-4 text-green-600" />
+                                <Plus className="h-3.5 w-3.5 text-green-600" />
                       </Button>
                             </div>
                           </div>
-                          <div className="flex items-center justify-between sm:justify-end gap-4">
-                            <span className="text-sm font-semibold text-gray-600">Line Total</span>
-                            <span className="text-lg font-bold text-gray-900">${(item.price * item.quantity).toFixed(2)}</span>
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            <span className="text-sm font-semibold text-gray-600 whitespace-nowrap">Total:</span>
+                            <span className="text-base font-bold text-gray-900 whitespace-nowrap">${(item.price * item.quantity).toFixed(2)}</span>
                       </div>
                     </div>
                   </div>
@@ -1064,14 +1064,14 @@ const AddInvoice = () => {
             </div>
 
             {items.length > 0 && (
-              <div className="p-4 rounded-xl bg-primary/5 border border-primary/20">
-                <div className="flex justify-between mb-2">
-                  <span className="font-medium">Subtotal:</span>
-                  <span className="font-semibold">${subtotal.toFixed(2)}</span>
+              <div className="p-2.5 rounded-lg bg-primary/5 border border-primary/20">
+                <div className="flex justify-between mb-1.5">
+                  <span className="text-sm font-medium">Subtotal:</span>
+                  <span className="text-sm font-semibold">${subtotal.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between pt-2 border-t">
-                  <span className="font-bold text-lg">Total:</span>
-                  <span className="font-bold text-lg">${total.toFixed(2)}</span>
+                <div className="flex justify-between pt-1.5 border-t">
+                  <span className="font-bold text-base">Total:</span>
+                  <span className="font-bold text-base">${total.toFixed(2)}</span>
                 </div>
               </div>
             )}
@@ -1345,16 +1345,16 @@ const AddInvoice = () => {
         )}
       </div>
 
-      <div className="p-4 border-t bg-background space-y-2">
+      <div className="px-3 py-2.5 border-t bg-background space-y-2">
         <div className="flex gap-2">
           {step > 1 && (
-            <Button variant="outline" className="flex-1" onClick={() => setStep(step - 1)}>
+            <Button variant="outline" className="flex-1 h-9 text-sm" onClick={() => setStep(step - 1)}>
               Back
             </Button>
           )}
           {step < 4 ? (
             <Button
-              className="flex-1"
+              className="flex-1 h-9 text-sm"
               onClick={() => setStep(step + 1)}
               disabled={(step === 1 && (!selectedCustomer || !selectedEmployee)) || (step === 2 && items.length === 0)}
             >
@@ -1362,7 +1362,7 @@ const AddInvoice = () => {
             </Button>
           ) : (
             <Button
-              className="flex-1"
+              className="flex-1 h-9 text-sm"
               onClick={() => {
                 toast.success("Invoice created successfully");
                 navigate("/invoices");

@@ -1,7 +1,7 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { Home, DollarSign, Calendar, Users, MoreHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import SalesSubmenu from "./SalesSubmenu";
 
 const navItems = [
@@ -16,6 +16,44 @@ const BottomNav = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [salesSubmenuOpen, setSalesSubmenuOpen] = useState(false);
+  const previousPathRef = useRef(location.pathname);
+  const isOpeningSubmenuRef = useRef(false);
+
+  // Close Sales submenu when navigating away from Sales routes
+  useEffect(() => {
+    const isSalesRoute = location.pathname.startsWith("/invoices") || 
+                         location.pathname.startsWith("/estimates") || 
+                         location.pathname.startsWith("/agreements");
+    
+    const routeChanged = previousPathRef.current !== location.pathname;
+    
+    // Only close if:
+    // 1. We're not on a Sales route
+    // 2. Submenu is currently open
+    // 3. The route actually changed (user navigated to a different page)
+    // 4. We're not in the process of opening the submenu via click
+    if (!isSalesRoute && salesSubmenuOpen && routeChanged && !isOpeningSubmenuRef.current) {
+      setSalesSubmenuOpen(false);
+    }
+    
+    // If we navigated to a Sales route, reset the opening flag
+    if (isSalesRoute && routeChanged) {
+      isOpeningSubmenuRef.current = false;
+    }
+    
+    // Update previous path
+    previousPathRef.current = location.pathname;
+  }, [location.pathname]);
+
+  // Reset opening flag after submenu state changes
+  useEffect(() => {
+    if (isOpeningSubmenuRef.current) {
+      const timer = setTimeout(() => {
+        isOpeningSubmenuRef.current = false;
+      }, 200);
+      return () => clearTimeout(timer);
+    }
+  }, [salesSubmenuOpen]);
 
   const isActive = (path: string, hasSubmenu: boolean) => {
     if (path === "/") return location.pathname === "/";
@@ -31,8 +69,13 @@ const BottomNav = () => {
   const handleItemClick = (item: typeof navItems[0], e: React.MouseEvent) => {
     if (item.hasSubmenu) {
       e.preventDefault();
-      setSalesSubmenuOpen(true);
+      // Set flag to prevent useEffect from closing it immediately
+      isOpeningSubmenuRef.current = true;
+      // Toggle submenu: if already open, close it; otherwise open it
+      setSalesSubmenuOpen(prev => !prev);
     } else {
+      // Close submenu when clicking on other nav items
+      setSalesSubmenuOpen(false);
       navigate(item.path);
     }
   };

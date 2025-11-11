@@ -1,16 +1,19 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import MobileHeader from "@/components/layout/MobileHeader";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import MinimumDepositPercentageModal from "@/components/modals/MinimumDepositPercentageModal";
 import { mockAgreements } from "@/data/mobileMockData";
-import { Plus, Calendar, DollarSign, MoreHorizontal } from "lucide-react";
+import { Plus, Calendar, DollarSign, MoreHorizontal, Percent } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { statusColors } from "@/data/mobileMockData";
 import { toast } from "sonner";
 
 const Agreements = () => {
   const navigate = useNavigate();
+  const [showDepositModal, setShowDepositModal] = useState(false);
 
   const handlePayNow = (agreementId: string) => {
     toast.success(`Initiating payment for ${agreementId}`);
@@ -43,17 +46,28 @@ const Agreements = () => {
       <MobileHeader
         title="Agreements"
         actions={
-          <Button size="sm" onClick={() => navigate("/agreements/new")}>
-            <Plus className="h-4 w-4" />
-          </Button>
+          <div className="flex items-center gap-1.5">
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 px-2 text-xs font-medium"
+              onClick={() => setShowDepositModal(true)}
+            >
+              <Percent className="h-3.5 w-3.5 mr-1" />
+              <span className="hidden sm:inline">Min Deposit</span>
+            </Button>
+            <Button size="sm" className="h-8 w-8 p-0" onClick={() => navigate("/agreements/new")}>
+              <Plus className="h-4 w-4" />
+            </Button>
+          </div>
         }
       />
 
       <div
-        className="flex-1 overflow-y-auto scrollable px-4 pb-6 space-y-4"
-        style={{ paddingTop: "calc(3.5rem + env(safe-area-inset-top) + 0.5rem)" }}
+        className="flex-1 overflow-y-auto scrollable px-3 pb-4 space-y-2"
+        style={{ paddingTop: "calc(3rem + env(safe-area-inset-top) + 0.5rem)" }}
       >
-        <div className="space-y-3">
+        <div className="space-y-2">
           {mockAgreements.map(agreement => {
             const isPaid = agreement.status === "Paid";
             const menuItems = isPaid
@@ -71,46 +85,40 @@ const Agreements = () => {
             return (
               <div
                 key={agreement.id}
-                className="p-4 rounded-xl border bg-card active:scale-98 transition-transform cursor-pointer"
+                className="p-2.5 rounded-lg border bg-card active:scale-[0.98] transition-transform cursor-pointer"
                 onClick={() => navigate(`/agreements/${agreement.id}`)}
               >
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-semibold text-lg">{agreement.type}</h3>
-                      <Badge className={cn("text-xs", statusColors[agreement.status])}>
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5 mb-0.5">
+                      <h3 className="font-semibold text-base truncate">{agreement.type}</h3>
+                      <Badge className={cn("text-[10px] px-2 py-0.5 h-5 flex-shrink-0", statusColors[agreement.status])}>
                         {agreement.status}
                       </Badge>
                     </div>
-                    <p className="text-sm text-muted-foreground mb-2">{agreement.customerName}</p>
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                      <div className="flex items-center gap-1">
-                        <Calendar className="h-3 w-3" />
-                        <span>
-                          {new Date(agreement.startDate).toLocaleDateString()} - {new Date(agreement.endDate).toLocaleDateString()}
-                        </span>
-                      </div>
+                    <p className="text-xs text-muted-foreground mb-1.5 truncate">{agreement.customerName}</p>
+                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <Calendar className="h-3 w-3 flex-shrink-0" />
+                      <span className="truncate">
+                        {new Date(agreement.startDate).toLocaleDateString()} - {new Date(agreement.endDate).toLocaleDateString()}
+                      </span>
                     </div>
                   </div>
-                  <div className="text-right flex flex-col items-end gap-2">
-                    <div className="flex items-center gap-2">
-                      <div>
-                        <div className="flex items-center gap-1">
-                          <DollarSign className="h-4 w-4 text-primary" />
-                          <span className="text-xl font-bold">{agreement.monthlyAmount.toFixed(2)}</span>
-                        </div>
-                        <p className="text-xs text-muted-foreground text-right">per month</p>
-                      </div>
+                  <div className="text-right flex flex-col items-end gap-1.5 flex-shrink-0 ml-2">
+                    <div className="flex items-baseline gap-1">
+                      <DollarSign className="h-3.5 w-3.5 text-primary flex-shrink-0" />
+                      <span className="text-lg font-bold whitespace-nowrap">${agreement.monthlyAmount.toFixed(2)}</span>
                     </div>
+                    <p className="text-[10px] text-muted-foreground text-right whitespace-nowrap">per month</p>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8"
+                          className="h-7 w-7 mt-0.5"
                           onClick={e => e.stopPropagation()}
                         >
-                          <MoreHorizontal className="h-4 w-4" />
+                          <MoreHorizontal className="h-3.5 w-3.5" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" sideOffset={4} className="w-44">
@@ -131,6 +139,11 @@ const Agreements = () => {
           })}
         </div>
       </div>
+
+      <MinimumDepositPercentageModal
+        isOpen={showDepositModal}
+        onClose={() => setShowDepositModal(false)}
+      />
     </div>
   );
 };

@@ -8,11 +8,17 @@ import { mockCustomers } from "@/data/mobileMockData";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Plus, Search, Users } from "lucide-react";
+import SendSMSModal from "@/components/modals/SendSMSModal";
+import CustomerAddNoteModal from "@/components/modals/CustomerAddNoteModal";
 
 const Customers = () => {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<"Active" | "Deactivated">("Active");
+  const [sendSMSModalOpen, setSendSMSModalOpen] = useState(false);
+  const [selectedCustomerForSMS, setSelectedCustomerForSMS] = useState<typeof mockCustomers[0] | null>(null);
+  const [addNoteModalOpen, setAddNoteModalOpen] = useState(false);
+  const [selectedCustomerForNote, setSelectedCustomerForNote] = useState<typeof mockCustomers[0] | null>(null);
   
   const isActiveStatus = (status: string) => status === "Active";
   const isDeactivatedStatus = (status: string) => status === "Deactivated" || status === "Inactive";
@@ -32,19 +38,30 @@ const Customers = () => {
   const handleQuickAction = (customerId: string, action: string) => {
     switch (action) {
       case "edit":
-        toast.info("Edit customer coming soon");
+        navigate(`/customers/${customerId}?edit=true`);
         break;
       case "email":
         toast.success("Opening email composer...");
         break;
       case "sms":
-        toast.success("Opening SMS composer...");
+        const customer = mockCustomers.find(c => c.id === customerId);
+        if (customer) {
+          setSelectedCustomerForSMS(customer);
+          setSendSMSModalOpen(true);
+        }
         break;
       case "memo":
-        toast.info("Memo feature coming soon");
+        const memoCustomer = mockCustomers.find(c => c.id === customerId);
+        if (memoCustomer) {
+          setSelectedCustomerForNote(memoCustomer);
+          setAddNoteModalOpen(true);
+        }
         break;
       case "appointment":
-        toast.info("Appointment scheduling coming soon");
+        const appointmentCustomer = mockCustomers.find(c => c.id === customerId);
+        if (appointmentCustomer) {
+          navigate(`/appointments/new?customerId=${appointmentCustomer.id}&customerName=${encodeURIComponent(appointmentCustomer.name)}`);
+        }
         break;
       case "deactivate":
         toast.info("Deactivation workflow coming soon");
@@ -134,6 +151,29 @@ const Customers = () => {
           />
         )}
       </div>
+
+      <SendSMSModal
+        open={sendSMSModalOpen}
+        onClose={() => {
+          setSendSMSModalOpen(false);
+          setSelectedCustomerForSMS(null);
+        }}
+        customer={selectedCustomerForSMS}
+      />
+
+      <CustomerAddNoteModal
+        open={addNoteModalOpen}
+        onClose={() => {
+          setAddNoteModalOpen(false);
+          setSelectedCustomerForNote(null);
+        }}
+        customer={selectedCustomerForNote}
+        onAddNote={(customerId, noteText) => {
+          // Handle note addition - in real app, this would save to backend
+          console.info("Adding note to customer", customerId, noteText);
+          toast.success("Note added successfully");
+        }}
+      />
     </div>
   );
 };

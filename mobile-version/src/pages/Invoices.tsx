@@ -8,6 +8,7 @@ import SendEmailModal from "@/components/modals/SendEmailModal";
 import SendSMSModal from "@/components/modals/SendSMSModal";
 import ReassignEmployeeModal from "@/components/modals/ReassignEmployeeModal";
 import PreviewInvoiceModal from "@/components/modals/PreviewInvoiceModal";
+import InvoiceDueAlertModal from "@/components/modals/InvoiceDueAlertModal";
 import { mockCustomers, mockInvoices } from "@/data/mobileMockData";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -33,6 +34,7 @@ import {
   UserCog,
   RotateCcw,
   XCircle,
+  Bell,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -55,6 +57,7 @@ const Invoices = () => {
   const [showReassignModal, setShowReassignModal] = useState(false);
   const [previewInvoice, setPreviewInvoice] = useState<(Invoice & { customerEmail?: string; customerPhone?: string }) | null>(null);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
+  const [showInvoiceDueAlertModal, setShowInvoiceDueAlertModal] = useState(false);
 
   const handleTabChange = (value: string) => {
     const tabValue = value as InvoiceTab;
@@ -229,10 +232,10 @@ const Invoices = () => {
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8 rounded-full hover:bg-orange-50"
+              className="h-7 w-7 rounded-full hover:bg-orange-50"
               onClick={(e) => e.stopPropagation()}
             >
-              <MoreVertical className="h-4 w-4 text-muted-foreground" />
+              <MoreVertical className="h-3.5 w-3.5 text-muted-foreground" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-44">
@@ -266,10 +269,10 @@ const Invoices = () => {
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8 rounded-full hover:bg-orange-50"
+              className="h-7 w-7 rounded-full hover:bg-orange-50"
               onClick={(e) => e.stopPropagation()}
             >
-              <MoreVertical className="h-4 w-4 text-muted-foreground" />
+              <MoreVertical className="h-3.5 w-3.5 text-muted-foreground" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
@@ -331,10 +334,10 @@ const Invoices = () => {
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8 rounded-full hover:bg-orange-50"
+              className="h-7 w-7 rounded-full hover:bg-orange-50"
               onClick={(e) => e.stopPropagation()}
             >
-              <MoreVertical className="h-4 w-4 text-muted-foreground" />
+              <MoreVertical className="h-3.5 w-3.5 text-muted-foreground" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
@@ -476,12 +479,12 @@ const Invoices = () => {
     const showFilters = type !== "deactivated";
 
     return (
-      <div className="space-y-4">
+      <div className="space-y-2.5">
         {showFilters && (
-          <div className="flex gap-3">
+          <div className="flex gap-2">
             <div className="flex-1 min-w-0">
               <Select value={dateRange} onValueChange={(value) => setDateRange(value as DateRangeFilter)}>
-                <SelectTrigger className="w-full h-11">
+                <SelectTrigger className="w-full h-9 text-xs py-2 px-3">
                   <SelectValue placeholder="Date range" />
                 </SelectTrigger>
                 <SelectContent>
@@ -495,7 +498,7 @@ const Invoices = () => {
 
             <div className="flex-1 min-w-0">
               <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as InvoiceStatusFilter)}>
-                <SelectTrigger className="w-full h-11">
+                <SelectTrigger className="w-full h-9 text-xs py-2 px-3">
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -509,7 +512,7 @@ const Invoices = () => {
         )}
 
         {invoices.length > 0 ? (
-          <div className="space-y-3">
+          <div className="space-y-2">
             {invoices.map(invoice => (
               <InvoiceCard
                 key={invoice.id}
@@ -520,7 +523,7 @@ const Invoices = () => {
                     <Button
                       size="sm"
                       variant="default"
-                      className="h-7 px-3 text-xs font-semibold touch-target whitespace-nowrap bg-primary hover:bg-primary/90 shadow-sm hover:shadow-md transition-all"
+                      className="h-auto min-h-0 px-2 py-1 text-xs font-semibold whitespace-nowrap bg-primary hover:bg-primary/90 rounded-xl shadow-sm hover:shadow-md transition-all leading-tight"
                       onClick={(e) => {
                         e.stopPropagation();
                         handlePayNow(invoice.id);
@@ -536,7 +539,7 @@ const Invoices = () => {
           </div>
         ) : (
           <EmptyState
-            icon={<FileText className="h-10 w-10 text-muted-foreground" />}
+            icon={<FileText className="h-8 w-8 text-muted-foreground" />}
             title="No invoices found"
             description="Try adjusting your search or filters"
             actionLabel="Create Invoice"
@@ -553,39 +556,51 @@ const Invoices = () => {
         title="Invoices"
         showBack={true}
         actions={
-          <Button size="sm" onClick={() => navigate("/invoices/new")}>
+          <Button size="sm" className="h-8 w-8 p-0" onClick={() => navigate("/invoices/new")}>
             <Plus className="h-4 w-4" />
           </Button>
         }
       />
       
-      <div className="flex-1 overflow-y-auto scrollable px-4 pb-6 space-y-4" style={{ paddingTop: 'calc(3.5rem + env(safe-area-inset-top) + 0.5rem)' }}>
-        {/* Search */}
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input 
-            placeholder="Search invoices..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="pl-10"
-          />
+      <div className="flex-1 overflow-y-auto scrollable px-3 pb-4 space-y-3" style={{ paddingTop: 'calc(3rem + env(safe-area-inset-top) + 0.5rem)' }}>
+        {/* Search and Invoice Due Alert Button */}
+        <div className="flex gap-2">
+          <div className="relative flex-1 min-w-0">
+            <Search className="absolute left-2.5 top-1/2 transform -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+            <Input 
+              placeholder="Search invoices..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-9 h-9 text-sm py-2"
+            />
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowInvoiceDueAlertModal(true)}
+            className="h-9 px-2 sm:px-3 text-xs font-medium flex-shrink-0"
+          >
+            <Bell className="h-3.5 w-3.5 sm:mr-1.5" />
+            <span className="hidden sm:inline">Invoice Due Alert</span>
+            <span className="sm:hidden">Alert</span>
+          </Button>
         </div>
         
         {/* Invoice Type Tabs */}
-        <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-4">
-          <TabsList className="w-full grid grid-cols-3">
-            <TabsTrigger value="single">Single</TabsTrigger>
-            <TabsTrigger value="recurring">Recurring</TabsTrigger>
-            <TabsTrigger value="deactivated">Deactivated</TabsTrigger>
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-3">
+          <TabsList className="w-full grid grid-cols-3 h-9">
+            <TabsTrigger value="single" className="text-xs py-1.5 px-2">Single</TabsTrigger>
+            <TabsTrigger value="recurring" className="text-xs py-1.5 px-2">Recurring</TabsTrigger>
+            <TabsTrigger value="deactivated" className="text-xs py-1.5 px-2">Deactivated</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="single" className="mt-2">
+          <TabsContent value="single" className="mt-1.5">
             {renderInvoices("single")}
           </TabsContent>
-          <TabsContent value="recurring" className="mt-2">
+          <TabsContent value="recurring" className="mt-1.5">
             {renderInvoices("recurring")}
           </TabsContent>
-          <TabsContent value="deactivated" className="mt-2">
+          <TabsContent value="deactivated" className="mt-1.5">
             {renderInvoices("deactivated")}
           </TabsContent>
         </Tabs>
@@ -652,6 +667,11 @@ const Invoices = () => {
           }}
         />
       )}
+
+      <InvoiceDueAlertModal
+        isOpen={showInvoiceDueAlertModal}
+        onClose={() => setShowInvoiceDueAlertModal(false)}
+      />
     </div>
   );
 };

@@ -317,17 +317,43 @@ export const mockJobs = [
   { id: "JOB-015", title: "Thermostat Install", customerId: "6", customerName: "Jennifer Wilson", technicianId: "4", technicianName: "Sarah Martinez", date: "2024-01-26", time: "02:00 PM", status: "Completed", location: "987 Cedar Ln, Rockford, IL" },
 ];
 
+// Helper function to get current month dates
+const getCurrentMonthDates = () => {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  
+  return {
+    year,
+    month: month + 1, // 1-indexed
+    daysInMonth,
+    today: now.getDate(),
+  };
+};
+
+const currentDates = getCurrentMonthDates();
+const formatDate = (day: number) => {
+  return `${currentDates.year}-${String(currentDates.month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+};
+
 export const mockAppointments = [
-  { id: "APT-001", customerId: "1", customerName: "John Smith", date: "2024-02-01", time: "09:00 AM", service: "HVAC Installation", duration: "3 hours", technicianId: "1", technicianName: "Mike Johnson", status: "Confirmed" },
-  { id: "APT-002", customerId: "2", customerName: "Sarah Johnson", date: "2024-01-30", time: "02:00 PM", service: "Plumbing Repair", duration: "2 hours", technicianId: "2", technicianName: "Tom Wilson", status: "Confirmed" },
-  { id: "APT-003", customerId: "5", customerName: "Robert Miller", date: "2024-02-02", time: "01:00 PM", service: "AC Maintenance", duration: "1.5 hours", technicianId: "1", technicianName: "Mike Johnson", status: "Confirmed" },
-  { id: "APT-004", customerId: "7", customerName: "David Brown", date: "2024-01-31", time: "11:00 AM", service: "Water Heater Replacement", duration: "4 hours", technicianId: "2", technicianName: "Tom Wilson", status: "Pending" },
-  { id: "APT-005", customerId: "9", customerName: "William Taylor", date: "2024-02-03", time: "09:30 AM", service: "Kitchen Plumbing", duration: "3 hours", technicianId: "2", technicianName: "Tom Wilson", status: "Confirmed" },
-  { id: "APT-006", customerId: "10", customerName: "Jessica Martinez", date: "2024-02-01", time: "02:30 PM", service: "Panel Upgrade", duration: "5 hours", technicianId: "3", technicianName: "Chris Davis", status: "Confirmed" },
-  { id: "APT-007", customerId: "13", customerName: "Daniel Lee", date: "2024-01-30", time: "04:00 PM", service: "Drain Cleaning", duration: "1 hour", technicianId: "2", technicianName: "Tom Wilson", status: "Confirmed" },
-  { id: "APT-008", customerId: "17", customerName: "Steven Lewis", date: "2024-02-04", time: "10:00 AM", service: "Outlet Installation", duration: "2 hours", technicianId: "3", technicianName: "Chris Davis", status: "Pending" },
-  { id: "APT-009", customerId: "19", customerName: "Thomas Young", date: "2024-02-05", time: "11:30 AM", service: "Duct Cleaning", duration: "2.5 hours", technicianId: "1", technicianName: "Mike Johnson", status: "Confirmed" },
-  { id: "APT-010", customerId: "20", customerName: "Patricia King", date: "2024-02-02", time: "09:00 AM", service: "Bathroom Remodel", duration: "8 hours", technicianId: "2", technicianName: "Tom Wilson", status: "Pending" },
+  // Current month appointments for testing
+  { id: "APT-001", customerId: "1", customerName: "John Smith", date: formatDate(1), time: "09:00 AM", service: "HVAC Installation", duration: "3 hours", technicianId: "1", technicianName: "Mike Johnson", status: "Confirmed" },
+  { id: "APT-002", customerId: "2", customerName: "Sarah Johnson", date: formatDate(3), time: "02:00 PM", service: "Plumbing Repair", duration: "2 hours", technicianId: "2", technicianName: "Tom Wilson", status: "Confirmed" },
+  { id: "APT-003", customerId: "5", customerName: "Robert Miller", date: formatDate(5), time: "01:00 PM", service: "AC Maintenance", duration: "1.5 hours", technicianId: "1", technicianName: "Mike Johnson", status: "Confirmed" },
+  { id: "APT-004", customerId: "7", customerName: "David Brown", date: formatDate(7), time: "11:00 AM", service: "Water Heater Replacement", duration: "4 hours", technicianId: "2", technicianName: "Tom Wilson", status: "Pending" },
+  { id: "APT-005", customerId: "9", customerName: "William Taylor", date: formatDate(10), time: "09:30 AM", service: "Kitchen Plumbing", duration: "3 hours", technicianId: "2", technicianName: "Tom Wilson", status: "Confirmed" },
+  { id: "APT-006", customerId: "10", customerName: "Jessica Martinez", date: formatDate(12), time: "02:30 PM", service: "Panel Upgrade", duration: "5 hours", technicianId: "3", technicianName: "Chris Davis", status: "Confirmed" },
+  { id: "APT-007", customerId: "13", customerName: "Daniel Lee", date: formatDate(15), time: "04:00 PM", service: "Drain Cleaning", duration: "1 hour", technicianId: "2", technicianName: "Tom Wilson", status: "Confirmed" },
+  { id: "APT-008", customerId: "17", customerName: "Steven Lewis", date: formatDate(18), time: "10:00 AM", service: "Outlet Installation", duration: "2 hours", technicianId: "3", technicianName: "Chris Davis", status: "Pending" },
+  { id: "APT-009", customerId: "19", customerName: "Thomas Young", date: formatDate(20), time: "11:30 AM", service: "Duct Cleaning", duration: "2.5 hours", technicianId: "1", technicianName: "Mike Johnson", status: "Confirmed" },
+  { id: "APT-010", customerId: "20", customerName: "Patricia King", date: formatDate(22), time: "09:00 AM", service: "Bathroom Remodel", duration: "8 hours", technicianId: "2", technicianName: "Tom Wilson", status: "Pending" },
+  { id: "APT-011", customerId: "1", customerName: "John Smith", date: formatDate(25), time: "10:00 AM", service: "Follow Up", duration: "1 hour", technicianId: "1", technicianName: "Mike Johnson", status: "Confirmed" },
+  { id: "APT-012", customerId: "4", customerName: "Emma Davis", date: formatDate(28), time: "02:00 PM", service: "Emergency Repair", duration: "2 hours", technicianId: "2", technicianName: "Tom Wilson", status: "Confirmed" },
+  // Multiple appointments on same day for testing
+  { id: "APT-013", customerId: "5", customerName: "Robert Miller", date: formatDate(1), time: "03:00 PM", service: "Inspection", duration: "1 hour", technicianId: "3", technicianName: "Chris Davis", status: "Confirmed" },
+  { id: "APT-014", customerId: "6", customerName: "Jennifer Wilson", date: formatDate(10), time: "02:00 PM", service: "Maintenance Check", duration: "1.5 hours", technicianId: "1", technicianName: "Mike Johnson", status: "Confirmed" },
 ];
 
 export const mockEmployees = [
