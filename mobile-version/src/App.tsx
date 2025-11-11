@@ -81,8 +81,9 @@ const AppContent = () => {
             <Route path="/jobs/new" element={<AddJob />} />
             <Route path="/jobs/:id" element={<JobDetails />} />
             <Route path="/appointments/manage" element={<ManageAppointments />} />
-            <Route path="/appointments/add" element={<AddAppointment />} />
-            <Route path="/appointments/new" element={<AddAppointment />} />
+            <Route path="/appointments/add" element={<AddAppointment mode="create" />} />
+            <Route path="/appointments/new" element={<AddAppointment mode="create" />} />
+            <Route path="/appointments/:id/edit" element={<AddAppointment mode="edit" />} />
             <Route path="/invoices" element={<Invoices />} />
             <Route path="/invoices/:id" element={<InvoiceDetails />} />
             <Route path="/invoices/new" element={<AddInvoice />} />
@@ -90,6 +91,7 @@ const AppContent = () => {
             <Route path="/estimates" element={<Estimates />} />
             <Route path="/estimates/:id" element={<EstimateDetails />} />
             <Route path="/estimates/new" element={<AddEstimate />} />
+            <Route path="/estimates/:id/edit" element={<AddEstimate />} />
             <Route path="/agreements" element={<Agreements />} />
             <Route path="/agreements/:id" element={<AgreementDetails />} />
             <Route path="/agreements/new" element={<AddAgreement />} />

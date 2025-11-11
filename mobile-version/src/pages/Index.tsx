@@ -4,10 +4,9 @@ import MobileHeader from "@/components/layout/MobileHeader";
 import MobileCard from "@/components/mobile/MobileCard";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, FileText, Briefcase, DollarSign, Calendar, TrendingUp, Users, ClipboardList, Package, BarChart3, Settings } from "lucide-react";
+import { FileText, Briefcase, DollarSign, Calendar, TrendingUp, Users, ClipboardList, Package, BarChart3, Settings } from "lucide-react";
 import { mockAppointments, mockInvoices, mockEstimates, mockJobs } from "@/data/mobileMockData";
 import { cn } from "@/lib/utils";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -35,12 +34,6 @@ const Index = () => {
     { label: "Active Jobs", value: activeJobs.length.toString(), icon: Briefcase, color: "text-accent", path: "/jobs" },
     { label: "Awaiting Payment", value: openInvoices.length.toString(), amount: `$${openInvoices.reduce((sum, inv) => sum + inv.amount, 0)}`, icon: DollarSign, color: "text-warning", path: "/invoices" },
     { label: "Today's Appointments", value: todaysAppointments.length.toString(), icon: Calendar, color: "text-success", path: "/appointments/manage" },
-  ];
-
-  const salesModules = [
-    { label: "Invoices", icon: FileText, path: "/invoices", color: "bg-success/10 text-success" },
-    { label: "Estimates", icon: TrendingUp, path: "/estimates", color: "bg-accent/10 text-accent" },
-    { label: "Agreements", icon: ClipboardList, path: "/agreements", color: "bg-purple-500/10 text-purple-500" },
   ];
 
   const operationalModules = [
@@ -71,8 +64,8 @@ const Index = () => {
       />
 
       <div className="flex-1 overflow-y-auto scrollable px-4 pb-6 space-y-4" style={{ paddingTop: 'calc(3.5rem + env(safe-area-inset-top) + 0.5rem)' }}>
-        {/* Stats Grid */}
-        <div className="grid grid-cols-2 gap-3">
+        {/* Stats Grid - Compact Single Row */}
+        <div className="grid grid-cols-4 gap-2">
           {stats.map((stat, index) => {
             const Icon = stat.icon;
             const isPrimary = index === 0;
@@ -80,45 +73,45 @@ const Index = () => {
               <MobileCard 
                 key={index} 
                 className={cn(
-                  "p-4 cursor-pointer relative overflow-hidden",
+                  "p-2.5 cursor-pointer relative overflow-hidden",
                   isPrimary && "bg-gradient-to-br from-primary/5 to-primary/10 border-primary/30"
                 )}
                 onClick={() => navigate(stat.path)}
               >
                 {isPrimary && (
-                  <div className="absolute top-0 right-0 w-20 h-20 bg-primary/5 rounded-full -mr-10 -mt-10" />
+                  <div className="absolute top-0 right-0 w-12 h-12 bg-primary/5 rounded-full -mr-6 -mt-6" />
                 )}
-                <div className="flex items-start justify-between mb-3 relative z-10">
-                  <div className="flex items-start gap-2 flex-1 min-w-0">
-                    <div className={cn(
-                      "p-2 rounded-lg flex-shrink-0 mt-0.5",
-                      isPrimary ? "bg-primary text-white" : `bg-gray-100 ${stat.color}`
-                    )}>
-                      <Icon className="h-4 w-4" />
-                    </div>
+                <div className="flex flex-col items-center gap-1.5 relative z-10">
+                  <div className={cn(
+                    "p-1.5 rounded-lg flex-shrink-0",
+                    isPrimary ? "bg-primary text-white" : `bg-gray-100 ${stat.color}`
+                  )}>
+                    <Icon className="h-3.5 w-3.5" />
+                  </div>
+                  <div className="flex flex-col items-center gap-0.5 w-full">
                     <p className={cn(
-                      "text-xs font-medium line-clamp-2 relative z-10 leading-tight",
-                      isPrimary ? "text-primary" : "text-muted-foreground"
+                      "text-lg font-bold leading-tight",
+                      isPrimary && "text-primary"
+                    )}>
+                      {stat.value}
+                    </p>
+                    {stat.amount && (
+                      <p className={cn(
+                        "text-[10px] font-medium leading-tight",
+                        isPrimary ? "text-primary/70" : "text-muted-foreground"
+                      )}>
+                        {stat.amount}
+                      </p>
+                    )}
+                    <p className={cn(
+                      "text-[9px] font-medium text-center leading-tight line-clamp-2 mt-0.5",
+                      isPrimary ? "text-primary/80" : "text-muted-foreground"
                     )}>
                       {stat.label}
                     </p>
                   </div>
-                  {index === 0 && <TrendingUp className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />}
-                </div>
-                <div className="flex items-baseline gap-2 relative z-10">
-                  <p className={cn(
-                    "text-2xl font-bold",
-                    isPrimary && "text-primary"
-                  )}>
-                    {stat.value}
-                  </p>
-                  {stat.amount && (
-                    <p className={cn(
-                      "text-sm font-medium",
-                      isPrimary ? "text-primary/70" : "text-muted-foreground"
-                    )}>
-                      {stat.amount}
-                    </p>
+                  {index === 0 && (
+                    <TrendingUp className="h-3 w-3 text-primary absolute top-1 right-1" />
                   )}
                 </div>
               </MobileCard>

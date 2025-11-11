@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { User, Mail, Phone, Briefcase } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const AddEmployee = () => {
   const navigate = useNavigate();

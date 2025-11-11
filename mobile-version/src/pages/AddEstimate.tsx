@@ -1,12 +1,12 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import MobileHeader from "@/components/layout/MobileHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { mockCustomers, mockInventory, mockEmployees, mockDiscounts } from "@/data/mobileMockData";
+import { mockCustomers, mockInventory, mockEmployees, mockDiscounts, mockEstimates } from "@/data/mobileMockData";
 import { Search, Plus, Minus, X, RefreshCw, List, Check, ChevronsUpDown, Package, FileText, Save, Upload, Tag, Camera } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -16,11 +16,16 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 
 const AddEstimate = () => {
   const navigate = useNavigate();
+  const { id } = useParams();
+  const location = useLocation();
+  const isEditMode = id && location.pathname.includes('/edit');
   const [step, setStep] = useState(1);
   const [customerOpen, setCustomerOpen] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<string | null>(null);
+  const [customerSearch, setCustomerSearch] = useState("");
   const [employeeOpen, setEmployeeOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<string | null>(null);
+  const [employeeSearch, setEmployeeSearch] = useState("");
   const [items, setItems] = useState<Array<{ id: string; name: string; quantity: number; price: number; isCustom?: boolean }>>([]);
   const [itemSearch, setItemSearch] = useState("");
   const [tax, setTax] = useState(0);
@@ -35,7 +40,13 @@ const AddEstimate = () => {
   const [cancellationPolicy, setCancellationPolicy] = useState<string>("");
   const [notes, setNotes] = useState("");
   const [uploadedDocs, setUploadedDocs] = useState<string[]>([]);
+  const [customerList, setCustomerList] = useState(() => [...mockCustomers]);
   const [showAddExisting, setShowAddExisting] = useState(false);
+  const [showQuickAddCustomer, setShowQuickAddCustomer] = useState(false);
+  const [newCustomerFirstName, setNewCustomerFirstName] = useState("");
+  const [newCustomerLastName, setNewCustomerLastName] = useState("");
+  const [newCustomerEmail, setNewCustomerEmail] = useState("");
+  const [newCustomerPhone, setNewCustomerPhone] = useState("");
   const [showAddCustom, setShowAddCustom] = useState(false);
   const [showAddToInventory, setShowAddToInventory] = useState(false);
   const [customItemName, setCustomItemName] = useState("");
@@ -45,6 +56,45 @@ const AddEstimate = () => {
   const [pendingVariableItem, setPendingVariableItem] = useState<typeof mockInventory[0] | null>(null);
   const [variableItemPrice, setVariableItemPrice] = useState("");
 
+  // Load estimate data when in edit mode
+  useEffect(() => {
+    if (isEditMode && id) {
+      const estimate = mockEstimates.find(est => est.id === id);
+      if (estimate) {
+        // Prefill customer
+        setSelectedCustomer(estimate.customerId);
+        
+        // Prefill employee (using first employee as default)
+        if (mockEmployees.length > 0) {
+          setSelectedEmployee(mockEmployees[0].id);
+        }
+        
+        // Prefill items - create items from estimate amount
+        // In a real app, you'd load actual items from the estimate
+        setItems([{
+          id: `item-${estimate.id}`,
+          name: "Service Item",
+          quantity: 1,
+          price: estimate.amount,
+        }]);
+        
+        // Prefill terms (default to "Due on Receipt")
+        setTerms("Due on Receipt");
+        
+        // Prefill tax and discount (defaults)
+        setTax(0);
+        setDiscount(0);
+        setSelectedDiscount(null);
+        
+        // Prefill notes and other fields (empty by default, can be enhanced)
+        setNotes("");
+        setTermsAndConditions("");
+        setCancellationPolicy("");
+        setUploadedDocs([]);
+      }
+    }
+  }, [isEditMode, id]);
+
 
   const filteredInventory = mockInventory.filter(i =>
     i.name.toLowerCase().includes(itemSearch.toLowerCase()) ||
@@ -52,11 +102,66 @@ const AddEstimate = () => {
   );
 
   // Sort customers by joinedDate (most recent first)
-  const sortedCustomers = [...mockCustomers].sort((a, b) => {
+  const sortedCustomers = [...customerList].sort((a, b) => {
     const dateA = new Date(a.joinedDate).getTime();
     const dateB = new Date(b.joinedDate).getTime();
     return dateB - dateA; // Descending order (most recent first)
   });
+
+  // Filter customers based on search
+  const filteredCustomers = sortedCustomers.filter(customer =>
+    customer.name.toLowerCase().includes(customerSearch.toLowerCase()) ||
+    customer.email.toLowerCase().includes(customerSearch.toLowerCase())
+  );
+
+  // Filter employees based on search
+  const filteredEmployees = mockEmployees.filter(employee =>
+    employee.name.toLowerCase().includes(employeeSearch.toLowerCase()) ||
+    employee.email.toLowerCase().includes(employeeSearch.toLowerCase()) ||
+    employee.role.toLowerCase().includes(employeeSearch.toLowerCase())
+  );
+
+  const resetQuickAddForm = () => {
+    setNewCustomerFirstName("");
+    setNewCustomerLastName("");
+    setNewCustomerEmail("");
+    setNewCustomerPhone("");
+  };
+
+  const handleQuickAddCustomer = () => {
+    if (
+      !newCustomerFirstName.trim() ||
+      !newCustomerLastName.trim() ||
+      !newCustomerEmail.trim() ||
+      !newCustomerPhone.trim()
+    ) {
+      toast.error("Please fill in all customer details.");
+      return;
+    }
+
+    const id = `CUST-${Date.now()}`;
+    const nowIso = new Date().toISOString();
+    const newCustomer = {
+      id,
+      name: `${newCustomerFirstName.trim()} ${newCustomerLastName.trim()}`,
+      email: newCustomerEmail.trim(),
+      phone: newCustomerPhone.trim(),
+      address: "",
+      status: "Active",
+      lastVisit: nowIso,
+      totalSpent: 0,
+      joinedDate: nowIso,
+      notes: "Added via quick add",
+    };
+
+    setCustomerList(prev => [newCustomer, ...prev]);
+    setSelectedCustomer(id);
+    setShowQuickAddCustomer(false);
+    setCustomerOpen(false);
+    setCustomerSearch("");
+    resetQuickAddForm();
+    toast.success("Customer added successfully.");
+  };
 
   const addItem = (item: typeof mockInventory[0]) => {
     if (!items.find(i => i.id === item.id)) {
@@ -68,7 +173,7 @@ const AddEstimate = () => {
         setShowVariablePriceDialog(true);
       } else {
         // Add item directly with unit price for fixed and per unit items
-        setItems([...items, { id: item.id, name: item.name, quantity: 1, price: item.unitPrice }]);
+      setItems([...items, { id: item.id, name: item.name, quantity: 1, price: item.unitPrice }]);
         setShowAddExisting(false);
         setItemSearch("");
       }
@@ -159,15 +264,6 @@ const AddEstimate = () => {
     }
   };
 
-  const updatePrice = (id: string, newPrice: number) => {
-    setItems(items.map(item => {
-      if (item.id === id) {
-        return { ...item, price: Math.max(0, newPrice) };
-      }
-      return item;
-    }));
-  };
-
   const updateQuantity = (id: string, delta: number) => {
     setItems(items.map(item => {
       if (item.id === id) {
@@ -234,7 +330,79 @@ const AddEstimate = () => {
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
-      <MobileHeader title="New Estimate" showBack={true} actions={headerActions} />
+      <MobileHeader title={isEditMode ? "Edit Estimate" : "New Estimate"} showBack={true} actions={headerActions} />
+
+      <Dialog
+        open={showQuickAddCustomer}
+        onOpenChange={(open) => {
+          setShowQuickAddCustomer(open);
+          if (!open) {
+            resetQuickAddForm();
+          }
+        }}
+      >
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Quick Add Customer</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 mt-2">
+            <div>
+              <Label htmlFor="quick-first-name">First Name</Label>
+              <Input
+                id="quick-first-name"
+                value={newCustomerFirstName}
+                onChange={(e) => setNewCustomerFirstName(e.target.value)}
+                placeholder="Enter first name"
+                className="mt-2"
+              />
+            </div>
+            <div>
+              <Label htmlFor="quick-last-name">Last Name</Label>
+              <Input
+                id="quick-last-name"
+                value={newCustomerLastName}
+                onChange={(e) => setNewCustomerLastName(e.target.value)}
+                placeholder="Enter last name"
+                className="mt-2"
+              />
+            </div>
+            <div>
+              <Label htmlFor="quick-email">Email</Label>
+              <Input
+                id="quick-email"
+                type="email"
+                value={newCustomerEmail}
+                onChange={(e) => setNewCustomerEmail(e.target.value)}
+                placeholder="name@example.com"
+                className="mt-2"
+              />
+            </div>
+            <div>
+              <Label htmlFor="quick-phone">Phone Number</Label>
+              <Input
+                id="quick-phone"
+                type="tel"
+                value={newCustomerPhone}
+                onChange={(e) => setNewCustomerPhone(e.target.value)}
+                placeholder="(555) 123-4567"
+                className="mt-2"
+              />
+            </div>
+            <Button
+              className="w-full"
+              onClick={handleQuickAddCustomer}
+              disabled={
+                !newCustomerFirstName.trim() ||
+                !newCustomerLastName.trim() ||
+                !newCustomerEmail.trim() ||
+                !newCustomerPhone.trim()
+              }
+            >
+              Add Customer
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
       
       {/* Progress Indicator */}
       <div className="px-4 pt-16 pb-4">
@@ -266,8 +434,28 @@ const AddEstimate = () => {
         {step === 1 && (
           <div className="space-y-4">
             <div>
-              <Label>Customer</Label>
-              <Popover open={customerOpen} onOpenChange={setCustomerOpen}>
+              <div className="flex items-center justify-between">
+                <Label>Customer</Label>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 px-2 text-sm font-semibold text-orange-500 hover:text-orange-600"
+                  onClick={() => setShowQuickAddCustomer(true)}
+                >
+                  <Plus className="h-4 w-4 mr-1.5" />
+                  Add
+                </Button>
+              </div>
+              <Popover 
+                open={customerOpen} 
+                onOpenChange={(open) => {
+                  setCustomerOpen(open);
+                  if (!open) {
+                    setCustomerSearch("");
+                  }
+                }}
+              >
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
@@ -282,40 +470,62 @@ const AddEstimate = () => {
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
-                  <Command>
-                    <CommandInput placeholder="Search customers..." />
+                  <Command shouldFilter={false} value="">
+                    <CommandInput 
+                      placeholder="Search customers..." 
+                      value={customerSearch}
+                      onValueChange={setCustomerSearch}
+                    />
                     <CommandList>
                       <CommandEmpty>No customer found.</CommandEmpty>
                       <CommandGroup>
-                        {sortedCustomers.map((customer, index) => (
-                          <CommandItem
-                            key={customer.id}
-                            value={`${customer.name} ${customer.email}`}
-                            onSelect={() => {
-                              setSelectedCustomer(customer.id);
-                              setCustomerOpen(false);
-                            }}
-                            className="flex items-center justify-between"
-                          >
-                            <div className="flex items-center flex-1 min-w-0">
-                              <Check
-                                className={cn(
-                                  "mr-2 h-4 w-4 shrink-0",
-                                  selectedCustomer === customer.id ? "opacity-100" : "opacity-0"
-                                )}
-                              />
-                              <div className="flex flex-col flex-1 min-w-0">
-                                <span className="font-medium truncate">{customer.name}</span>
-                                <span className="text-xs text-muted-foreground truncate">{customer.email}</span>
+                        {filteredCustomers.map((customer, index) => {
+                          const isSelected = selectedCustomer === customer.id;
+                          return (
+                            <CommandItem
+                              key={customer.id}
+                              value={`${customer.name} ${customer.email}`}
+                              onSelect={() => {
+                                setSelectedCustomer(customer.id);
+                                setCustomerOpen(false);
+                              }}
+                              className={cn(
+                                "flex items-center justify-between",
+                                isSelected 
+                                  ? "!bg-primary !text-white [&>div>div>span]:!text-white [&>div>div>span.text-xs]:!text-white data-[selected='true']:!bg-primary data-[selected=true]:!text-white" 
+                                  : "data-[selected='true']:bg-accent/50 data-[selected=true]:text-foreground"
+                              )}
+                              data-selected={isSelected ? "true" : undefined}
+                            >
+                              <div className="flex items-center flex-1 min-w-0">
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4 shrink-0",
+                                    isSelected ? "opacity-100 text-white" : "opacity-0"
+                                  )}
+                                />
+                                <div className="flex flex-col flex-1 min-w-0">
+                                  <span className="font-medium truncate">{customer.name}</span>
+                                  <span className={cn(
+                                    "text-xs truncate",
+                                    isSelected ? "text-white" : "text-muted-foreground"
+                                  )}>{customer.email}</span>
+                                </div>
                               </div>
-                            </div>
-                            {index < 5 && (
-                              <Badge variant="secondary" className="text-xs px-1.5 py-0 h-5 ml-2 shrink-0">
-                                Recently Added
-                              </Badge>
-                            )}
-                          </CommandItem>
-                        ))}
+                              {index < 5 && (
+                                <Badge 
+                                  variant="secondary" 
+                                  className={cn(
+                                    "text-xs px-1.5 py-0 h-5 ml-2 shrink-0",
+                                    isSelected && "bg-white/20 text-white border-white/30"
+                                  )}
+                                >
+                                  Recently Added
+                                </Badge>
+                              )}
+                            </CommandItem>
+                          );
+                        })}
                       </CommandGroup>
                     </CommandList>
                   </Command>
@@ -325,7 +535,15 @@ const AddEstimate = () => {
 
             <div>
               <Label>Employee</Label>
-              <Popover open={employeeOpen} onOpenChange={setEmployeeOpen}>
+              <Popover 
+                open={employeeOpen} 
+                onOpenChange={(open) => {
+                  setEmployeeOpen(open);
+                  if (!open) {
+                    setEmployeeSearch("");
+                  }
+                }}
+              >
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
@@ -340,32 +558,48 @@ const AddEstimate = () => {
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
-                  <Command>
-                    <CommandInput placeholder="Search employees..." />
+                  <Command shouldFilter={false} value="">
+                    <CommandInput 
+                      placeholder="Search employees..." 
+                      value={employeeSearch}
+                      onValueChange={setEmployeeSearch}
+                    />
                     <CommandList>
                       <CommandEmpty>No employee found.</CommandEmpty>
                       <CommandGroup>
-                        {mockEmployees.map((employee) => (
-                          <CommandItem
-                            key={employee.id}
-                            value={`${employee.name} ${employee.email} ${employee.role}`}
-                            onSelect={() => {
-                              setSelectedEmployee(employee.id);
-                              setEmployeeOpen(false);
-                            }}
-                          >
-                            <Check
+                        {filteredEmployees.map((employee) => {
+                          const isSelected = selectedEmployee === employee.id;
+                          return (
+                            <CommandItem
+                              key={employee.id}
+                              value={`${employee.name} ${employee.email} ${employee.role}`}
+                              onSelect={() => {
+                                setSelectedEmployee(employee.id);
+                                setEmployeeOpen(false);
+                              }}
                               className={cn(
-                                "mr-2 h-4 w-4",
-                                selectedEmployee === employee.id ? "opacity-100" : "opacity-0"
+                                isSelected 
+                                  ? "!bg-primary !text-white [&>div>span]:!text-white [&>div>span.text-xs]:!text-white data-[selected='true']:!bg-primary data-[selected=true]:!text-white" 
+                                  : "data-[selected='true']:bg-accent/50 data-[selected=true]:text-foreground"
                               )}
-                            />
-                            <div className="flex flex-col">
-                              <span className="font-medium">{employee.name}</span>
-                              <span className="text-xs text-muted-foreground">{employee.role}</span>
-                            </div>
-                          </CommandItem>
-                        ))}
+                              data-selected={isSelected ? "true" : undefined}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  isSelected ? "opacity-100 text-white" : "opacity-0"
+                                )}
+                              />
+                              <div className="flex flex-col">
+                                <span className="font-medium">{employee.name}</span>
+                                <span className={cn(
+                                  "text-xs",
+                                  isSelected ? "text-white" : "text-muted-foreground"
+                                )}>{employee.role}</span>
+                              </div>
+                            </CommandItem>
+                          );
+                        })}
                       </CommandGroup>
                     </CommandList>
                   </Command>
@@ -410,22 +644,22 @@ const AddEstimate = () => {
                         </div>
                       </div>
                     </div>
-                    <div className="relative">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        placeholder="Search inventory..."
-                        value={itemSearch}
-                        onChange={(e) => setItemSearch(e.target.value)}
-                        className="pl-10"
-                      />
-                    </div>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search inventory..."
+                value={itemSearch}
+                onChange={(e) => setItemSearch(e.target.value)}
+                className="pl-10"
+              />
+            </div>
                     <div className="space-y-2 max-h-[400px] overflow-y-auto">
                       {filteredInventory.length > 0 ? (
                         filteredInventory.map(item => {
                           const isAlreadyAdded = !!items.find(i => i.id === item.id);
                           return (
-                            <div
-                              key={item.id}
+                  <div
+                    key={item.id}
                               onClick={() => {
                                 if (!isAlreadyAdded) {
                                   addItem(item);
@@ -437,10 +671,10 @@ const AddEstimate = () => {
                                   ? "opacity-50 cursor-not-allowed" 
                                   : "hover:bg-accent/5 active:bg-accent/10"
                               )}
-                            >
-                              <div className="flex-1">
+                  >
+                    <div className="flex-1">
                                 <div className="flex items-center gap-2 mb-1">
-                                  <p className="font-semibold">{item.name}</p>
+                      <p className="font-semibold">{item.name}</p>
                                   {(item as any).type && (
                                     <Badge variant="outline" className="text-xs px-1.5 py-0 h-5">
                                       {(item as any).type}
@@ -448,8 +682,8 @@ const AddEstimate = () => {
                                   )}
                                 </div>
                                 <div className="flex items-center justify-between">
-                                  <p className="text-sm text-muted-foreground">{item.sku}</p>
-                                  <p className="text-sm font-medium">${item.unitPrice.toFixed(2)}</p>
+                      <p className="text-sm text-muted-foreground">{item.sku}</p>
+                      <p className="text-sm font-medium">${item.unitPrice.toFixed(2)}</p>
                                 </div>
                                 {isAlreadyAdded && (
                                   <p className="text-xs text-muted-foreground mt-1">Already added</p>
@@ -580,7 +814,7 @@ const AddEstimate = () => {
                         step="0.01"
                       />
                     </div>
-                    <Button 
+                    <Button
                       className="w-full" 
                       onClick={addToInventoryAndItem}
                       disabled={!customItemName || !customItemPrice}
@@ -604,8 +838,8 @@ const AddEstimate = () => {
                         <p className="text-xs text-muted-foreground mt-1">
                           Default Price: ${pendingVariableItem.unitPrice.toFixed(2)}
                         </p>
-                      </div>
-                    )}
+              </div>
+            )}
                     <div>
                       <Label>Enter Price</Label>
                       <Input
@@ -674,16 +908,16 @@ const AddEstimate = () => {
                                 </Badge>
                               )}
                             </div>
-                          </div>
-                          <Button
-                            size="sm"
-                            variant="ghost"
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="ghost"
                             className="h-8 w-8 p-0 text-red-600 hover:bg-red-50 hover:text-red-700 rounded-lg transition-colors flex-shrink-0"
-                            onClick={() => removeItem(item.id)}
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        </div>
+                        onClick={() => removeItem(item.id)}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
 
                         {/* Card Content */}
                         <div className="space-y-3">
@@ -699,14 +933,14 @@ const AddEstimate = () => {
                           <div className="flex items-center justify-between">
                             <span className="text-xs text-gray-600">Quantity:</span>
                             <div className="flex items-center border border-gray-300 rounded-lg bg-white">
-                              <Button
-                                size="sm"
+                      <Button
+                        size="sm"
                                 variant="ghost"
                                 className="h-8 w-8 p-0 rounded-l-lg hover:bg-green-50 active:bg-green-100 transition-colors"
-                                onClick={() => updateQuantity(item.id, -1)}
-                              >
+                        onClick={() => updateQuantity(item.id, -1)}
+                      >
                                 <Minus className="h-4 w-4 text-green-600" />
-                              </Button>
+                      </Button>
                               <Input
                                 type="number"
                                 value={item.quantity}
@@ -717,14 +951,14 @@ const AddEstimate = () => {
                                 className="w-12 h-8 text-center border-0 border-x border-gray-300 rounded-none focus-visible:ring-0 focus-visible:ring-offset-0 text-sm font-medium"
                                 min="1"
                               />
-                              <Button
-                                size="sm"
+                      <Button
+                        size="sm"
                                 variant="ghost"
                                 className="h-8 w-8 p-0 rounded-r-lg hover:bg-green-50 active:bg-green-100 transition-colors"
-                                onClick={() => updateQuantity(item.id, 1)}
-                              >
+                        onClick={() => updateQuantity(item.id, 1)}
+                      >
                                 <Plus className="h-4 w-4 text-green-600" />
-                              </Button>
+                      </Button>
                             </div>
                           </div>
 
@@ -734,9 +968,9 @@ const AddEstimate = () => {
                             <span className="text-base font-bold text-gray-900">
                               ${(item.price * item.quantity).toFixed(2)}
                             </span>
-                          </div>
-                        </div>
                       </div>
+                    </div>
+                  </div>
                     );
                   })}
                 </div>
@@ -807,15 +1041,15 @@ const AddEstimate = () => {
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm text-gray-700">Tax:</span>
                 <div className="flex items-center gap-1">
-                  <Input
-                    type="number"
+              <Input
+                type="number"
                     value={tax}
                     onChange={(e) => {
                       const value = parseFloat(e.target.value);
                       setTax(isNaN(value) ? 0 : value);
                     }}
                     className="w-20 h-8 text-right text-sm p-1 border-gray-300 rounded"
-                    min="0"
+                min="0"
                     step="0.01"
                   />
                   <span className="text-sm text-gray-700">%</span>
@@ -837,12 +1071,12 @@ const AddEstimate = () => {
             <div>
               <Label>Notes</Label>
               <div className="relative mt-2">
-                <textarea
+              <textarea
                   className="w-full min-h-[120px] p-3 pr-12 rounded-lg border bg-background"
-                  placeholder="Add any notes or special instructions..."
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                />
+                placeholder="Add any notes or special instructions..."
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+              />
                 <label className="absolute bottom-3 right-3 cursor-pointer">
                   <input
                     type="file"
@@ -910,7 +1144,7 @@ const AddEstimate = () => {
                       min="0"
                       step="0.01"
                     />
-                  </div>
+            </div>
                   <div>
                     <Label>Type *</Label>
                     <Select value={customDiscountType} onValueChange={(value: "%" | "$") => setCustomDiscountType(value)}>
@@ -975,7 +1209,7 @@ const AddEstimate = () => {
                           <div className="flex-1">
                             <div className="flex items-center gap-2">
                               <p className="font-semibold">{disc.name}</p>
-                            </div>
+              </div>
                             <p className="text-sm text-primary font-medium mt-1">
                               {disc.type} {disc.value}{disc.type === "%" ? "%" : ""}
                             </p>
@@ -986,7 +1220,7 @@ const AddEstimate = () => {
                             )}
                           </div>
                         </div>
-                      </div>
+              </div>
                     );
                   })}
                 </div>
@@ -1039,8 +1273,15 @@ const AddEstimate = () => {
               Next
             </Button>
           ) : (
-            <Button className="flex-1" onClick={() => navigate("/estimates")}>
-              Create Estimate
+            <Button className="flex-1" onClick={() => {
+              if (isEditMode) {
+                toast.success("Estimate updated successfully");
+              } else {
+                toast.success("Estimate created successfully");
+              }
+              navigate("/estimates");
+            }}>
+              {isEditMode ? "Update Estimate" : "Create Estimate"}
             </Button>
           )}
         </div>

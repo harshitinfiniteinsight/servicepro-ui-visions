@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import { Calendar, DollarSign, TrendingUp } from "lucide-react";
+import { Calendar, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { statusColors } from "@/data/mobileMockData";
 
@@ -14,9 +14,10 @@ interface EstimateCardProps {
   };
   onClick?: () => void;
   actionButtons?: React.ReactNode;
+  payButton?: React.ReactNode;
 }
 
-const EstimateCard = ({ estimate, onClick, actionButtons }: EstimateCardProps) => {
+const EstimateCard = ({ estimate, onClick, actionButtons, payButton }: EstimateCardProps) => {
   const showProbability = estimate.status === "Paid" && estimate.probability;
 
   return (
@@ -34,10 +35,15 @@ const EstimateCard = ({ estimate, onClick, actionButtons }: EstimateCardProps) =
           </div>
           <p className="text-sm text-muted-foreground truncate">{estimate.customerName}</p>
         </div>
-        <div className="text-right flex-shrink-0">
-          <div className="text-xl font-bold text-primary whitespace-nowrap">
+        <div className="text-right flex-shrink-0 flex items-center gap-2">
+          <div className="text-xl font-bold text-primary whitespace-nowrap w-[100px] text-right">
             ${estimate.amount.toLocaleString()}
           </div>
+          {payButton && (
+            <div onClick={(e) => e.stopPropagation()} className="w-[100px]">
+              {payButton}
+            </div>
+          )}
         </div>
       </div>
       

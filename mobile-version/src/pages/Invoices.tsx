@@ -3,30 +3,548 @@ import { useNavigate } from "react-router-dom";
 import MobileHeader from "@/components/layout/MobileHeader";
 import InvoiceCard from "@/components/cards/InvoiceCard";
 import EmptyState from "@/components/cards/EmptyState";
-import { mockInvoices } from "@/data/mobileMockData";
+import PaymentModal from "@/components/modals/PaymentModal";
+import SendEmailModal from "@/components/modals/SendEmailModal";
+import SendSMSModal from "@/components/modals/SendSMSModal";
+import ReassignEmployeeModal from "@/components/modals/ReassignEmployeeModal";
+import PreviewInvoiceModal from "@/components/modals/PreviewInvoiceModal";
+import { mockCustomers, mockInvoices } from "@/data/mobileMockData";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Search, FileText, DollarSign } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Plus,
+  Search,
+  FileText,
+  MoreVertical,
+  Eye,
+  Mail,
+  MessageSquare,
+  Edit,
+  History,
+  UserCog,
+  RotateCcw,
+  XCircle,
+} from "lucide-react";
+import { toast } from "sonner";
+
+type InvoiceTab = "single" | "recurring" | "deactivated";
+type InvoiceStatusFilter = "all" | "paid" | "open";
+type DateRangeFilter = "all" | "last7" | "last30" | "thisMonth";
+type Invoice = (typeof mockInvoices)[number];
 
 const Invoices = () => {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
-  
-  const filteredInvoices = mockInvoices.filter(inv => {
-    const matchesSearch = inv.id.toLowerCase().includes(search.toLowerCase()) ||
-                         inv.customerName.toLowerCase().includes(search.toLowerCase());
-    const matchesStatus = statusFilter === "all" || inv.status.toLowerCase() === statusFilter.toLowerCase();
-    return matchesSearch && matchesStatus;
-  });
+  const [activeTab, setActiveTab] = useState<InvoiceTab>("single");
+  const [statusFilter, setStatusFilter] = useState<InvoiceStatusFilter>("all");
+  const [dateRange, setDateRange] = useState<DateRangeFilter>("all");
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [selectedInvoice, setSelectedInvoice] = useState<{ id: string; amount: number } | null>(null);
+  const [actionInvoice, setActionInvoice] = useState<(Invoice & { customerEmail?: string; customerPhone?: string }) | null>(null);
+  const [showEmailModal, setShowEmailModal] = useState(false);
+  const [showSMSModal, setShowSMSModal] = useState(false);
+  const [showReassignModal, setShowReassignModal] = useState(false);
+  const [previewInvoice, setPreviewInvoice] = useState<(Invoice & { customerEmail?: string; customerPhone?: string }) | null>(null);
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
 
-  const summary = {
-    total: mockInvoices.length,
-    paid: mockInvoices.filter(i => i.status === "Paid").length,
-    open: mockInvoices.filter(i => i.status === "Open").length,
-    overdue: mockInvoices.filter(i => i.status === "Overdue").length,
-    totalAmount: mockInvoices.reduce((sum, i) => sum + i.amount, 0),
+  const handleTabChange = (value: string) => {
+    const tabValue = value as InvoiceTab;
+    setActiveTab(tabValue);
+    if (tabValue !== "deactivated") {
+      return;
+    }
+    setStatusFilter("all");
+    setDateRange("all");
+  };
+
+  const isWithinDateRange = (dateString: string) => {
+    if (dateRange === "all") return true;
+    const now = new Date();
+    const targetDate = new Date(dateString);
+    const diffInDays = Math.abs(now.getTime() - targetDate.getTime()) / (1000 * 60 * 60 * 24);
+
+    switch (dateRange) {
+      case "last7":
+        return diffInDays <= 7;
+      case "last30":
+        return diffInDays <= 30;
+      case "thisMonth":
+        return now.getFullYear() === targetDate.getFullYear() && now.getMonth() === targetDate.getMonth();
+      default:
+        return true;
+    }
+  };
+
+  const getFilteredInvoices = (type: InvoiceTab) => {
+    return mockInvoices
+      .filter(inv => (inv.type ?? "single") === type)
+      .filter(inv => {
+        const matchesSearch =
+          inv.id.toLowerCase().includes(search.toLowerCase()) ||
+          inv.customerName.toLowerCase().includes(search.toLowerCase());
+
+        const matchesAllowedStatus =
+          type === "deactivated" ? true : ["Paid", "Open"].includes(inv.status);
+
+        if (!matchesAllowedStatus) {
+          return false;
+        }
+
+        const matchesStatus =
+          type === "deactivated"
+            ? true
+            : statusFilter === "all"
+              ? true
+              : statusFilter === "paid"
+                ? inv.status === "Paid"
+                : inv.status === "Open";
+
+        const matchesDate = isWithinDateRange(inv.issueDate);
+
+        return matchesSearch && matchesStatus && matchesDate;
+      });
+  };
+
+  const handlePayNow = (invoiceId: string) => {
+    const invoice = mockInvoices.find(inv => inv.id === invoiceId);
+    if (!invoice) {
+      toast.error("Invoice not found");
+      return;
+    }
+    setSelectedInvoice({ id: invoiceId, amount: invoice.amount });
+    setShowPaymentModal(true);
+  };
+
+  const handlePaymentMethodSelect = (method: string) => {
+    if (selectedInvoice) {
+      toast.success(`Processing ${method} payment for ${selectedInvoice.id}...`);
+    }
+  };
+
+  const handlePaymentModalClose = () => {
+    setShowPaymentModal(false);
+    setSelectedInvoice(null);
+  };
+
+  const handleMenuAction = (invoice: Invoice, action: string) => {
+    const customer = mockCustomers.find(c => c.id === invoice.customerId);
+
+    switch (action) {
+      case "preview":
+        setPreviewInvoice({
+          ...invoice,
+          customerEmail: customer?.email,
+          customerPhone: customer?.phone,
+        });
+        setShowPreviewModal(true);
+        break;
+      case "send-email":
+        if (!customer?.email) {
+          toast.error("No email address available for this customer");
+          return;
+        }
+        setActionInvoice({
+          ...invoice,
+          customerEmail: customer.email,
+          customerPhone: customer?.phone,
+        });
+        setShowEmailModal(true);
+        break;
+      case "send-sms":
+        if (!customer?.phone) {
+          toast.error("No phone number available for this customer");
+          return;
+        }
+        setActionInvoice({
+          ...invoice,
+          customerEmail: customer?.email,
+          customerPhone: customer.phone,
+        });
+        setShowSMSModal(true);
+        break;
+      case "edit":
+        navigate(`/invoices/${invoice.id}/edit`);
+        break;
+      case "doc-history":
+        navigate(`/customers/${invoice.customerId}`);
+        break;
+      case "reassign":
+        setActionInvoice({
+          ...invoice,
+          customerEmail: customer?.email,
+          customerPhone: customer?.phone,
+        });
+        setShowReassignModal(true);
+        break;
+      case "refund":
+        toast.success("Processing refund...");
+        break;
+      case "deactivate":
+        toast.success("Invoice deactivated");
+        break;
+      case "activate":
+        toast.success("Invoice activated");
+        break;
+      default:
+        break;
+    }
+  };
+
+  const handlePreviewAction = (invoice: Invoice, action: string) => {
+    switch (action) {
+      case "send-email":
+        handleMenuAction(invoice, "send-email");
+        break;
+      case "send-sms":
+        handleMenuAction(invoice, "send-sms");
+        break;
+      case "reassign":
+        handleMenuAction(invoice, "reassign");
+        break;
+      case "pay-now":
+        handlePayNow(invoice.id);
+        break;
+      case "print":
+        toast.success("Sending invoice to printer...");
+        break;
+      default:
+        break;
+    }
+  };
+
+  const renderActionButtons = (invoice: Invoice, type: InvoiceTab) => {
+    if (type === "deactivated") {
+      return (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 rounded-full hover:bg-orange-50"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <MoreVertical className="h-4 w-4 text-muted-foreground" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-44">
+            <DropdownMenuItem
+              onSelect={(event) => {
+                event.preventDefault();
+                handleMenuAction(invoice, "preview");
+              }}
+            >
+              <Eye className="mr-2 h-4 w-4 text-muted-foreground" />
+              Preview
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onSelect={(event) => {
+                event.preventDefault();
+                handleMenuAction(invoice, "activate");
+              }}
+            >
+              <RotateCcw className="mr-2 h-4 w-4 text-muted-foreground" />
+              Activate
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      );
+    }
+
+    if (invoice.status === "Paid") {
+      return (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 rounded-full hover:bg-orange-50"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <MoreVertical className="h-4 w-4 text-muted-foreground" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuItem
+              onSelect={(event) => {
+                event.preventDefault();
+                handleMenuAction(invoice, "preview");
+              }}
+            >
+              <Eye className="mr-2 h-4 w-4 text-muted-foreground" />
+              Preview
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onSelect={(event) => {
+                event.preventDefault();
+                handleMenuAction(invoice, "send-email");
+              }}
+            >
+              <Mail className="mr-2 h-4 w-4 text-muted-foreground" />
+              Send Email
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onSelect={(event) => {
+                event.preventDefault();
+                handleMenuAction(invoice, "send-sms");
+              }}
+            >
+              <MessageSquare className="mr-2 h-4 w-4 text-muted-foreground" />
+              Send SMS
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onSelect={(event) => {
+                event.preventDefault();
+                handleMenuAction(invoice, "reassign");
+              }}
+            >
+              <UserCog className="mr-2 h-4 w-4 text-muted-foreground" />
+              Reassign Employee
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onSelect={(event) => {
+                event.preventDefault();
+                handleMenuAction(invoice, "refund");
+              }}
+            >
+              <RotateCcw className="mr-2 h-4 w-4 text-muted-foreground" />
+              Refund
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      );
+    }
+
+    if (invoice.status === "Open") {
+      return (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 rounded-full hover:bg-orange-50"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <MoreVertical className="h-4 w-4 text-muted-foreground" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuItem
+              onSelect={(event) => {
+                event.preventDefault();
+                handleMenuAction(invoice, "preview");
+              }}
+            >
+              <Eye className="mr-2 h-4 w-4 text-muted-foreground" />
+              Preview
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onSelect={(event) => {
+                event.preventDefault();
+                handleMenuAction(invoice, "send-email");
+              }}
+            >
+              <Mail className="mr-2 h-4 w-4 text-muted-foreground" />
+              Send Email
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onSelect={(event) => {
+                event.preventDefault();
+                handleMenuAction(invoice, "send-sms");
+              }}
+            >
+              <MessageSquare className="mr-2 h-4 w-4 text-muted-foreground" />
+              Send SMS
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onSelect={(event) => {
+                event.preventDefault();
+                handleMenuAction(invoice, "edit");
+              }}
+            >
+              <Edit className="mr-2 h-4 w-4 text-muted-foreground" />
+              Edit Invoice
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onSelect={(event) => {
+                event.preventDefault();
+                handleMenuAction(invoice, "doc-history");
+              }}
+            >
+              <History className="mr-2 h-4 w-4 text-muted-foreground" />
+              Doc History
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onSelect={(event) => {
+                event.preventDefault();
+                handleMenuAction(invoice, "reassign");
+              }}
+            >
+              <UserCog className="mr-2 h-4 w-4 text-muted-foreground" />
+              Reassign Employee
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onSelect={(event) => {
+                event.preventDefault();
+                handleMenuAction(invoice, "deactivate");
+              }}
+            >
+              <XCircle className="mr-2 h-4 w-4 text-muted-foreground" />
+              Deactivate
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      );
+    }
+
+    return (
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 rounded-full hover:bg-orange-50"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <MoreVertical className="h-4 w-4 text-muted-foreground" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-48">
+          <DropdownMenuItem
+            onSelect={(event) => {
+              event.preventDefault();
+              handleMenuAction(invoice, "preview");
+            }}
+          >
+            <Eye className="mr-2 h-4 w-4 text-muted-foreground" />
+            Preview
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onSelect={(event) => {
+              event.preventDefault();
+              handleMenuAction(invoice, "send-email");
+            }}
+          >
+            <Mail className="mr-2 h-4 w-4 text-muted-foreground" />
+            Send Email
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onSelect={(event) => {
+              event.preventDefault();
+              handleMenuAction(invoice, "send-sms");
+            }}
+          >
+            <MessageSquare className="mr-2 h-4 w-4 text-muted-foreground" />
+            Send SMS
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onSelect={(event) => {
+              event.preventDefault();
+              handleMenuAction(invoice, "reassign");
+            }}
+          >
+            <UserCog className="mr-2 h-4 w-4 text-muted-foreground" />
+            Reassign Employee
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            onSelect={(event) => {
+              event.preventDefault();
+              handleMenuAction(invoice, "refund");
+            }}
+          >
+            <RotateCcw className="mr-2 h-4 w-4 text-muted-foreground" />
+            Refund
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    );
+  };
+
+  const renderInvoices = (type: InvoiceTab) => {
+    const invoices = getFilteredInvoices(type);
+    const showFilters = type !== "deactivated";
+
+    return (
+      <div className="space-y-4">
+        {showFilters && (
+          <div className="flex gap-3">
+            <div className="flex-1 min-w-0">
+              <Select value={dateRange} onValueChange={(value) => setDateRange(value as DateRangeFilter)}>
+                <SelectTrigger className="w-full h-11">
+                  <SelectValue placeholder="Date range" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Dates</SelectItem>
+                  <SelectItem value="last7">Last 7 Days</SelectItem>
+                  <SelectItem value="last30">Last 30 Days</SelectItem>
+                  <SelectItem value="thisMonth">This Month</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex-1 min-w-0">
+              <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as InvoiceStatusFilter)}>
+                <SelectTrigger className="w-full h-11">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Statuses</SelectItem>
+                  <SelectItem value="paid">Paid</SelectItem>
+                  <SelectItem value="open">Open</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        )}
+
+        {invoices.length > 0 ? (
+          <div className="space-y-3">
+            {invoices.map(invoice => (
+              <InvoiceCard
+                key={invoice.id}
+                invoice={invoice}
+                onClick={() => navigate(`/invoices/${invoice.id}`)}
+                payButton={
+                  invoice.status === "Open" ? (
+                    <Button
+                      size="sm"
+                      variant="default"
+                      className="h-7 px-3 text-xs font-semibold touch-target whitespace-nowrap bg-primary hover:bg-primary/90 shadow-sm hover:shadow-md transition-all"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handlePayNow(invoice.id);
+                      }}
+                    >
+                      Pay
+                    </Button>
+                  ) : undefined
+                }
+                actionButtons={renderActionButtons(invoice, type)}
+              />
+            ))}
+          </div>
+        ) : (
+          <EmptyState
+            icon={<FileText className="h-10 w-10 text-muted-foreground" />}
+            title="No invoices found"
+            description="Try adjusting your search or filters"
+            actionLabel="Create Invoice"
+            onAction={() => navigate("/invoices/new")}
+          />
+        )}
+      </div>
+    );
   };
 
   return (
@@ -53,54 +571,87 @@ const Invoices = () => {
           />
         </div>
         
-        {/* Summary Cards */}
-        <div className="grid grid-cols-2 gap-3">
-          <div className="p-4 rounded-xl bg-primary/5 border border-primary/20">
-            <div className="flex items-center gap-2 mb-1">
-              <FileText className="h-4 w-4 text-primary" />
-              <span className="text-xs font-medium">Total</span>
-            </div>
-            <p className="text-2xl font-bold">{summary.total}</p>
-          </div>
-          <div className="p-4 rounded-xl bg-success/5 border border-success/20">
-            <div className="flex items-center gap-2 mb-1">
-              <DollarSign className="h-4 w-4 text-success" />
-              <span className="text-xs font-medium">Total Amount</span>
-            </div>
-            <p className="text-xl font-bold">${summary.totalAmount.toLocaleString()}</p>
-          </div>
-        </div>
-
-        {/* Status Tabs */}
-        <Tabs value={statusFilter} onValueChange={setStatusFilter}>
-          <TabsList className="w-full grid grid-cols-4">
-            <TabsTrigger value="all">All</TabsTrigger>
-            <TabsTrigger value="paid">Paid</TabsTrigger>
-            <TabsTrigger value="open">Open</TabsTrigger>
-            <TabsTrigger value="overdue">Overdue</TabsTrigger>
+        {/* Invoice Type Tabs */}
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-4">
+          <TabsList className="w-full grid grid-cols-3">
+            <TabsTrigger value="single">Single</TabsTrigger>
+            <TabsTrigger value="recurring">Recurring</TabsTrigger>
+            <TabsTrigger value="deactivated">Deactivated</TabsTrigger>
           </TabsList>
 
-          <TabsContent value={statusFilter} className="mt-4 space-y-3">
-            {filteredInvoices.length > 0 ? (
-              filteredInvoices.map(invoice => (
-                <InvoiceCard 
-                  key={invoice.id} 
-                  invoice={invoice}
-                  onClick={() => navigate(`/invoices/${invoice.id}`)}
-                />
-              ))
-            ) : (
-              <EmptyState
-                icon={<FileText className="h-10 w-10 text-muted-foreground" />}
-                title="No invoices found"
-                description="Try adjusting your search or filters"
-                actionLabel="Create Invoice"
-                onAction={() => navigate("/invoices/new")}
-              />
-            )}
+          <TabsContent value="single" className="mt-2">
+            {renderInvoices("single")}
+          </TabsContent>
+          <TabsContent value="recurring" className="mt-2">
+            {renderInvoices("recurring")}
+          </TabsContent>
+          <TabsContent value="deactivated" className="mt-2">
+            {renderInvoices("deactivated")}
           </TabsContent>
         </Tabs>
       </div>
+
+      {selectedInvoice && (
+        <PaymentModal
+          isOpen={showPaymentModal}
+          onClose={handlePaymentModalClose}
+          amount={selectedInvoice.amount}
+          onPaymentMethodSelect={handlePaymentMethodSelect}
+        />
+      )}
+
+      {actionInvoice && showEmailModal && (
+        <SendEmailModal
+          isOpen={showEmailModal}
+          onClose={() => {
+            setShowEmailModal(false);
+            setActionInvoice(null);
+          }}
+          customerEmail={actionInvoice.customerEmail || ""}
+          customerName={actionInvoice.customerName}
+        />
+      )}
+
+      {actionInvoice && showSMSModal && (
+        <SendSMSModal
+          isOpen={showSMSModal}
+          onClose={() => {
+            setShowSMSModal(false);
+            setActionInvoice(null);
+          }}
+          phoneNumber={actionInvoice.customerPhone || ""}
+          customerName={actionInvoice.customerName}
+        />
+      )}
+
+      {actionInvoice && showReassignModal && (
+        <ReassignEmployeeModal
+          isOpen={showReassignModal}
+          onClose={() => {
+            setShowReassignModal(false);
+            setActionInvoice(null);
+          }}
+          currentEmployeeId={actionInvoice.customerId}
+          estimateId={actionInvoice.id}
+        />
+      )}
+      {previewInvoice && (
+        <PreviewInvoiceModal
+          isOpen={showPreviewModal}
+          onClose={() => {
+            setShowPreviewModal(false);
+            setPreviewInvoice(null);
+          }}
+          invoice={previewInvoice}
+          onAction={(action) => {
+            handlePreviewAction(previewInvoice, action);
+            if (action !== "print") {
+              setShowPreviewModal(false);
+              setPreviewInvoice(null);
+            }
+          }}
+        />
+      )}
     </div>
   );
 };

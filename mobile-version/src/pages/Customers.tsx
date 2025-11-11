@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import MobileHeader from "@/components/layout/MobileHeader";
 import CustomerCard from "@/components/cards/CustomerCard";
+import { toast } from "sonner";
 import EmptyState from "@/components/cards/EmptyState";
 import { mockCustomers } from "@/data/mobileMockData";
 import { Input } from "@/components/ui/input";
@@ -11,15 +12,59 @@ import { Plus, Search, Users } from "lucide-react";
 const Customers = () => {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState("All");
+  const [filter, setFilter] = useState<"Active" | "Deactivated">("Active");
   
+  const isActiveStatus = (status: string) => status === "Active";
+  const isDeactivatedStatus = (status: string) => status === "Deactivated" || status === "Inactive";
+
   const filteredCustomers = mockCustomers.filter(c => {
     const matchesSearch = c.name.toLowerCase().includes(search.toLowerCase()) ||
                          c.email.toLowerCase().includes(search.toLowerCase()) ||
                          c.phone.includes(search);
-    const matchesFilter = filter === "All" || c.status === filter;
+    const matchesFilter =
+      filter === "Active" ? isActiveStatus(c.status) : isDeactivatedStatus(c.status);
     return matchesSearch && matchesFilter;
   });
+
+  const activeCount = mockCustomers.filter(c => isActiveStatus(c.status)).length;
+  const deactivatedCount = mockCustomers.filter(c => isDeactivatedStatus(c.status)).length;
+
+  const handleQuickAction = (customerId: string, action: string) => {
+    switch (action) {
+      case "edit":
+        toast.info("Edit customer coming soon");
+        break;
+      case "email":
+        toast.success("Opening email composer...");
+        break;
+      case "sms":
+        toast.success("Opening SMS composer...");
+        break;
+      case "memo":
+        toast.info("Memo feature coming soon");
+        break;
+      case "appointment":
+        toast.info("Appointment scheduling coming soon");
+        break;
+      case "deactivate":
+        toast.info("Deactivation workflow coming soon");
+        break;
+      case "create-invoice":
+        navigate(`/invoices/new?customer=${customerId}`);
+        break;
+      case "create-estimate":
+        navigate(`/estimates/new?customer=${customerId}`);
+        break;
+      case "create-agreement":
+        navigate(`/agreements/new?customer=${customerId}`);
+        break;
+      case "details":
+        navigate(`/customers/${customerId}`);
+        break;
+      default:
+        toast.info("Action coming soon");
+    }
+  };
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
@@ -46,34 +91,37 @@ const Customers = () => {
         
         {/* Filters */}
         <div className="flex gap-2">
-          {["All", "Active", "Inactive"].map(f => (
+          {["Active", "Deactivated"].map(f => (
             <Button
               key={f}
               variant={filter === f ? "default" : "outline"}
               size="sm"
-              onClick={() => setFilter(f)}
+              onClick={() => setFilter(f as "Active" | "Deactivated")}
             >
               {f}
             </Button>
           ))}
         </div>
         
-        {/* Summary */}
-        <div className="p-4 rounded-xl bg-primary/5 border border-primary/20">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Users className="h-5 w-5 text-primary" />
-              <span className="font-semibold">Total Customers</span>
-            </div>
-            <span className="text-2xl font-bold text-primary">{filteredCustomers.length}</span>
-          </div>
-        </div>
-        
         {/* List */}
         {filteredCustomers.length > 0 ? (
           <div className="space-y-3">
             {filteredCustomers.map(customer => (
-              <CustomerCard key={customer.id} customer={customer} />
+              <CustomerCard
+                key={customer.id}
+                customer={customer}
+                variant={isDeactivatedStatus(customer.status) ? "deactivated" : "default"}
+                onActivate={
+                  isDeactivatedStatus(customer.status)
+                    ? () => toast.success("Customer activation coming soon")
+                    : undefined
+                }
+                onQuickAction={
+                  isActiveStatus(customer.status)
+                    ? action => handleQuickAction(customer.id, action)
+                    : undefined
+                }
+              />
             ))}
           </div>
         ) : (

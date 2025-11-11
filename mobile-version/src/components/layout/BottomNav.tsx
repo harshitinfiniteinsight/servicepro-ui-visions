@@ -1,14 +1,14 @@
-import { NavLink, useLocation, useNavigate } from "react-router-dom";
-import { Home, DollarSign, Users, UserCheck, MoreHorizontal } from "lucide-react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { Home, DollarSign, Calendar, Users, MoreHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import SalesSubmenu from "./SalesSubmenu";
 
 const navItems = [
-  { title: "Home", path: "/", icon: Home, hasSubmenu: false },
+  { title: "Dashboard", path: "/", icon: Home, hasSubmenu: false },
   { title: "Sales", path: "/sales", icon: DollarSign, hasSubmenu: true },
+  { title: "Appointments", path: "/appointments/manage", icon: Calendar, hasSubmenu: false },
   { title: "Customers", path: "/customers", icon: Users, hasSubmenu: false },
-  { title: "Employees", path: "/employees", icon: UserCheck, hasSubmenu: false },
   { title: "Others", path: "/settings", icon: MoreHorizontal, hasSubmenu: false },
 ];
 
@@ -66,7 +66,7 @@ const BottomNav = () => {
                   <Icon className={cn("h-6 w-6", active && "scale-110")} />
                 </div>
                 <span className={cn(
-                  "text-xs mt-0.5 transition-all",
+                  "text-[11px] mt-0.5 transition-all whitespace-nowrap leading-4",
                   active ? "font-bold text-primary" : "font-medium text-gray-500"
                 )}>
                   {item.title}
