@@ -45,6 +45,7 @@ import SignUp from "./pages/SignUp";
 import Walkthrough from "./pages/Walkthrough";
 import NotFound from "./pages/NotFound";
 import { AIChatWidget } from "./components/AIChatWidget";
+import MobileRoutes from "./routes/MobileRoutes";
 
 const queryClient = new QueryClient();
 
@@ -100,6 +101,8 @@ const AppContent = () => {
           <Route path="/settings/payment-methods" element={<PaymentMethods />} />
           <Route path="/settings/language" element={<ChangeLanguage />} />
           <Route path="/settings/help" element={<Help />} />
+          {/* Mobile routes */}
+          <Route path="/mobile/*" element={<MobileRoutes />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
