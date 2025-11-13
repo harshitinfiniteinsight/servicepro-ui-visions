@@ -1,22 +1,324 @@
-import { useParams, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import MobileHeader from "@/components/layout/MobileHeader";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { mockEmployees, mockJobs } from "@/data/mobileMockData";
 import { Phone, Mail, Calendar, Star, Briefcase, MapPin, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { statusColors } from "@/data/mobileMockData";
+import { toast } from "sonner";
 
 const EmployeeDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const isEditMode = searchParams.get("edit") === "true";
   const employee = mockEmployees.find(e => e.id === id);
+  
+  const [formData, setFormData] = useState({
+    firstName: employee?.name.split(" ")[0] || "",
+    lastName: employee?.name.split(" ").slice(1).join(" ") || "",
+    email: employee?.email || "",
+    phone: employee?.phone || "",
+    birthdate: "",
+    role: employee?.role || "",
+  });
+
+  const [workingHours, setWorkingHours] = useState({
+    allowOutsideHours: false,
+    timeZone: "America/Los_Angeles",
+    selectedDays: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"] as string[],
+    dayTimes: {} as Record<string, { startTime: string; endTime: string }>,
+  });
+
+  const timeZones = [
+    "America/Los_Angeles",
+    "America/New_York",
+    "Europe/London",
+    "Asia/Kolkata",
+  ];
+
+  const daysOfWeek = [
+    { label: "S", value: "Sunday" },
+    { label: "M", value: "Monday" },
+    { label: "T", value: "Tuesday" },
+    { label: "W", value: "Wednesday" },
+    { label: "T", value: "Thursday" },
+    { label: "F", value: "Friday" },
+    { label: "S", value: "Saturday" },
+  ];
   
   if (!employee) {
     return (
       <div className="h-full flex items-center justify-center">
         <p>Employee not found</p>
+      </div>
+    );
+  }
+
+  const toggleDay = (dayValue: string) => {
+    setWorkingHours(prev => {
+      const isCurrentlySelected = prev.selectedDays.includes(dayValue);
+      const newSelectedDays = isCurrentlySelected
+        ? prev.selectedDays.filter(d => d !== dayValue)
+        : [...prev.selectedDays, dayValue];
+      
+      const newDayTimes = { ...prev.dayTimes };
+      if (isCurrentlySelected) {
+        delete newDayTimes[dayValue];
+      } else {
+        newDayTimes[dayValue] = { startTime: "", endTime: "" };
+      }
+      
+      return {
+        ...prev,
+        selectedDays: newSelectedDays,
+        dayTimes: newDayTimes
+      };
+    });
+  };
+
+  const updateDayTime = (dayValue: string, field: "startTime" | "endTime", value: string) => {
+    setWorkingHours(prev => ({
+      ...prev,
+      dayTimes: {
+        ...prev.dayTimes,
+        [dayValue]: {
+          ...prev.dayTimes[dayValue],
+          [field]: value
+        }
+      }
+    }));
+  };
+
+  const handleSubmit = () => {
+    if (!formData.firstName || !formData.lastName || !formData.email || !formData.phone || !formData.role) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+    toast.success("Employee updated successfully");
+    navigate(`/employees/${id}`);
+  };
+
+  if (isEditMode) {
+    return (
+      <div className="h-full flex flex-col overflow-hidden bg-white">
+        <MobileHeader title="Edit Employee" showBack={true} />
+        
+        <div className="flex-1 overflow-y-auto scrollable pt-14 pb-24">
+          <div className="p-4">
+            <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
+              <div className="space-y-2">
+                {/* First Name / Last Name - Side by side */}
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <Label className="text-sm font-medium text-gray-700">First Name *</Label>
+                    <Input
+                      type="text"
+                      placeholder="First Name"
+                      value={formData.firstName}
+                      onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                      className="w-full mt-0.5 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-orange-500 focus:border-orange-500"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <Label className="text-sm font-medium text-gray-700">Last Name *</Label>
+                    <Input
+                      type="text"
+                      placeholder="Last Name"
+                      value={formData.lastName}
+                      onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                      className="w-full mt-0.5 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-orange-500 focus:border-orange-500"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <Label className="text-sm font-medium text-gray-700">Email *</Label>
+                  <Input
+                    type="email"
+                    placeholder="employee@servicepro.com"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    className="w-full mt-0.5 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-orange-500 focus:border-orange-500"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <Label className="text-sm font-medium text-gray-700">Phone Number *</Label>
+                  <Input
+                    type="tel"
+                    placeholder="(555) 111-0001"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    className="w-full mt-0.5 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-orange-500 focus:border-orange-500"
+                    required
+                  />
+                </div>
+
+                {/* Birthdate / Role - Side by side */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label className="text-sm font-medium text-gray-600">Birthdate</Label>
+                    <Input
+                      type="date"
+                      value={formData.birthdate}
+                      onChange={(e) => setFormData({ ...formData, birthdate: e.target.value })}
+                      className="w-full mt-0.5 px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-600 focus:ring-orange-500 focus:border-orange-500 h-10"
+                    />
+                  </div>
+
+                  <div>
+                    <Label className="text-sm font-medium text-gray-700">Role *</Label>
+                    <Select value={formData.role} onValueChange={(value) => setFormData({ ...formData, role: value })}>
+                      <SelectTrigger className="w-full mt-0.5 px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-700 focus:ring-orange-500 focus:border-orange-500 h-10">
+                        <SelectValue placeholder="Select role" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Admin">Admin</SelectItem>
+                        <SelectItem value="Manager">Manager</SelectItem>
+                        <SelectItem value="Employee">Employee</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                {/* Section Divider */}
+                <hr className="border-gray-100 my-2" />
+
+                {/* Working Hours Section */}
+                <div className="space-y-2">
+                  <h2 className="text-sm font-semibold text-gray-700 mt-2 mb-1.5">Working Hours</h2>
+
+                  <p className="text-xs text-gray-500 leading-tight mb-1.5">
+                    Set the time slots during which the employee may log in to the system.
+                    If no specific time is set, the employee can log in at any time.
+                  </p>
+
+                  <div className="flex items-center mb-1.5 p-1.5">
+                    <Checkbox
+                      id="allow-outside"
+                      checked={workingHours.allowOutsideHours}
+                      onCheckedChange={(checked) => 
+                        setWorkingHours({ ...workingHours, allowOutsideHours: checked as boolean })
+                      }
+                      className="mr-2"
+                    />
+                    <Label htmlFor="allow-outside" className="text-sm text-gray-700 cursor-pointer">
+                      Allow employee to log in outside working hours
+                    </Label>
+                  </div>
+
+                  <div className="mb-1.5">
+                    <Label className="text-sm font-medium text-gray-700">Time Zone</Label>
+                    <Select 
+                      value={workingHours.timeZone} 
+                      onValueChange={(value) => setWorkingHours({ ...workingHours, timeZone: value })}
+                    >
+                      <SelectTrigger className="w-full mt-0.5 px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-700 focus:ring-orange-500 focus:border-orange-500 h-auto">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {timeZones.map(tz => (
+                          <SelectItem key={tz} value={tz}>{tz}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Day Selector */}
+                  <div className="flex justify-between gap-1 mt-1.5 mb-2">
+                    {daysOfWeek.map((day, index) => {
+                      const isSelected = workingHours.selectedDays.includes(day.value);
+                      return (
+                        <button
+                          key={index}
+                          type="button"
+                          onClick={() => toggleDay(day.value)}
+                          className={cn(
+                            "w-7 h-7 flex items-center justify-center rounded-full text-xs font-medium transition-colors",
+                            isSelected
+                              ? "bg-orange-500 text-white"
+                              : "bg-gray-100 text-gray-700"
+                          )}
+                        >
+                          {day.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Day Time Inputs */}
+                  <div className="space-y-1.5">
+                    {daysOfWeek.map((day, index) => {
+                      const isSelected = workingHours.selectedDays.includes(day.value);
+                      const dayTime = workingHours.dayTimes[day.value] || { startTime: "", endTime: "" };
+                      
+                      if (!isSelected) return null;
+
+                      return (
+                        <div key={index} className="grid grid-cols-[80px,1fr,1fr] items-center gap-2">
+                          <span className="text-sm text-gray-700 truncate">{day.value}</span>
+                          <Input
+                            type="time"
+                            value={dayTime.startTime}
+                            onChange={(e) => updateDayTime(day.value, "startTime", e.target.value)}
+                            className="p-2 border border-gray-200 rounded-lg text-sm text-gray-700 focus:ring-orange-500 focus:border-orange-500 w-full"
+                            placeholder="🕒 Start Time"
+                          />
+                          <Input
+                            type="time"
+                            value={dayTime.endTime}
+                            onChange={(e) => updateDayTime(day.value, "endTime", e.target.value)}
+                            className="p-2 border border-gray-200 rounded-lg text-sm text-gray-700 focus:ring-orange-500 focus:border-orange-500 w-full"
+                            placeholder="🕒 End Time"
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Share Employee Shift Detail Button */}
+                  <div className="mt-3">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full py-2.5 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50"
+                      onClick={() => {
+                        // Handle share functionality
+                        toast.info("Share employee shift detail functionality");
+                      }}
+                    >
+                      Share Employee Shift Detail
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        {/* Sticky Footer with Action Buttons */}
+        <div className="sticky bottom-0 bg-white border-t border-gray-100 p-3 pb-6">
+          <Button
+            type="button"
+            onClick={handleSubmit}
+            className="w-full py-3 bg-orange-500 text-white font-medium rounded-xl hover:bg-orange-600"
+            disabled={!formData.firstName || !formData.lastName || !formData.email || !formData.phone || !formData.role}
+          >
+            Update Employee
+          </Button>
+        </div>
       </div>
     );
   }

@@ -33,6 +33,7 @@ import JobDetails from "./pages/JobDetails";
 import Inventory from "./pages/Inventory";
 import InventoryItemDetails from "./pages/InventoryItemDetails";
 import AddInventoryItem from "./pages/AddInventoryItem";
+import EditInventoryItem from "./pages/EditInventoryItem";
 import AddDiscount from "./pages/AddDiscount";
 import InventoryStockInOut from "./pages/InventoryStockInOut";
 import InventoryRefund from "./pages/InventoryRefund";
@@ -43,6 +44,7 @@ import AddAppointment from "./pages/AddAppointment";
 import Reports from "./pages/Reports";
 import InvoiceReport from "./pages/InvoiceReport";
 import EstimateReport from "./pages/EstimateReport";
+import MonthlyReportAlert from "./pages/MonthlyReportAlert";
 import Settings from "./pages/Settings";
 import Profile from "./pages/Profile";
 import ChangePassword from "./pages/ChangePassword";
@@ -103,6 +105,7 @@ const AppContent = () => {
             <Route path="/employees/tracking" element={<EmployeeTracking />} />
             <Route path="/inventory" element={<Inventory />} />
             <Route path="/inventory/new" element={<AddInventoryItem />} />
+            <Route path="/inventory/:id/edit" element={<EditInventoryItem />} />
             <Route path="/inventory/:id" element={<InventoryItemDetails />} />
             <Route path="/inventory/alert-settings" element={<LowInventoryAlertSettings />} />
             <Route path="/inventory/stock-in-out" element={<InventoryStockInOut />} />
@@ -112,6 +115,7 @@ const AppContent = () => {
             <Route path="/reports" element={<Reports />} />
             <Route path="/reports/invoice" element={<InvoiceReport />} />
             <Route path="/reports/estimate" element={<EstimateReport />} />
+            <Route path="/reports/monthly-alert" element={<MonthlyReportAlert />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/settings/profile" element={<Profile />} />
             <Route path="/settings/change-password" element={<ChangePassword />} />

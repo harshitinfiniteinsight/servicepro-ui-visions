@@ -119,7 +119,6 @@ const CustomerCard = ({ customer, variant = "default", onActivate, onQuickAction
             <DropdownMenuContent align="end" sideOffset={4} className="w-52">
               {[
                 { label: "Edit Customer", action: "edit" },
-                { label: "Send Email", action: "email" },
                 { label: "Send SMS", action: "sms" },
                 { label: "Memo", action: "memo" },
                 { label: "Setup Appointment", action: "appointment" },

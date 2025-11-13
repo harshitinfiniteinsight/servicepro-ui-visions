@@ -1,115 +1,133 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import MobileHeader from "@/components/layout/MobileHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { User, Mail, Phone, MapPin } from "lucide-react";
+import { Plus } from "lucide-react";
+import { toast } from "sonner";
 
 const AddCustomer = () => {
   const navigate = useNavigate();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [profilePicture, setProfilePicture] = useState<string | null>(null);
   const [formData, setFormData] = useState({
-    name: "",
+    firstName: "",
+    lastName: "",
     email: "",
     phone: "",
-    address: "",
-    status: "Active",
-    notes: "",
   });
 
+  const handleProfilePictureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.type.startsWith("image/")) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setProfilePicture(reader.result as string);
+        };
+        reader.readAsDataURL(file);
+      } else {
+        toast.error("Please select an image file");
+      }
+    }
+  };
+
   const handleSubmit = () => {
-    // In real app, save customer
+    if (!formData.firstName || !formData.lastName || !formData.email || !formData.phone) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+    // In real app, save customer with profilePicture
+    toast.success("Customer created successfully");
     navigate("/customers");
   };
 
   return (
-    <div className="h-full flex flex-col overflow-hidden">
+    <div className="h-full flex flex-col overflow-hidden bg-white">
       <MobileHeader title="New Customer" showBack={true} />
       
-      <div className="flex-1 overflow-y-auto scrollable pt-14 px-4 pb-6 space-y-4">
-        {/* Avatar Section */}
-        <div className="flex flex-col items-center py-4">
-          <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center mb-2">
-            <User className="h-10 w-10 text-primary" />
-          </div>
-          <Button variant="outline" size="sm">Change Photo</Button>
-        </div>
-
-        {/* Form Fields */}
-        <div className="space-y-4">
-          <div>
-            <Label>Full Name *</Label>
-            <Input
-              placeholder="Enter customer name"
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+      <div className="flex-1 overflow-y-auto scrollable pt-14 px-4 pb-6">
+        <div className="flex flex-col items-center p-4 space-y-4">
+          {/* Profile Picture Upload */}
+          <div className="relative mt-4">
+            <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 border border-gray-300 overflow-hidden">
+              {profilePicture ? (
+                <img 
+                  src={profilePicture} 
+                  alt="Profile" 
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <Plus className="w-6 h-6" />
+              )}
+            </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleProfilePictureChange}
+              className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
             />
           </div>
 
-          <div>
-            <Label>Email *</Label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          {/* Form Fields */}
+          <div className="w-full space-y-3">
+            <div>
+              <Label className="block text-sm font-medium text-gray-700 mb-1">
+                First Name *
+              </Label>
+              <Input
+                type="text"
+                placeholder="Enter first name"
+                value={formData.firstName}
+                onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-1 focus:ring-orange-500 focus:border-orange-500"
+                required
+              />
+            </div>
+
+            <div>
+              <Label className="block text-sm font-medium text-gray-700 mb-1">
+                Last Name *
+              </Label>
+              <Input
+                type="text"
+                placeholder="Enter last name"
+                value={formData.lastName}
+                onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-1 focus:ring-orange-500 focus:border-orange-500"
+                required
+              />
+            </div>
+
+            <div>
+              <Label className="block text-sm font-medium text-gray-700 mb-1">
+                Email *
+              </Label>
               <Input
                 type="email"
                 placeholder="customer@email.com"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="pl-10"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-1 focus:ring-orange-500 focus:border-orange-500"
+                required
               />
             </div>
-          </div>
 
-          <div>
-            <Label>Phone *</Label>
-            <div className="relative">
-              <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <div>
+              <Label className="block text-sm font-medium text-gray-700 mb-1">
+                Phone Number *
+              </Label>
               <Input
                 type="tel"
                 placeholder="(555) 123-4567"
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                className="pl-10"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-1 focus:ring-orange-500 focus:border-orange-500"
+                required
               />
             </div>
-          </div>
-
-          <div>
-            <Label>Address</Label>
-            <div className="relative">
-              <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Textarea
-                placeholder="Street address, City, State ZIP"
-                value={formData.address}
-                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                className="pl-10 min-h-[80px]"
-              />
-            </div>
-          </div>
-
-          <div>
-            <Label>Status</Label>
-            <Select value={formData.status} onValueChange={(value) => setFormData({ ...formData, status: value })}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Active">Active</SelectItem>
-                <SelectItem value="Inactive">Inactive</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
-            <Label>Notes</Label>
-            <Textarea
-              placeholder="Add any additional notes about this customer..."
-              value={formData.notes}
-              onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-              className="min-h-[100px]"
-            />
           </div>
         </div>
       </div>
@@ -120,7 +138,7 @@ const AddCustomer = () => {
           className="w-full"
           size="lg"
           onClick={handleSubmit}
-          disabled={!formData.name || !formData.email || !formData.phone}
+          disabled={!formData.firstName || !formData.lastName || !formData.email || !formData.phone}
         >
           Create Customer
         </Button>

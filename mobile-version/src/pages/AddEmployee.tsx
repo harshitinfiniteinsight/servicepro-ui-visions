@@ -5,181 +5,134 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { User, Mail, Phone, Briefcase } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 const AddEmployee = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    name: "",
+    firstName: "",
+    lastName: "",
     email: "",
     phone: "",
+    birthdate: "",
     role: "",
-    status: "Active",
-    specialties: [] as string[],
   });
 
   const roles = [
-    "Senior Technician",
-    "Technician",
-    "Electrician",
-    "Apprentice",
-    "Office Manager",
-    "Sales Rep",
-    "Dispatcher",
-    "Accountant",
+    "Admin",
+    "Manager",
+    "Employee",
   ];
-
-  const specialtyOptions = [
-    "HVAC",
-    "Plumbing",
-    "Electrical",
-    "General",
-    "Administration",
-    "Sales",
-    "Dispatch",
-    "Finance",
-  ];
-
-  const toggleSpecialty = (specialty: string) => {
-    setFormData(prev => ({
-      ...prev,
-      specialties: prev.specialties.includes(specialty)
-        ? prev.specialties.filter(s => s !== specialty)
-        : [...prev.specialties, specialty]
-    }));
-  };
 
   const handleSubmit = () => {
+    if (!formData.firstName || !formData.lastName || !formData.email || !formData.phone || !formData.role) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
     // In real app, create employee
+    toast.success("Employee created successfully");
     navigate("/employees");
   };
 
   return (
-    <div className="h-full flex flex-col overflow-hidden">
+    <div className="h-full flex flex-col overflow-hidden bg-white">
       <MobileHeader title="New Employee" showBack={true} />
       
-      <div className="flex-1 overflow-y-auto scrollable pt-14 px-4 pb-6 space-y-4">
-        {/* Avatar Section */}
-        <div className="flex flex-col items-center py-4">
-          <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center mb-2">
-            <User className="h-10 w-10 text-primary" />
-          </div>
-          <Button variant="outline" size="sm">Change Photo</Button>
-        </div>
+      <div className="flex-1 overflow-y-auto scrollable pt-14 px-4 pb-6">
+        <div className="p-4">
+          <h1 className="text-lg font-semibold text-gray-800 mb-4">New Employee</h1>
 
-        {/* Form Fields */}
-        <div className="space-y-4">
+          <form className="space-y-3" onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
           <div>
-            <Label>Full Name *</Label>
+            <Label className="text-sm font-medium text-gray-700">First Name *</Label>
             <Input
-              placeholder="Enter employee name"
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              type="text"
+              placeholder="Enter first name"
+              value={formData.firstName}
+              onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+              className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm focus:ring-orange-500 focus:border-orange-500"
+              required
             />
           </div>
 
           <div>
-            <Label>Email *</Label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="email"
-                placeholder="employee@servicepro.com"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="pl-10"
-              />
-            </div>
+            <Label className="text-sm font-medium text-gray-700">Last Name *</Label>
+            <Input
+              type="text"
+              placeholder="Enter last name"
+              value={formData.lastName}
+              onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+              className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm focus:ring-orange-500 focus:border-orange-500"
+              required
+            />
           </div>
 
           <div>
-            <Label>Phone *</Label>
-            <div className="relative">
-              <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="tel"
-                placeholder="(555) 111-0001"
-                value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                className="pl-10"
-              />
-            </div>
+            <Label className="text-sm font-medium text-gray-700">Email *</Label>
+            <Input
+              type="email"
+              placeholder="employee@servicepro.com"
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm focus:ring-orange-500 focus:border-orange-500"
+              required
+            />
           </div>
 
           <div>
-            <Label>Role *</Label>
-            <div className="relative">
-              <Briefcase className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Select value={formData.role} onValueChange={(value) => setFormData({ ...formData, role: value })}>
-                <SelectTrigger className="pl-10">
-                  <SelectValue placeholder="Select role" />
-                </SelectTrigger>
-                <SelectContent>
-                  {roles.map(role => (
-                    <SelectItem key={role} value={role}>{role}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            <Label className="text-sm font-medium text-gray-700">Phone Number *</Label>
+            <Input
+              type="tel"
+              placeholder="(555) 111-0001"
+              value={formData.phone}
+              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+              className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm focus:ring-orange-500 focus:border-orange-500"
+              required
+            />
           </div>
 
           <div>
-            <Label>Status</Label>
-            <Select value={formData.status} onValueChange={(value) => setFormData({ ...formData, status: value })}>
-              <SelectTrigger>
-                <SelectValue />
+            <Label className="text-sm font-medium text-gray-700">Birthdate</Label>
+            <Input
+              type="date"
+              value={formData.birthdate}
+              onChange={(e) => setFormData({ ...formData, birthdate: e.target.value })}
+              className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm text-gray-600 focus:ring-orange-500 focus:border-orange-500"
+            />
+          </div>
+
+          <div>
+            <Label className="text-sm font-medium text-gray-700">Role *</Label>
+            <Select value={formData.role} onValueChange={(value) => setFormData({ ...formData, role: value })}>
+              <SelectTrigger className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm text-gray-700 focus:ring-orange-500 focus:border-orange-500 h-auto">
+                <SelectValue placeholder="Select role" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Active">Active</SelectItem>
-                <SelectItem value="Inactive">Inactive</SelectItem>
+                {roles.map(role => (
+                  <SelectItem key={role} value={role}>{role}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
 
-          <div>
-            <Label>Specialties</Label>
-            <div className="grid grid-cols-2 gap-2 mt-2">
-              {specialtyOptions.map(specialty => (
-                <button
-                  key={specialty}
-                  type="button"
-                  onClick={() => toggleSpecialty(specialty)}
-                  className={cn(
-                    "p-3 rounded-lg border text-left transition-colors",
-                    formData.specialties.includes(specialty)
-                      ? "bg-primary/10 border-primary"
-                      : "bg-card hover:bg-accent/5"
-                  )}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">{specialty}</span>
-                    {formData.specialties.includes(specialty) && (
-                      <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center">
-                        <span className="text-xs text-primary-foreground">✓</span>
-                      </div>
-                    )}
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
+            <Button
+              type="submit"
+              className="w-full mt-4 py-3 bg-orange-500 text-white font-medium rounded-xl shadow-sm hover:bg-orange-600"
+              disabled={!formData.firstName || !formData.lastName || !formData.email || !formData.phone || !formData.role}
+            >
+              Create Employee
+            </Button>
 
-      {/* Bottom Actions */}
-      <div className="p-4 border-t bg-background space-y-2">
-        <Button
-          className="w-full"
-          size="lg"
-          onClick={handleSubmit}
-          disabled={!formData.name || !formData.email || !formData.phone || !formData.role}
-        >
-          Create Employee
-        </Button>
-        <Button variant="ghost" className="w-full" onClick={() => navigate("/employees")}>
-          Cancel
-        </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              className="w-full py-2 text-gray-500 text-sm font-medium"
+              onClick={() => navigate("/employees")}
+            >
+              Cancel
+            </Button>
+          </form>
+        </div>
       </div>
     </div>
   );
