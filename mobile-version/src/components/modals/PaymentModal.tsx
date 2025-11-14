@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogDescription } from "@/components/ui/dialog
 import EnterCardDetailsModal from "./EnterCardDetailsModal";
 import EnterACHPaymentDetailsModal from "./EnterACHPaymentDetailsModal";
 import CashPaymentModal from "./CashPaymentModal";
+import TapToPayModal from "./TapToPayModal";
 
 interface PaymentModalProps {
   isOpen: boolean;
@@ -16,6 +17,7 @@ const PaymentModal = ({ isOpen, onClose, amount, onPaymentMethodSelect }: Paymen
   const [showCardDetailsModal, setShowCardDetailsModal] = useState(false);
   const [showACHPaymentDetailsModal, setShowACHPaymentDetailsModal] = useState(false);
   const [showCashPaymentModal, setShowCashPaymentModal] = useState(false);
+  const [showTapToPayModal, setShowTapToPayModal] = useState(false);
 
   const paymentOptions = [
     {
@@ -41,7 +43,10 @@ const PaymentModal = ({ isOpen, onClose, amount, onPaymentMethodSelect }: Paymen
   ];
 
   const handlePaymentMethodClick = (methodId: string) => {
-    if (methodId === "enter-card") {
+    if (methodId === "tap-to-pay") {
+      // Show Tap to Pay modal instead of closing
+      setShowTapToPayModal(true);
+    } else if (methodId === "enter-card") {
       // Show card details modal instead of closing
       setShowCardDetailsModal(true);
     } else if (methodId === "ach") {
@@ -109,10 +114,27 @@ const PaymentModal = ({ isOpen, onClose, amount, onPaymentMethodSelect }: Paymen
     }
   };
 
+  const handleTapToPayBack = () => {
+    setShowTapToPayModal(false);
+  };
+
+  const handleTapToPayClose = () => {
+    setShowTapToPayModal(false);
+    onClose();
+  };
+
+  const handleTapToPayComplete = () => {
+    setShowTapToPayModal(false);
+    onClose();
+    if (onPaymentMethodSelect) {
+      onPaymentMethodSelect("tap-to-pay");
+    }
+  };
+
   return (
     <>
-      <Dialog open={isOpen && !showCardDetailsModal && !showACHPaymentDetailsModal && !showCashPaymentModal} onOpenChange={onClose}>
-        <DialogContent className="max-w-md w-[calc(100%-2rem)] p-0 gap-0 rounded-2xl max-h-[85vh] overflow-hidden [&>div]:p-0">
+      <Dialog open={isOpen && !showCardDetailsModal && !showACHPaymentDetailsModal && !showCashPaymentModal && !showTapToPayModal} onOpenChange={onClose}>
+        <DialogContent className="max-w-md w-[calc(100%-2rem)] p-0 gap-0 rounded-2xl max-h-[85vh] overflow-hidden [&>div]:p-0 [&>button]:hidden">
           <DialogDescription className="sr-only">
             Payment modal for amount ${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </DialogDescription>
@@ -198,6 +220,15 @@ const PaymentModal = ({ isOpen, onClose, amount, onPaymentMethodSelect }: Paymen
         onBack={handleCashPaymentBack}
         amount={amount}
         onPaymentComplete={handleCashPaymentComplete}
+      />
+
+      {/* Tap to Pay Modal */}
+      <TapToPayModal
+        isOpen={showTapToPayModal}
+        onClose={handleTapToPayClose}
+        onBack={handleTapToPayBack}
+        amount={amount}
+        onPaymentComplete={handleTapToPayComplete}
       />
     </>
   );

@@ -3,7 +3,8 @@ import { Dialog, DialogContent, DialogDescription } from "@/components/ui/dialog
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
+import { showSuccessToast, showErrorToast } from "@/utils/toast";
 
 interface CashPaymentModalProps {
   isOpen: boolean;
@@ -23,6 +24,7 @@ const CashPaymentModal = ({
   const [amountReceived, setAmountReceived] = useState("");
   const [changeDue, setChangeDue] = useState<number | null>(null);
   const [error, setError] = useState("");
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const handleAmountChange = (value: string) => {
     // Remove any non-numeric characters except decimal point
@@ -43,31 +45,48 @@ const CashPaymentModal = ({
     }
   };
 
-  const handlePayCash = () => {
+  const handlePayCash = async () => {
     const received = parseFloat(amountReceived);
     
     if (!amountReceived || isNaN(received)) {
       setError("Please enter amount received");
-      toast.error("Please enter amount received");
+      showErrorToast("Please enter amount received");
       return;
     }
 
     if (received < amount) {
       setError("Amount received cannot be less than order amount");
-      toast.error("Amount received cannot be less than order amount");
+      showErrorToast("Amount received cannot be less than order amount");
       return;
     }
 
-    const change = received - amount;
+    // Set processing state
+    setIsProcessing(true);
 
-    if (change === 0) {
-      toast.success(`Exact payment of $${amount.toFixed(2)} received`);
-    } else {
-      toast.success(`Payment received. Change due: $${change.toFixed(2)}`);
+    try {
+      // Simulate payment processing (replace with actual API call)
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
+      // Simulate success (in real app, check API response)
+      const paymentSuccess = true; // Replace with actual API response check
+
+      if (paymentSuccess) {
+        // Show success toast
+        showSuccessToast("Payment completed");
+        
+        // Close modal and reset form
+        handleClose();
+        onPaymentComplete?.();
+      } else {
+        // Handle payment failure
+        showErrorToast("Payment failed. Please try again.");
+        setIsProcessing(false);
+      }
+    } catch (error) {
+      // Handle error
+      showErrorToast("Payment failed. Please try again.");
+      setIsProcessing(false);
     }
-
-    handleClose();
-    onPaymentComplete?.();
   };
 
   const handleClose = () => {
@@ -75,12 +94,13 @@ const CashPaymentModal = ({
     setAmountReceived("");
     setChangeDue(null);
     setError("");
+    setIsProcessing(false);
     onClose();
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-md w-[calc(100%-2rem)] p-0 gap-0 rounded-2xl max-h-[85vh] overflow-hidden [&>div]:p-0">
+      <DialogContent className="max-w-md w-[calc(100%-2rem)] p-0 gap-0 rounded-2xl max-h-[85vh] overflow-hidden [&>div]:p-0 [&>button]:hidden">
         <DialogDescription className="sr-only">
           Cash payment for amount ${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
         </DialogDescription>
@@ -167,11 +187,18 @@ const CashPaymentModal = ({
           {/* Pay Cash Button */}
           <div className="w-[92%] mx-auto mt-3 mb-2">
             <Button
-              className="w-full bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-xl font-semibold transition-colors"
+              className="w-full bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-xl font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={handlePayCash}
-              disabled={!amountReceived || parseFloat(amountReceived) < amount}
+              disabled={!amountReceived || parseFloat(amountReceived) < amount || isProcessing}
             >
-              Pay Cash
+              {isProcessing ? (
+                <span className="flex items-center justify-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Processing...
+                </span>
+              ) : (
+                "Pay Cash"
+              )}
             </Button>
           </div>
         </div>

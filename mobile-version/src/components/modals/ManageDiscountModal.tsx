@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Pencil, Trash2, Search } from "lucide-react";
+import { Pencil, Trash2, Search, X } from "lucide-react";
 import { toast } from "sonner";
 
 interface Discount {
@@ -84,19 +84,29 @@ const ManageDiscountModal = ({
         {/* Header */}
         <DialogHeader className="flex flex-row justify-between items-center pb-2 border-b border-gray-100 flex-shrink-0 mb-3">
           <DialogTitle className="text-base font-semibold text-gray-800">Manage Discount</DialogTitle>
-          <Button
-            size="sm"
-            onClick={() => {
-              if (onAdd) {
-                onAdd();
-              } else {
-                toast.info("Add discount functionality");
-              }
-            }}
-            className="bg-orange-500 hover:bg-orange-600 text-white rounded-md text-sm px-2.5 py-1.5 shadow-sm"
-          >
-            + Add
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              onClick={() => {
+                if (onAdd) {
+                  onAdd();
+                } else {
+                  toast.info("Add discount functionality");
+                }
+              }}
+              className="bg-orange-500 hover:bg-orange-600 text-white rounded-md text-sm px-2.5 py-1.5 shadow-sm"
+            >
+              + Add
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleClose}
+              className="h-9 w-9 rounded-full hover:bg-gray-100"
+            >
+              <X className="h-5 w-5 text-gray-600" />
+            </Button>
+          </div>
         </DialogHeader>
 
         {/* Search Field */}
@@ -155,16 +165,6 @@ const ManageDiscountModal = ({
           )}
         </div>
 
-        {/* Footer */}
-        <div className="pt-2 mt-auto flex-shrink-0 border-t border-gray-100">
-          <Button
-            variant="outline"
-            onClick={handleClose}
-            className="w-full text-gray-700 border-gray-300 rounded-lg py-2 hover:bg-gray-50"
-          >
-            Close
-          </Button>
-        </div>
       </DialogContent>
     </Dialog>
   );

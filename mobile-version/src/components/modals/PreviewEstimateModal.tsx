@@ -109,7 +109,7 @@ const PreviewEstimateModal = ({ isOpen, onClose, estimate, onAction }: PreviewEs
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="!fixed !inset-0 !translate-x-0 !translate-y-0 max-w-full w-full h-full max-h-full p-0 gap-0 rounded-none m-0 flex flex-col sm:!left-[50%] sm:!top-[50%] sm:!translate-x-[-50%] sm:!translate-y-[-50%] sm:max-w-2xl sm:h-auto sm:max-h-[90vh] sm:rounded-lg sm:!inset-auto">
+      <DialogContent className="!fixed !inset-0 !translate-x-0 !translate-y-0 max-w-full w-full h-full max-h-full p-0 gap-0 rounded-none m-0 flex flex-col sm:!left-[50%] sm:!top-[50%] sm:!translate-x-[-50%] sm:!translate-y-[-50%] sm:max-w-2xl sm:h-auto sm:max-h-[90vh] sm:rounded-lg sm:!inset-auto [&>button]:hidden">
         <DialogDescription className="sr-only">
           Preview estimate {estimate.id}
         </DialogDescription>
@@ -386,14 +386,6 @@ const PreviewEstimateModal = ({ isOpen, onClose, estimate, onAction }: PreviewEs
           >
             <UserCog className="h-4 w-4 mr-1.5" />
             <span className="text-xs">Reassign Employee</span>
-          </Button>
-          <div className="flex-1" />
-          <Button
-            onClick={onClose}
-            className="bg-orange-500 hover:bg-orange-600 text-white flex-shrink-0"
-            size="sm"
-          >
-            <span className="text-xs">Close</span>
           </Button>
         </div>
       </DialogContent>

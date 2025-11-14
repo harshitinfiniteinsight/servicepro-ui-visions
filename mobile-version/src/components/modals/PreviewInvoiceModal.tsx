@@ -83,7 +83,7 @@ const PreviewInvoiceModal = ({ isOpen, onClose, invoice, onAction }: PreviewInvo
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="!fixed !inset-0 !translate-x-0 !translate-y-0 m-0 flex h-full max-h-full w-full max-w-full flex-col gap-0 rounded-none p-0 sm:!left-1/2 sm:!top-1/2 sm:h-auto sm:max-h-[92vh] sm:w-[720px] sm:!translate-x-[-50%] sm:!translate-y-[-50%] sm:rounded-3xl">
+      <DialogContent className="!fixed !inset-0 !translate-x-0 !translate-y-0 m-0 flex h-full max-h-full w-full max-w-full flex-col gap-0 rounded-none p-0 sm:!left-1/2 sm:!top-1/2 sm:h-auto sm:max-h-[92vh] sm:w-[720px] sm:!translate-x-[-50%] sm:!translate-y-[-50%] sm:rounded-3xl [&>button]:hidden">
         <DialogDescription className="sr-only">Preview invoice {invoice.id}</DialogDescription>
 
         <div className="bg-[#0E5FFF] px-3 py-3 flex items-center justify-between safe-top">
@@ -100,11 +100,11 @@ const PreviewInvoiceModal = ({ isOpen, onClose, invoice, onAction }: PreviewInvo
             </Button>
             <Button
               variant="ghost"
-              size="sm"
+              size="icon"
               onClick={onClose}
-              className="text-white hover:bg-white/20 h-8 w-8 p-0"
+              className="text-white hover:bg-white/20 h-9 w-9 rounded-full"
             >
-              <X className="h-4 w-4" />
+              <X className="h-5 w-5" />
             </Button>
           </div>
         </div>
@@ -304,13 +304,6 @@ const PreviewInvoiceModal = ({ isOpen, onClose, invoice, onAction }: PreviewInvo
               >
                 <UserCog className="h-3.5 w-3.5 mr-1.5 flex-shrink-0" />
                 <span className="whitespace-nowrap">Reassign</span>
-              </Button>
-              <Button
-                onClick={onClose}
-                className="bg-white text-[#0E5FFF] hover:bg-white/90 h-9 px-3 py-2 w-full justify-center text-xs font-semibold rounded-lg col-span-2"
-                size="sm"
-              >
-                <span className="whitespace-nowrap">Close</span>
               </Button>
             </div>
           </div>

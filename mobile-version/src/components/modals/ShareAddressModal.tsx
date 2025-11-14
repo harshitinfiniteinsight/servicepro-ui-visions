@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { X } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -48,7 +49,7 @@ const ShareAddressModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md w-[calc(100%-2rem)] p-0 gap-0 rounded-2xl max-h-[85vh] overflow-hidden">
+      <DialogContent className="max-w-md w-[calc(100%-2rem)] p-0 gap-0 rounded-2xl max-h-[85vh] overflow-hidden [&>button]:hidden">
         <DialogDescription className="sr-only">
           Share job address for estimate {estimateId}
         </DialogDescription>
@@ -58,11 +59,11 @@ const ShareAddressModal = ({
           <h2 className="text-lg sm:text-xl font-bold text-white">Share Address</h2>
           <Button
             variant="ghost"
-            size="sm"
+            size="icon"
             onClick={onClose}
-            className="text-white hover:bg-orange-600 h-9 px-3 rounded-md"
+            className="text-white hover:bg-orange-600 h-9 w-9 rounded-full"
           >
-            <span className="text-sm sm:text-base font-semibold">Close</span>
+            <X className="h-5 w-5" />
           </Button>
         </div>
 

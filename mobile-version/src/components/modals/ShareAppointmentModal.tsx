@@ -60,7 +60,7 @@ const ShareAppointmentModal = ({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-sm w-11/12 p-0 gap-0 rounded-xl bg-white shadow-lg">
+      <DialogContent className="max-w-sm w-11/12 p-0 gap-0 rounded-xl bg-white shadow-lg [&>button]:hidden">
         <DialogHeader className="px-4 pt-4 pb-2 text-left">
           <DialogTitle className="text-lg font-semibold text-gray-900">{modalTitle}</DialogTitle>
           <DialogDescription className="text-sm text-gray-500 mt-1">

@@ -88,7 +88,7 @@ const AppointmentDetailsModal = ({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-md w-[calc(100%-2rem)] p-0 gap-0 rounded-2xl bg-white shadow-xl max-h-[90vh] overflow-hidden flex flex-col">
+      <DialogContent className="max-w-md w-[calc(100%-2rem)] p-0 gap-0 rounded-2xl bg-white shadow-xl max-h-[90vh] overflow-hidden flex flex-col [&>button]:hidden">
         <DialogHeader className="px-5 pt-5 pb-3 flex flex-row items-center justify-between border-b border-gray-100">
           <DialogTitle className="text-lg font-semibold text-gray-900">Appointment Details</DialogTitle>
           <div className="flex items-center gap-2">
@@ -111,14 +111,14 @@ const AppointmentDetailsModal = ({
             >
               <Edit2 className="h-4 w-4 text-gray-600" />
             </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 rounded-full hover:bg-gray-100"
-              onClick={onClose}
-            >
-              <X className="h-4 w-4 text-gray-400" />
-            </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-9 w-9 rounded-full hover:bg-gray-100"
+            onClick={onClose}
+          >
+            <X className="h-5 w-5 text-gray-600" />
+          </Button>
           </div>
         </DialogHeader>
 

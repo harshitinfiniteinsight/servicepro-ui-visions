@@ -33,7 +33,7 @@ const InvoiceDueAlertModal = ({ isOpen, onClose }: InvoiceDueAlertModalProps) =>
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-[90vw] sm:max-w-md rounded-xl p-0 gap-0">
+      <DialogContent className="max-w-[90vw] sm:max-w-md rounded-xl p-0 gap-0 [&>button]:hidden">
         <DialogHeader className="px-4 pt-4 pb-3 border-b border-gray-200">
           <div className="flex items-center justify-between">
             <DialogTitle className="text-lg font-semibold text-gray-900">
@@ -43,9 +43,9 @@ const InvoiceDueAlertModal = ({ isOpen, onClose }: InvoiceDueAlertModalProps) =>
               variant="ghost"
               size="icon"
               onClick={onClose}
-              className="h-8 w-8 rounded-full hover:bg-gray-100"
+              className="h-9 w-9 rounded-full hover:bg-gray-100"
             >
-              <X className="h-4 w-4 text-gray-600" />
+              <X className="h-5 w-5 text-gray-600" />
             </Button>
           </div>
         </DialogHeader>
@@ -136,6 +136,7 @@ const InvoiceDueAlertModal = ({ isOpen, onClose }: InvoiceDueAlertModalProps) =>
 };
 
 export default InvoiceDueAlertModal;
+
 
 
 

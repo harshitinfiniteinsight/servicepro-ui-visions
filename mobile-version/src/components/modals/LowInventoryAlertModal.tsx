@@ -70,10 +70,10 @@ const LowInventoryAlertModal = ({
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8 rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-600"
+            className="h-9 w-9 rounded-full hover:bg-gray-100"
             onClick={handleClose}
           >
-            <X className="h-5 w-5" />
+            <X className="h-5 w-5 text-gray-600" />
           </Button>
         </DialogHeader>
 
