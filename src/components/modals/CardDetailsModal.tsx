@@ -163,3 +163,8 @@ export const CardDetailsModal = ({ open, onOpenChange, totalAmount, onPaymentCom
 
 
 
+
+
+
+
+
