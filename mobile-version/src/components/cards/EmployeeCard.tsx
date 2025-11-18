@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Phone, Mail, MoreVertical } from "lucide-react";
+import KebabMenu, { KebabMenuItem } from "@/components/common/KebabMenu";
+import { Phone, Mail, Edit, XCircle, RotateCcw } from "lucide-react";
 
 interface EmployeeCardProps {
   employee: {
@@ -78,42 +78,20 @@ const EmployeeCard = ({
               <p className="text-xs text-gray-500">{formatEmployeeId(employee.id)}</p>
             </div>
           </div>
-          {onQuickAction && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 p-1 text-gray-500 hover:text-gray-700 hover:bg-gray-100 flex-shrink-0"
-                  onClick={e => e.stopPropagation()}
-                >
-                  <MoreVertical className="h-5 w-5" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" sideOffset={4} className="w-52">
-                <DropdownMenuItem
-                  onSelect={() => onQuickAction("edit")}
-                >
-                  Edit Employee
-                </DropdownMenuItem>
-                {onActivate && (
-                  <DropdownMenuItem
-                    onSelect={() => {
-                      onActivate();
-                      onQuickAction("activate");
-                    }}
-                    className="text-green-600 font-medium focus:bg-green-50 focus:text-green-600"
-                  >
-                    Activate
-                  </DropdownMenuItem>
-                )}
-                <DropdownMenuItem
-                  onSelect={() => onQuickAction("details")}
-                >
-                  View Details
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+          {onQuickAction && onActivate && (
+            <KebabMenu
+              items={[
+                {
+                  label: "Activate",
+                  icon: RotateCcw,
+                  action: () => {
+                    onActivate();
+                    onQuickAction("activate");
+                  },
+                },
+              ]}
+              menuWidth="w-44"
+            />
           )}
         </div>
         <div className="pl-12 space-y-1">
@@ -174,31 +152,22 @@ const EmployeeCard = ({
           </div>
         </div>
         {onQuickAction && (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 p-1 text-gray-500 hover:text-gray-700 hover:bg-gray-100 flex-shrink-0"
-                onClick={e => e.stopPropagation()}
-              >
-                <MoreVertical className="h-5 w-5" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" sideOffset={4} className="w-52">
-              <DropdownMenuItem
-                onSelect={() => onQuickAction("edit")}
-              >
-                Edit Employee
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onSelect={() => onQuickAction("deactivate")}
-                className="text-red-600 font-medium focus:bg-red-50 focus:text-red-600"
-              >
-                Deactivate
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <KebabMenu
+            items={[
+              {
+                label: "Edit Employee",
+                icon: Edit,
+                action: () => onQuickAction("edit"),
+              },
+              {
+                label: "Deactivate",
+                icon: XCircle,
+                action: () => onQuickAction("deactivate"),
+                variant: "destructive",
+              },
+            ]}
+            menuWidth="w-44"
+          />
         )}
       </div>
       <div className="pl-12 space-y-1">

@@ -1,8 +1,10 @@
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { Home, DollarSign, Calendar, Users, MoreHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState, useEffect, useRef } from "react";
 import SalesSubmenu from "./SalesSubmenu";
+import { useCart } from "@/contexts/CartContext";
+import CartViewModal from "@/components/modals/CartViewModal";
 
 const navItems = [
   { title: "Dashboard", path: "/", icon: Home, hasSubmenu: false },
@@ -15,15 +17,20 @@ const navItems = [
 const BottomNav = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const { getTotalItems } = useCart();
   const [salesSubmenuOpen, setSalesSubmenuOpen] = useState(false);
+  const [cartViewModalOpen, setCartViewModalOpen] = useState(false);
   const previousPathRef = useRef(location.pathname);
   const isOpeningSubmenuRef = useRef(false);
 
   // Close Sales submenu when navigating away from Sales routes
   useEffect(() => {
+    const isInventorySellMode = location.pathname === "/inventory" && searchParams.get("mode") === "sell";
     const isSalesRoute = location.pathname.startsWith("/invoices") || 
                          location.pathname.startsWith("/estimates") || 
-                         location.pathname.startsWith("/agreements");
+                         location.pathname.startsWith("/agreements") ||
+                         isInventorySellMode;
     
     const routeChanged = previousPathRef.current !== location.pathname;
     
@@ -43,7 +50,7 @@ const BottomNav = () => {
     
     // Update previous path
     previousPathRef.current = location.pathname;
-  }, [location.pathname]);
+  }, [location.pathname, searchParams]);
 
   // Reset opening flag after submenu state changes
   useEffect(() => {
@@ -59,9 +66,11 @@ const BottomNav = () => {
     if (path === "/") return location.pathname === "/";
     if (hasSubmenu) {
       // Check if current path is one of the sales submenu paths
+      const isInventorySellMode = location.pathname === "/inventory" && searchParams.get("mode") === "sell";
       return location.pathname.startsWith("/invoices") || 
              location.pathname.startsWith("/estimates") || 
-             location.pathname.startsWith("/agreements");
+             location.pathname.startsWith("/agreements") ||
+             isInventorySellMode;
     }
     return location.pathname.startsWith(path);
   };
@@ -69,6 +78,11 @@ const BottomNav = () => {
   const handleItemClick = (item: typeof navItems[0], e: React.MouseEvent) => {
     if (item.hasSubmenu) {
       e.preventDefault();
+      // If cart has items and Sales tab is clicked, open cart instead of submenu
+      if (getTotalItems() > 0 && !salesSubmenuOpen) {
+        setCartViewModalOpen(true);
+        return;
+      }
       // Set flag to prevent useEffect from closing it immediately
       isOpeningSubmenuRef.current = true;
       // Toggle submenu: if already open, close it; otherwise open it
@@ -103,10 +117,15 @@ const BottomNav = () => {
                   <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-12 h-1 bg-primary rounded-b-full" />
                 )}
                 <div className={cn(
-                  "p-2 rounded-xl transition-all duration-200",
+                  "p-2 rounded-xl transition-all duration-200 relative",
                   active ? "bg-primary/10 scale-110" : "hover:bg-gray-50"
                 )}>
                   <Icon className={cn("h-6 w-6", active && "scale-110")} />
+                  {item.hasSubmenu && getTotalItems() > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-orange-500 text-white text-[10px] font-bold rounded-full h-5 w-5 flex items-center justify-center border-2 border-white">
+                      {getTotalItems() > 99 ? '99+' : getTotalItems()}
+                    </span>
+                  )}
                 </div>
                 <span className={cn(
                   "text-[11px] mt-0.5 transition-all whitespace-nowrap leading-4",
@@ -120,6 +139,7 @@ const BottomNav = () => {
         </div>
       </nav>
       <SalesSubmenu isOpen={salesSubmenuOpen} onClose={() => setSalesSubmenuOpen(false)} />
+      <CartViewModal isOpen={cartViewModalOpen} onClose={() => setCartViewModalOpen(false)} />
     </>
   );
 };

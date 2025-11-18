@@ -1,7 +1,8 @@
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Clock, MapPin, User } from "lucide-react";
+import { Calendar, Clock, MapPin, User, Edit, Eye, Share2, XCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { statusColors } from "@/data/mobileMockData";
+import KebabMenu, { KebabMenuItem } from "@/components/common/KebabMenu";
 
 interface JobCardProps {
   job: {
@@ -15,9 +16,10 @@ interface JobCardProps {
     location: string;
   };
   onClick?: () => void;
+  onQuickAction?: (action: string) => void;
 }
 
-const JobCard = ({ job, onClick }: JobCardProps) => {
+const JobCard = ({ job, onClick, onQuickAction }: JobCardProps) => {
   const techInitials = job.technicianName.split(" ").map(n => n[0]).join("");
 
   return (
@@ -30,9 +32,41 @@ const JobCard = ({ job, onClick }: JobCardProps) => {
           <h3 className="font-semibold mb-1">{job.title}</h3>
           <p className="text-sm text-muted-foreground">{job.customerName}</p>
         </div>
-        <Badge className={cn("text-xs whitespace-nowrap", statusColors[job.status])}>
-          {job.status}
-        </Badge>
+        <div className="flex items-center gap-2">
+          <Badge className={cn("text-xs whitespace-nowrap", statusColors[job.status])}>
+            {job.status}
+          </Badge>
+          {onQuickAction && (
+            <div onClick={(e) => e.stopPropagation()}>
+              <KebabMenu
+                items={[
+                  {
+                    label: "View Details",
+                    icon: Eye,
+                    action: () => onQuickAction("view"),
+                  },
+                  {
+                    label: "Edit Job",
+                    icon: Edit,
+                    action: () => onQuickAction("edit"),
+                  },
+                  {
+                    label: "Share",
+                    icon: Share2,
+                    action: () => onQuickAction("share"),
+                  },
+                  {
+                    label: "Cancel Job",
+                    icon: XCircle,
+                    action: () => onQuickAction("cancel"),
+                    variant: "destructive",
+                  },
+                ]}
+                menuWidth="w-44"
+              />
+            </div>
+          )}
+        </div>
       </div>
       
       <div className="space-y-2">

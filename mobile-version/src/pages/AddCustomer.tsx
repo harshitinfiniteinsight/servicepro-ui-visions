@@ -1,14 +1,16 @@
 import { useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import MobileHeader from "@/components/layout/MobileHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
+import { showSuccessToast } from "@/utils/toast";
 
 const AddCustomer = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [profilePicture, setProfilePicture] = useState<string | null>(null);
   const [formData, setFormData] = useState({
@@ -17,6 +19,8 @@ const AddCustomer = () => {
     email: "",
     phone: "",
   });
+
+  const isFromCheckout = (location.state as { fromCheckout?: boolean } | null)?.fromCheckout || false;
 
   const handleProfilePictureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -38,9 +42,36 @@ const AddCustomer = () => {
       toast.error("Please fill in all required fields");
       return;
     }
-    // In real app, save customer with profilePicture
-    toast.success("Customer created successfully");
-    navigate("/customers");
+
+    // Create new customer object
+    const newCustomer = {
+      id: `customer-${Date.now()}`,
+      name: `${formData.firstName} ${formData.lastName}`,
+      email: formData.email,
+      phone: formData.phone,
+      address: "",
+      status: "Active" as const,
+      lastVisit: new Date().toISOString().split("T")[0],
+      totalSpent: 0,
+      joinedDate: new Date().toISOString().split("T")[0],
+      notes: "",
+    };
+
+    // In real app, this would call an API to save the customer
+    // For now, we'll simulate success
+    
+    if (isFromCheckout) {
+      // If coming from checkout, return to customer selection with new customer
+      showSuccessToast("Customer added successfully");
+      navigate("/checkout/customer", { 
+        state: { newCustomer },
+        replace: true 
+      });
+    } else {
+      // Normal flow: navigate to customers list
+      showSuccessToast("Customer added successfully");
+      navigate("/customers");
+    }
   };
 
   return (
@@ -142,7 +173,17 @@ const AddCustomer = () => {
         >
           Create Customer
         </Button>
-        <Button variant="ghost" className="w-full" onClick={() => navigate("/customers")}>
+        <Button 
+          variant="ghost" 
+          className="w-full" 
+          onClick={() => {
+            if (isFromCheckout) {
+              navigate("/checkout/customer");
+            } else {
+              navigate("/customers");
+            }
+          }}
+        >
           Cancel
         </Button>
       </div>

@@ -38,37 +38,30 @@ import {
   Globe,
   HelpCircle,
   LogOut,
+  ChevronRight,
+  Clock,
+  CheckCircle2,
 } from "lucide-react";
-import { mockAppointments, mockInvoices, mockEstimates, mockJobs } from "@/data/mobileMockData";
+import { mockAppointments, mockInvoices, mockEstimates } from "@/data/mobileMockData";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { statusColors } from "@/data/mobileMockData";
 
-const Index = () => {
+const EmployeeDashboard = () => {
   const navigate = useNavigate();
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
+
+  // Get current employee ID from localStorage (set during login)
+  const currentEmployeeId = localStorage.getItem("currentEmployeeId") || "1"; // Default to "1" for demo
 
   // Get user's first name from localStorage or use fallback
   const getUserFirstName = () => {
     const userName = localStorage.getItem("userName") || localStorage.getItem("userFullName");
     if (userName) {
-      // Extract first name from full name
       const firstName = userName.split(" ")[0];
       return firstName;
     }
-    // Try to get from profile data if stored
-    const profileData = localStorage.getItem("userProfile");
-    if (profileData) {
-      try {
-        const profile = JSON.parse(profileData);
-        if (profile.fullName) {
-          return profile.fullName.split(" ")[0];
-        }
-      } catch (e) {
-        // Ignore parse errors
-      }
-    }
-    // Fallback to default
-    return "User";
+    return "Employee";
   };
 
   const userName = getUserFirstName();
@@ -76,20 +69,17 @@ const Index = () => {
   useEffect(() => {
     const isAuthenticated = localStorage.getItem("isAuthenticated");
     const showWalkthrough = localStorage.getItem("showWalkthrough");
-    const userType = localStorage.getItem("userType");
     
     if (!isAuthenticated) {
       navigate("/signin");
     } else if (showWalkthrough === "true") {
       navigate("/walkthrough");
-    } else if (userType === "employee") {
-      // Redirect employees to employee dashboard
-      navigate("/employee-dashboard", { replace: true });
     }
   }, [navigate]);
 
   const handleLogout = () => {
     localStorage.removeItem("isAuthenticated");
+    localStorage.removeItem("currentEmployeeId");
     toast.success("Logged out successfully");
     navigate("/signin");
   };
@@ -97,41 +87,52 @@ const Index = () => {
   const menuItems = [
     { label: "Profile", icon: User, path: "/settings/profile" },
     { label: "Change Password", icon: Lock, path: "/settings/change-password" },
-    { label: "Permission Settings", icon: Shield, path: "/settings/permissions" },
-    { label: "Business Policies", icon: Building2, path: "/settings/business-policies" },
-    { label: "Payment Settings", icon: CreditCard, path: "/settings/payment-methods" },
-    { label: "Change App Language", icon: Globe, path: "/settings/language" },
     { label: "Help", icon: HelpCircle, path: "/settings/help" },
   ];
 
-  // Calculate real stats from mock data
+  // Get today's date in YYYY-MM-DD format
   const today = new Date().toISOString().split('T')[0];
-  const todaysAppointments = mockAppointments.filter(apt => apt.date === today);
-  const openInvoices = mockInvoices.filter(inv => inv.status === "Open");
-  const sentEstimates = mockEstimates.filter(est => est.status === "Paid");
-  const activeJobs = mockJobs.filter(job => job.status === "In Progress" || job.status === "Scheduled");
+  
+  // Filter today's appointments for current employee
+  const todaysAppointments = mockAppointments
+    .filter(apt => apt.date === today && apt.technicianId === currentEmployeeId)
+    .sort((a, b) => {
+      // Sort by time
+      const timeA = a.time.replace(/[^\d]/g, '');
+      const timeB = b.time.replace(/[^\d]/g, '');
+      return timeA.localeCompare(timeB);
+    });
 
-  const stats = [
-    { label: "New Estimates", value: sentEstimates.length.toString(), icon: FileText, color: "text-primary", path: "/estimates" },
-    { label: "Active Jobs", value: activeJobs.length.toString(), icon: Briefcase, color: "text-accent", path: "/jobs" },
-    { label: "Awaiting Payment", value: openInvoices.length.toString(), amount: `$${openInvoices.reduce((sum, inv) => sum + inv.amount, 0)}`, icon: DollarSign, color: "text-warning", path: "/invoices" },
-    { label: "Today's Appointments", value: todaysAppointments.length.toString(), icon: Calendar, color: "text-success", path: "/appointments/manage" },
-  ];
+  // Map appointment status to display status
+  const getAppointmentStatus = (status: string) => {
+    const statusLower = status.toLowerCase();
+    if (statusLower === "confirmed") return "Upcoming";
+    if (statusLower === "pending") return "Upcoming";
+    if (statusLower === "in progress") return "In Progress";
+    if (statusLower === "completed") return "Completed";
+    return "Upcoming";
+  };
 
-  const operationalModules = [
-    { label: "Customers", icon: Users, path: "/customers", color: "bg-primary/10 text-primary" },
-    { label: "Jobs", icon: Briefcase, path: "/jobs", color: "bg-warning/10 text-warning" },
-    { label: "Appointments", icon: Calendar, path: "/appointments/manage", color: "bg-info/10 text-info" },
-    { label: "Employees", icon: Users, path: "/employees", color: "bg-blue-500/10 text-blue-500" },
-    { label: "Inventory", icon: Package, path: "/inventory", color: "bg-orange-500/10 text-orange-500" },
-    { label: "Reports", icon: BarChart3, path: "/reports", color: "bg-indigo-500/10 text-indigo-500" },
-  ];
+  const getStatusBadgeColor = (status: string) => {
+    const displayStatus = getAppointmentStatus(status);
+    if (displayStatus === "Upcoming") return "bg-blue-100 text-blue-700 border-blue-200";
+    if (displayStatus === "In Progress") return "bg-orange-100 text-orange-700 border-orange-200";
+    if (displayStatus === "Completed") return "bg-green-100 text-green-700 border-green-200";
+    return "bg-gray-100 text-gray-700 border-gray-200";
+  };
 
   const quickActions = [
     { label: "New Estimate", path: "/estimates/new", icon: FileText },
     { label: "New Invoice", path: "/invoices/new", icon: DollarSign },
     { label: "Add Appointment", path: "/appointments/add?from=dashboard", icon: Calendar },
     { label: "New Agreement", path: "/agreements/new", icon: ClipboardList },
+  ];
+
+  const operationalModules = [
+    { label: "Customers", icon: Users, path: "/customers", color: "bg-primary/10 text-primary" },
+    { label: "Jobs", icon: Briefcase, path: "/jobs", color: "bg-warning/10 text-warning" },
+    { label: "Appointments", icon: Calendar, path: "/appointments/manage", color: "bg-info/10 text-info" },
+    { label: "Inventory", icon: Package, path: "/inventory", color: "bg-orange-500/10 text-orange-500" },
   ];
 
   return (
@@ -187,65 +188,66 @@ const Index = () => {
         }
       />
 
-      <div className="flex-1 overflow-y-auto scrollable px-4 pb-6 space-y-4" style={{ paddingTop: 'calc(3.5rem + env(safe-area-inset-top) + 0.5rem)' }}>
-        {/* Stats Grid - Compact Single Row */}
-        <div className="grid grid-cols-4 gap-2">
-          {stats.map((stat, index) => {
-            const Icon = stat.icon;
-            const isPrimary = index === 0;
-            return (
-              <MobileCard 
-                key={index} 
-                className={cn(
-                  "p-2.5 cursor-pointer relative overflow-hidden",
-                  isPrimary && "bg-gradient-to-br from-primary/5 to-primary/10 border-primary/30"
-                )}
-                onClick={() => navigate(stat.path)}
+      <div className="flex-1 overflow-y-auto scrollable px-4 pb-6 space-y-5" style={{ paddingTop: 'calc(3.5rem + env(safe-area-inset-top) + 0.5rem)' }}>
+        {/* Today's Appointments Section */}
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-bold text-[#1A1A1A] text-base">Today's Appointments</h3>
+            {todaysAppointments.length > 5 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate(`/appointments/manage?date=${today}`)}
+                className="text-sm text-[#EB6A3C] hover:text-[#EB6A3C] hover:bg-orange-50"
               >
-                {isPrimary && (
-                  <div className="absolute top-0 right-0 w-12 h-12 bg-primary/5 rounded-full -mr-6 -mt-6" />
-                )}
-                <div className="flex flex-col items-center gap-1.5 relative z-10">
-                  <div className={cn(
-                    "p-1.5 rounded-lg flex-shrink-0",
-                    isPrimary ? "bg-primary text-white" : `bg-gray-100 ${stat.color}`
-                  )}>
-                    <Icon className="h-3.5 w-3.5" />
-                  </div>
-                  <div className="flex flex-col items-center gap-0.5 w-full">
-                    <p className={cn(
-                      "text-lg font-bold leading-tight",
-                      isPrimary && "text-primary"
-                    )}>
-                      {stat.value}
-                    </p>
-                    {stat.amount && (
-                      <p className={cn(
-                        "text-[10px] font-medium leading-tight",
-                        isPrimary ? "text-primary/70" : "text-muted-foreground"
-                      )}>
-                        {stat.amount}
-                      </p>
-                    )}
-                    <p className={cn(
-                      "text-[9px] font-medium text-center leading-tight line-clamp-2 mt-0.5",
-                      isPrimary ? "text-primary/80" : "text-muted-foreground"
-                    )}>
-                      {stat.label}
-                    </p>
-                  </div>
-                  {index === 0 && (
-                    <TrendingUp className="h-3 w-3 text-primary absolute top-1 right-1" />
-                  )}
-                </div>
-              </MobileCard>
-            );
-          })}
+                View More
+              </Button>
+            )}
+          </div>
+          {todaysAppointments.length > 0 ? (
+            <div className="space-y-2">
+              {todaysAppointments.slice(0, 5).map((apt) => {
+                const displayStatus = getAppointmentStatus(apt.status);
+                return (
+                  <MobileCard
+                    key={apt.id}
+                    className="cursor-pointer active:scale-98 transition-transform bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden"
+                    onClick={() => navigate(`/appointments/manage?appointment=${apt.id}`)}
+                  >
+                    <div className="flex items-center gap-3 p-3">
+                      {/* Left accent bar */}
+                      <div className="w-1 h-full bg-[#EB6A3C] rounded-full flex-shrink-0" />
+                      
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-2 mb-1">
+                          <p className="font-semibold text-gray-900 truncate">{apt.customerName}</p>
+                          <Badge className={cn("text-[10px] px-2 py-0.5 h-5 flex-shrink-0 border", getStatusBadgeColor(apt.status))}>
+                            {displayStatus}
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-gray-600 mb-1 truncate">{apt.service}</p>
+                        <div className="flex items-center gap-2 text-xs text-gray-500">
+                          <Clock className="h-3 w-3" />
+                          <span>{apt.time}</span>
+                        </div>
+                      </div>
+                      
+                      <ChevronRight className="h-5 w-5 text-gray-400 flex-shrink-0" />
+                    </div>
+                  </MobileCard>
+                );
+              })}
+            </div>
+          ) : (
+            <MobileCard className="p-6 text-center">
+              <p className="text-sm text-gray-500">No appointments scheduled for today</p>
+            </MobileCard>
+          )}
         </div>
 
-        {/* Recent Activity */}
+        {/* Recent Activity Section */}
         <div>
-          <h3 className="font-semibold mb-3">Recent Activity</h3>
+          <h3 className="font-bold text-[#1A1A1A] text-base mb-3">Recent Activity</h3>
           <div className="space-y-2">
             <MobileCard className="cursor-pointer active:scale-98 transition-transform" onClick={() => navigate("/invoices")}>
               <div className="flex items-center gap-3">
@@ -269,12 +271,34 @@ const Index = () => {
                 </div>
               </div>
             </MobileCard>
+            <MobileCard className="cursor-pointer active:scale-98 transition-transform" onClick={() => navigate("/invoices")}>
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-primary/10">
+                  <FileText className="h-5 w-5 text-primary" />
+                </div>
+                <div className="flex-1">
+                  <p className="font-medium">Invoice Created</p>
+                  <p className="text-sm text-muted-foreground">John Smith • 1 day ago</p>
+                </div>
+              </div>
+            </MobileCard>
+            <MobileCard className="cursor-pointer active:scale-98 transition-transform" onClick={() => navigate("/appointments/manage")}>
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-success/10">
+                  <CheckCircle2 className="h-5 w-5 text-success" />
+                </div>
+                <div className="flex-1">
+                  <p className="font-medium">Appointment Completed</p>
+                  <p className="text-sm text-muted-foreground">Sarah Johnson • 4 hours ago</p>
+                </div>
+              </div>
+            </MobileCard>
           </div>
         </div>
 
-        {/* Quick Actions */}
+        {/* Quick Actions Section */}
         <div>
-          <h3 className="font-semibold mb-3 text-gray-900">Quick Actions</h3>
+          <h3 className="font-bold text-[#1A1A1A] text-base mb-3">Quick Actions</h3>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
             {quickActions.map((action, index) => {
               const Icon = action.icon;
@@ -293,20 +317,19 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Operational Modules */}
+        {/* Others Section */}
         <div>
-          <h3 className="font-semibold mb-3 text-gray-900">Others</h3>
-          <div className="grid grid-cols-3 gap-3">
+          <h3 className="font-bold text-[#1A1A1A] text-base mb-3">Others</h3>
+          <div className="grid grid-cols-2 gap-3">
             {operationalModules.map((module, index) => {
               const Icon = module.icon;
-              const isPrimary = module.path === "/customers";
               return (
                 <Button
                   key={index}
                   variant="outline"
                   className={cn(
-                    "h-auto flex-col gap-2 py-4 px-2 border-gray-200 transition-all",
-                    isPrimary ? "hover:border-primary/50 hover:bg-primary/5" : "hover:border-gray-300 hover:bg-gray-50"
+                    "h-auto flex-col gap-2 py-4 px-2 border-gray-200 transition-all bg-white rounded-2xl shadow-sm",
+                    "hover:border-primary/50 hover:bg-primary/5"
                   )}
                   onClick={() => navigate(module.path)}
                 >
@@ -319,40 +342,6 @@ const Index = () => {
             })}
           </div>
         </div>
-
-        {/* Today's Appointments */}
-        {todaysAppointments.length > 0 && (
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="font-semibold">Today's Appointments</h3>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => navigate("/appointments/manage")}
-              >
-                View All
-              </Button>
-            </div>
-            {todaysAppointments.slice(0, 3).map((apt, index) => (
-              <MobileCard key={index} className="mb-2 cursor-pointer active:scale-98 transition-transform" onClick={() => navigate("/appointments/manage")}>
-                <div className="flex items-center gap-3">
-                  <div className="flex-shrink-0 w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                    <span className="font-bold text-primary">
-                      {apt.customerName.split(" ").map(n => n[0]).join("")}
-                    </span>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold truncate">{apt.customerName}</p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <Badge variant="secondary" className="text-xs">{apt.service}</Badge>
-                      <span className="text-xs text-muted-foreground">{apt.time}</span>
-                    </div>
-                  </div>
-                </div>
-              </MobileCard>
-            ))}
-          </div>
-        )}
       </div>
 
       {/* Logout Confirmation Dialog */}
@@ -386,4 +375,5 @@ const Index = () => {
   );
 };
 
-export default Index;
+export default EmployeeDashboard;
+

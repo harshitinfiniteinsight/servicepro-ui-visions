@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
-import { Phone, Mail, DollarSign, MoreVertical } from "lucide-react";
+import KebabMenu, { KebabMenuItem } from "@/components/common/KebabMenu";
+import { Phone, Mail, Edit, MessageSquare, FileText, Calendar, Receipt, FileCheck, ClipboardList, User, XCircle } from "lucide-react";
 
 interface CustomerCardProps {
   customer: {
@@ -105,44 +105,58 @@ const CustomerCard = ({ customer, variant = "default", onActivate, onQuickAction
           </div>
         </div>
         {onQuickAction && (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 p-1 text-gray-500 hover:text-gray-700 hover:bg-gray-100 flex-shrink-0"
-                onClick={e => e.stopPropagation()}
-              >
-                <MoreVertical className="h-5 w-5" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" sideOffset={4} className="w-52">
-              {[
-                { label: "Edit Customer", action: "edit" },
-                { label: "Send SMS", action: "sms" },
-                { label: "Memo", action: "memo" },
-                { label: "Setup Appointment", action: "appointment" },
-                { label: "Create Invoice", action: "create-invoice" },
-                { label: "Create Estimate", action: "create-estimate" },
-                { label: "Create Agreement", action: "create-agreement" },
-                { label: "Customer Details", action: "details" },
-              ].map(item => (
-                <DropdownMenuItem
-                  key={item.action}
-                  onSelect={() => onQuickAction(item.action)}
-                >
-                  {item.label}
-                </DropdownMenuItem>
-              ))}
-              <DropdownMenuSeparator className="my-1" />
-              <DropdownMenuItem
-                onSelect={() => onQuickAction("deactivate")}
-                className="text-red-600 font-medium focus:bg-red-50 focus:text-red-600"
-              >
-                Deactivate
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <KebabMenu
+            items={[
+              {
+                label: "Edit Customer",
+                icon: Edit,
+                action: () => onQuickAction("edit"),
+              },
+              {
+                label: "Send SMS",
+                icon: MessageSquare,
+                action: () => onQuickAction("sms"),
+              },
+              {
+                label: "Memo",
+                icon: FileText,
+                action: () => onQuickAction("memo"),
+              },
+              {
+                label: "Setup Appointment",
+                icon: Calendar,
+                action: () => onQuickAction("appointment"),
+              },
+              {
+                label: "Create Invoice",
+                icon: Receipt,
+                action: () => onQuickAction("create-invoice"),
+              },
+              {
+                label: "Create Estimate",
+                icon: FileCheck,
+                action: () => onQuickAction("create-estimate"),
+              },
+              {
+                label: "Create Agreement",
+                icon: ClipboardList,
+                action: () => onQuickAction("create-agreement"),
+              },
+              {
+                label: "Customer Details",
+                icon: User,
+                action: () => onQuickAction("details"),
+                separator: true,
+              },
+              {
+                label: "Deactivate",
+                icon: XCircle,
+                action: () => onQuickAction("deactivate"),
+                variant: "destructive",
+              },
+            ]}
+            menuWidth="w-52"
+          />
         )}
       </div>
       <div className="pl-12 space-y-1">
