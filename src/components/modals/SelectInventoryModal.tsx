@@ -65,20 +65,20 @@ export function SelectInventoryModal({
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-full sm:max-w-[600px] md:max-w-[650px] lg:max-w-[700px] max-h-[90vh] overflow-hidden flex flex-col p-0 rounded-xl md:rounded-xl border shadow-lg">
         {/* Modal Header */}
-        <DialogHeader className="px-4 md:px-6 lg:px-8 pt-6 pb-4 border-b">
+        <DialogHeader className="bg-[#F46A1F] text-white px-4 md:px-6 lg:px-8 pt-6 pb-4">
           <DialogDescription className="sr-only">
             Select an existing inventory item to add to the invoice
           </DialogDescription>
           <div className="flex items-center justify-between">
-            <DialogTitle className="text-xl md:text-2xl font-bold text-center flex-1">
+            <DialogTitle className="text-xl md:text-2xl font-bold text-white flex-1">
               Add Existing Item
             </DialogTitle>
             <button
               onClick={handleClose}
-              className="ml-4 h-10 w-10 md:h-11 md:w-11 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
+              className="ml-4 h-10 w-10 md:h-11 md:w-11 flex items-center justify-center rounded-full hover:bg-orange-600 transition-colors"
               aria-label="Close"
             >
-              <X className="h-5 w-5 md:h-6 md:w-6 text-gray-600" />
+              <X className="h-5 w-5 md:h-6 md:w-6 text-white" />
             </button>
           </div>
         </DialogHeader>

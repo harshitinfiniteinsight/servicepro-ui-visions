@@ -128,14 +128,14 @@ export const InvoiceFormModal = ({ open, onOpenChange, invoice, mode }: InvoiceF
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="sm:max-w-[1000px] max-h-[90vh] overflow-y-auto bg-gradient-to-br from-background via-background to-primary/5">
-          <DialogHeader className="bg-gradient-to-r from-primary to-accent text-primary-foreground p-6 -m-6 mb-6 rounded-t-lg">
+          <DialogHeader className="bg-[#F46A1F] text-white p-6 -m-6 mb-6 rounded-t-lg">
             <DialogTitle className="flex items-center justify-between text-2xl">
               <span className="flex items-center gap-2">
                 <FileText className="h-6 w-6" />
                 Service Pro911 - {mode === "create" ? "New Invoice" : "Edit Invoice"}
               </span>
               {formData.invoiceType === "single" && (
-                <Badge variant="secondary" className="bg-background/20 text-primary-foreground border-none">
+                <Badge variant="secondary" className="bg-white/20 text-white border-none">
                   SINGLE INVOICE
                 </Badge>
               )}

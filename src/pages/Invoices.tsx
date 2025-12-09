@@ -4,6 +4,7 @@ import { AppHeader } from "@/components/AppHeader";
 import { SendEmailModal } from "@/components/modals/SendEmailModal";
 import { SendSMSModal } from "@/components/modals/SendSMSModal";
 import { InvoicePaymentModal } from "@/components/modals/InvoicePaymentModal";
+import { PayCashModal } from "@/components/modals/PayCashModal";
 import { PreviewInvoiceModal } from "@/components/modals/PreviewInvoiceModal";
 import { InvoiceDueAlertModal } from "@/components/modals/InvoiceDueAlertModal";
 import { AddNoteModal } from "@/components/modals/AddNoteModal";
@@ -32,6 +33,8 @@ const Invoices = () => {
   const [selectedInvoiceForContact, setSelectedInvoiceForContact] = useState<any>(null);
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const [selectedInvoiceForPayment, setSelectedInvoiceForPayment] = useState<any>(null);
+  const [payCashModalOpen, setPayCashModalOpen] = useState(false);
+  const [selectedInvoiceForPayCash, setSelectedInvoiceForPayCash] = useState<any>(null);
   const [previewModalOpen, setPreviewModalOpen] = useState(false);
   const [selectedInvoiceForPreview, setSelectedInvoiceForPreview] = useState<any>(null);
   const [reassignModalOpen, setReassignModalOpen] = useState(false);
@@ -133,9 +136,8 @@ const Invoices = () => {
   };
 
   const handlePayCash = (invoice: any) => {
-    setSelectedInvoiceForPayment(invoice);
-    setPaymentModalOpen(true);
-    // In a real app, you'd set a flag to indicate cash payment
+    setSelectedInvoiceForPayCash(invoice);
+    setPayCashModalOpen(true);
   };
 
   const handleConvertToJob = (invoice: any) => {
@@ -740,6 +742,20 @@ const Invoices = () => {
           open={paymentModalOpen}
           onOpenChange={setPaymentModalOpen}
           invoice={selectedInvoiceForPayment}
+        />
+
+        <PayCashModal
+          open={payCashModalOpen}
+          onOpenChange={setPayCashModalOpen}
+          orderAmount={selectedInvoiceForPayCash?.amount || 0}
+          orderId={selectedInvoiceForPayCash?.id || selectedInvoiceForPayCash?.orderId || ""}
+          onPaymentComplete={() => {
+            // Update invoice status to paid
+            toast.success(`Invoice ${selectedInvoiceForPayCash?.id || selectedInvoiceForPayCash?.orderId} marked as paid`);
+            setPayCashModalOpen(false);
+            setSelectedInvoiceForPayCash(null);
+            // Refresh invoice list or update state
+          }}
         />
 
         <PreviewInvoiceModal

@@ -350,7 +350,7 @@ const AddInvoice = () => {
                   {/* Connecting Lines */}
                   <div className="absolute top-[13px] md:top-[13px] left-0 right-0 h-0.5 md:h-0.5 bg-gray-200 -z-0">
                     <div
-                      className="h-0.5 md:h-0.5 bg-primary transition-all duration-300"
+                      className="h-0.5 md:h-0.5 bg-[#F46A1F] transition-all duration-300"
                       style={{
                         width: currentStep && currentStep > 1 ? `${Math.min(((currentStep - 1) / 3) * 100, 100)}%` : "0%"
                       }}
@@ -366,14 +366,14 @@ const AddInvoice = () => {
                         className={cn(
                           "w-10 h-10 md:w-8 md:h-8 rounded-full flex items-center justify-center font-semibold transition-all text-sm md:text-xs",
                           step < currentStep
-                            ? "bg-primary text-primary-foreground"
+                            ? "bg-[#F46A1F] text-white"
                             : step === currentStep
-                            ? "bg-primary text-primary-foreground ring-4 md:ring-2 ring-primary/20"
+                            ? "bg-[#F46A1F] text-white ring-4 md:ring-2 ring-[#F46A1F]/20"
                             : "bg-gray-200 text-gray-500 cursor-not-allowed"
                         )}
                       >
                         {step < currentStep ? (
-                          <CheckCircle2 className="h-5 w-5 md:h-4 md:w-4" />
+                          <CheckCircle2 className="h-5 w-5 md:h-4 md:w-4 text-white" />
                         ) : (
                           step
                         )}
@@ -530,8 +530,8 @@ const AddInvoice = () => {
                           className={cn(
                             "flex items-center justify-center h-14 md:h-12 lg:h-14 rounded-lg border-2 cursor-pointer transition-all text-sm md:px-3 lg:px-5",
                             formData.invoiceType === "single"
-                              ? "border-primary bg-primary/5 text-primary font-semibold"
-                              : "border-border hover:border-primary/50"
+                              ? "border-[#F46A1F] bg-orange-50 text-[#F46A1F] font-semibold"
+                              : "border-border hover:border-orange-300"
                           )}
                         >
                           Single
@@ -548,8 +548,8 @@ const AddInvoice = () => {
                           className={cn(
                             "flex items-center justify-center h-14 md:h-12 lg:h-14 rounded-lg border-2 cursor-pointer transition-all text-sm md:px-3 lg:px-5",
                             formData.invoiceType === "recurring"
-                              ? "border-primary bg-primary/5 text-primary font-semibold"
-                              : "border-border hover:border-primary/50"
+                              ? "border-[#F46A1F] bg-orange-50 text-[#F46A1F] font-semibold"
+                              : "border-border hover:border-orange-300"
                           )}
                         >
                           Recurring
@@ -864,7 +864,7 @@ const AddInvoice = () => {
                   type="button"
                   onClick={() => setCurrentStep(3)}
                   disabled={selectedItems.length === 0}
-                  className="w-full sm:w-1/2 h-12 md:h-11 lg:h-12 rounded-lg bg-primary text-primary-foreground font-semibold disabled:opacity-50"
+                  className="w-full sm:w-1/2 h-12 md:h-11 lg:h-12 rounded-lg bg-[#F46A1F] hover:bg-[#F46A1F]/90 text-white font-semibold disabled:opacity-50"
                 >
                   Next
                 </Button>
@@ -1087,7 +1087,7 @@ const AddInvoice = () => {
                   value={termsConditions}
                   onChange={(e) => setTermsConditions(e.target.value)}
                   placeholder="Enter terms and conditions…"
-                  className="w-full min-h-[180px] md:min-h-[220px] rounded-xl md:rounded-2xl border border-gray-300 p-4 md:p-5 text-sm md:text-base resize-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                  className="w-full min-h-[180px] md:min-h-[220px] rounded-xl md:rounded-2xl border border-gray-300 p-4 md:p-5 text-sm md:text-base resize-none focus:border-[#F46A1F] focus:ring-2 focus:ring-[#F46A1F]/20 transition-all"
                 />
               </div>
 
@@ -1100,7 +1100,7 @@ const AddInvoice = () => {
                   value={cancellationPolicy}
                   onChange={(e) => setCancellationPolicy(e.target.value)}
                   placeholder="Enter cancellation and return policy…"
-                  className="w-full min-h-[180px] md:min-h-[220px] rounded-xl md:rounded-2xl border border-gray-300 p-4 md:p-5 text-sm md:text-base resize-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                  className="w-full min-h-[180px] md:min-h-[220px] rounded-xl md:rounded-2xl border border-gray-300 p-4 md:p-5 text-sm md:text-base resize-none focus:border-[#F46A1F] focus:ring-2 focus:ring-[#F46A1F]/20 transition-all"
                 />
               </div>
 
@@ -1117,13 +1117,17 @@ const AddInvoice = () => {
                 <Button
                   type="button"
                   onClick={() => {
-                    // Create invoice logic here
-                    toast.success("Invoice created successfully!");
+                    // Create/Update invoice logic here
+                    if (mode === "create") {
+                      toast.success("Invoice created successfully!");
+                    } else {
+                      toast.success("Invoice updated successfully!");
+                    }
                     navigate("/invoices");
                   }}
                   className="flex-1 max-w-[45%] h-[54px] md:h-[60px] rounded-xl md:rounded-2xl bg-[#FF6A2A] hover:bg-[#FF6A2A]/90 text-white font-bold text-base"
                 >
-                  Create Invoice
+                  {mode === "create" ? "Create Invoice" : "Update Invoice"}
                 </Button>
               </div>
             </div>
@@ -1760,20 +1764,29 @@ const AddInvoice = () => {
       />
 
       <Dialog open={showDiscountModal} onOpenChange={setShowDiscountModal}>
-        <DialogContent className="sm:max-w-[600px] max-h-[85vh] overflow-y-auto app-card">
-          <DialogHeader>
-            <DialogTitle className="text-gradient">Add Discount</DialogTitle>
-            <DialogDescription>
+        <DialogContent className="sm:max-w-[600px] max-h-[85vh] overflow-y-auto p-0 rounded-xl overflow-hidden">
+          <DialogHeader className="bg-[#F46A1F] text-white p-6 pb-4">
+            <DialogDescription className="sr-only">
               Select an existing discount or create a custom one
             </DialogDescription>
+            <div className="flex items-center justify-between">
+              <DialogTitle className="text-xl md:text-2xl font-bold text-white">Add Discount</DialogTitle>
+              <button
+                onClick={() => setShowDiscountModal(false)}
+                className="h-10 w-10 flex items-center justify-center rounded-full hover:bg-orange-600 transition-colors"
+                aria-label="Close"
+              >
+                <X className="h-5 w-5 text-white" />
+              </button>
+            </div>
           </DialogHeader>
 
-          <div className="space-y-6 py-4">
+          <div className="p-6 space-y-6">
             {/* Add Custom Discount Section */}
-            <Card className="border-primary/20">
+            <Card className="border-orange-200">
               <CardContent className="pt-6 space-y-4">
                 <div className="flex items-center gap-2 mb-2">
-                  <Plus className="h-5 w-5 text-primary" />
+                  <Plus className="h-5 w-5 text-[#F46A1F]" />
                   <Label className="text-base font-semibold">Add Custom Discount</Label>
                 </div>
                 
@@ -1803,7 +1816,7 @@ const AddInvoice = () => {
                 
                 <Button 
                   type="button" 
-                  className="w-full"
+                  className="w-full bg-[#F46A1F] hover:bg-[#F46A1F]/90 text-white"
                   onClick={() => {
                     const input = document.getElementById('customDiscountValue') as HTMLInputElement;
                     const value = parseFloat(input?.value || "0");

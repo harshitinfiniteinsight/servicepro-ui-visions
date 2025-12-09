@@ -4,10 +4,12 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { X } from "lucide-react";
 
 interface SendSMSModalProps {
   open: boolean;
@@ -39,19 +41,21 @@ export const SendSMSModal = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] p-0 bg-white">
-        {/* Header with teal background */}
-        <DialogHeader className="bg-teal-600 text-white p-6 pb-4">
+      <DialogContent className="sm:max-w-[500px] p-0 bg-white rounded-xl overflow-hidden">
+        {/* Header with orange background */}
+        <DialogHeader className="bg-[#F46A1F] text-white p-6 pb-4">
+          <DialogDescription className="sr-only">
+            Send SMS to customer
+          </DialogDescription>
           <div className="flex items-center justify-between">
             <DialogTitle className="text-2xl font-bold text-white">Send SMS</DialogTitle>
-            <Button
-              variant="ghost"
-              size="icon"
+            <button
               onClick={() => onOpenChange(false)}
-              className="text-white hover:bg-teal-700 h-10 w-auto px-4 rounded-md"
+              className="h-10 w-10 flex items-center justify-center rounded-full hover:bg-orange-600 transition-colors"
+              aria-label="Close"
             >
-              <span className="text-lg font-semibold">Close</span>
-            </Button>
+              <X className="h-5 w-5 text-white" />
+            </button>
           </div>
         </DialogHeader>
 
@@ -70,14 +74,22 @@ export const SendSMSModal = ({
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="Phone number"
-                className="flex-1 border border-gray-300 rounded-md text-teal-600 font-medium"
+                className="flex-1 border border-gray-300 rounded-md text-gray-900 font-medium"
               />
             </div>
           </div>
 
+          <div className="space-y-2">
+            <Label className="text-gray-600 font-semibold">Message :</Label>
+            <textarea
+              placeholder="Type your message here..."
+              className="w-full min-h-[120px] border border-gray-300 rounded-md p-3 text-gray-900 font-medium resize-none focus:border-[#F46A1F] focus:ring-2 focus:ring-[#F46A1F]/20 transition-all"
+            />
+          </div>
+
           <Button 
             onClick={handleSend} 
-            className="w-full border-2 border-teal-600 text-teal-600 bg-white hover:bg-teal-50 font-semibold py-2"
+            className="w-full bg-[#F46A1F] hover:bg-[#F46A1F]/90 text-white font-semibold py-2 rounded-xl"
           >
             SEND
           </Button>

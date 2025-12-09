@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -56,6 +56,9 @@ export function DiscountFormModal({ open, onOpenChange, mode, discount }: Discou
       <DialogContent className="sm:max-w-[450px]">
         <DialogHeader>
           <DialogTitle>{mode === "create" ? "Add Discount" : "Edit Discount"}</DialogTitle>
+          <DialogDescription className="sr-only">
+            {mode === "create" ? "Create a new discount" : "Edit existing discount"}
+          </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>

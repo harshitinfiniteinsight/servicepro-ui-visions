@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -104,7 +104,10 @@ export const PreviewEstimateModal = ({ open, onOpenChange, estimate, onEdit, onP
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto p-0 bg-white">
           {/* Header */}
-          <DialogHeader className="bg-gradient-to-r from-blue-600 to-blue-500 text-white p-6 pb-4">
+          <DialogHeader className="bg-[#F46A1F] text-white p-6 pb-4">
+            <DialogDescription className="sr-only">
+              Preview estimate details and manage estimate actions
+            </DialogDescription>
             <div className="flex items-center justify-between">
               <DialogTitle className="text-3xl font-bold text-white">Preview Estimate</DialogTitle>
               <div className="flex items-center gap-2">
