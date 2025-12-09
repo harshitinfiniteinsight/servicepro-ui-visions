@@ -98,7 +98,7 @@ const AppContent = () => {
             <Route path="/employees/new" element={<AddEmployee />} />
             <Route path="/employees/:id" element={<EmployeeDetails />} />
             <Route path="/employees/schedule" element={<EmployeeSchedule />} />
-            <Route path="/employees/tracking" element={<EmployeeTracking />} />
+            <Route path="/employees/job-route" element={<EmployeeTracking />} />
             <Route path="/inventory" element={<Inventory />} />
             <Route path="/inventory/new" element={<AddInventoryItem />} />
             <Route path="/inventory/:id" element={<InventoryItemDetails />} />

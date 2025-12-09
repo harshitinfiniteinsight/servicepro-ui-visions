@@ -1,5 +1,6 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { Home, Users, Briefcase, FileText, FileCheck, ClipboardList, UserCheck, Settings, BarChart3, Package, ChevronDown, DollarSign, Calendar, MapPinned, Clock, ArrowUpCircle, RotateCcw } from "lucide-react";
+import { Home, Users, Briefcase, FileText, FileCheck, ClipboardList, UserCheck, Settings, BarChart3, Package, ChevronDown, DollarSign, Calendar, MapPinned, Clock, ArrowUpCircle, RotateCcw, ShoppingCart } from "lucide-react";
+import { cn } from "@/lib/utils";
 import {
   Sidebar,
   SidebarContent,
@@ -27,6 +28,7 @@ const salesItems = [
   { title: "Invoices", url: "/invoices", icon: FileText },
   { title: "Estimates", url: "/estimates", icon: FileCheck },
   { title: "Agreements", url: "/agreements", icon: ClipboardList },
+  { title: "Sell Products", url: "/sales/sell-products", icon: ShoppingCart },
 ];
 
 const appointmentItems = [
@@ -37,7 +39,7 @@ const appointmentItems = [
 const employeeItems = [
   { title: "Employee List", url: "/employees", icon: UserCheck },
   { title: "Schedule", url: "/employees/schedule", icon: Clock },
-  { title: "Tracking", url: "/employees/tracking", icon: MapPinned },
+  { title: "Job Route", url: "/employees/job-route", icon: MapPinned },
 ];
 
 const inventoryItems = [
@@ -69,17 +71,31 @@ export function AppSidebar() {
     }
   };
 
-  const getNavClass = (path: string) => {
-    const isActive = location.pathname === path;
+  const getNavClass = (path: string, exactMatch: boolean = false) => {
+    const isActive = exactMatch 
+      ? location.pathname === path 
+      : location.pathname === path || location.pathname.startsWith(path + "/");
     return isActive
-      ? "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground"
+      ? "bg-primary text-white hover:bg-primary hover:text-white [&>svg]:text-white [&>svg]:stroke-white"
       : "hover:bg-muted";
   };
 
-  const isSalesActive = salesItems.some(item => location.pathname === item.url);
-  const isAppointmentsActive = appointmentItems.some(item => location.pathname === item.url);
-  const isEmployeesActive = employeeItems.some(item => location.pathname === item.url);
-  const isInventoryActive = inventoryItems.some(item => location.pathname === item.url);
+  const isSalesActive = salesItems.some(item => 
+    location.pathname === item.url || 
+    location.pathname.startsWith(item.url + "/")
+  );
+  const isAppointmentsActive = appointmentItems.some(item => 
+    location.pathname === item.url || 
+    location.pathname.startsWith(item.url + "/")
+  );
+  const isEmployeesActive = employeeItems.some(item => 
+    location.pathname === item.url || 
+    location.pathname.startsWith(item.url + "/")
+  );
+  const isInventoryActive = inventoryItems.some(item => 
+    location.pathname === item.url || 
+    location.pathname.startsWith(item.url + "/")
+  );
 
   return (
     <Sidebar className="border-r border-border">
@@ -93,39 +109,45 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {/* Top Items */}
-              {topItems.map((item) => (
+              {topItems.map((item) => {
+                const isActive = location.pathname === item.url || (item.url === "/" ? location.pathname === "/" : false);
+                return (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <NavLink to={item.url} end className={getNavClass(item.url)} onClick={handleNavClick}>
-                      <item.icon className="h-5 w-5" />
+                      <NavLink to={item.url} end className={getNavClass(item.url, true)} onClick={handleNavClick}>
+                        <item.icon className={cn("h-5 w-5", isActive && "text-white")} />
                       <span>{item.title}</span>
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
-              ))}
+                );
+              })}
 
               {/* Sales Collapsible Group */}
               <Collapsible open={salesOpen} onOpenChange={setSalesOpen} className="group/collapsible">
                 <SidebarMenuItem>
                   <CollapsibleTrigger asChild>
-                    <SidebarMenuButton className={isSalesActive ? "bg-primary/10 text-primary" : ""}>
-                      <DollarSign className="h-5 w-5" />
-                      <span>Sales</span>
-                      <ChevronDown className="ml-auto h-4 w-4 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-180" />
+                    <SidebarMenuButton className={isSalesActive ? "bg-primary text-white hover:bg-primary hover:text-white" : ""}>
+                      <DollarSign className={cn("h-5 w-5", isSalesActive && "text-white")} />
+                      <span className={isSalesActive ? "text-white" : ""}>Sales</span>
+                      <ChevronDown className={cn("ml-auto h-4 w-4 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-180", isSalesActive && "text-white")} />
                     </SidebarMenuButton>
                   </CollapsibleTrigger>
                   <CollapsibleContent>
                     <SidebarMenuSub>
-                      {salesItems.map((item) => (
+                      {salesItems.map((item) => {
+                        const isActive = location.pathname === item.url || location.pathname.startsWith(item.url + "/");
+                        return (
                         <SidebarMenuSubItem key={item.title}>
                           <SidebarMenuSubButton asChild>
                             <NavLink to={item.url} className={getNavClass(item.url)} onClick={handleNavClick}>
-                              <item.icon className="h-4 w-4" />
+                                <item.icon className={cn("h-4 w-4", isActive && "text-white")} />
                               <span>{item.title}</span>
                             </NavLink>
                           </SidebarMenuSubButton>
                         </SidebarMenuSubItem>
-                      ))}
+                        );
+                      })}
                     </SidebarMenuSub>
                   </CollapsibleContent>
                 </SidebarMenuItem>
@@ -135,24 +157,27 @@ export function AppSidebar() {
               <Collapsible open={appointmentsOpen} onOpenChange={setAppointmentsOpen} className="group/collapsible">
                 <SidebarMenuItem>
                   <CollapsibleTrigger asChild>
-                    <SidebarMenuButton className={isAppointmentsActive ? "bg-primary/10 text-primary" : ""}>
-                      <Calendar className="h-5 w-5" />
-                      <span>Appointment</span>
-                      <ChevronDown className="ml-auto h-4 w-4 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-180" />
+                    <SidebarMenuButton className={isAppointmentsActive ? "bg-primary text-white hover:bg-primary hover:text-white" : ""}>
+                      <Calendar className={cn("h-5 w-5", isAppointmentsActive && "text-white")} />
+                      <span className={isAppointmentsActive ? "text-white" : ""}>Appointment</span>
+                      <ChevronDown className={cn("ml-auto h-4 w-4 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-180", isAppointmentsActive && "text-white")} />
                     </SidebarMenuButton>
                   </CollapsibleTrigger>
                   <CollapsibleContent>
                     <SidebarMenuSub>
-                      {appointmentItems.map((item) => (
+                      {appointmentItems.map((item) => {
+                        const isActive = location.pathname === item.url || location.pathname.startsWith(item.url + "/");
+                        return (
                         <SidebarMenuSubItem key={item.title}>
                           <SidebarMenuSubButton asChild>
                             <NavLink to={item.url} className={getNavClass(item.url)} onClick={handleNavClick}>
-                              <item.icon className="h-4 w-4" />
+                                <item.icon className={cn("h-4 w-4", isActive && "text-white")} />
                               <span>{item.title}</span>
                             </NavLink>
                           </SidebarMenuSubButton>
                         </SidebarMenuSubItem>
-                      ))}
+                        );
+                      })}
                     </SidebarMenuSub>
                   </CollapsibleContent>
                 </SidebarMenuItem>
@@ -162,24 +187,27 @@ export function AppSidebar() {
               <Collapsible open={employeesOpen} onOpenChange={setEmployeesOpen} className="group/collapsible">
                 <SidebarMenuItem>
                   <CollapsibleTrigger asChild>
-                    <SidebarMenuButton className={isEmployeesActive ? "bg-primary/10 text-primary" : ""}>
-                      <UserCheck className="h-5 w-5" />
-                      <span>Employees</span>
-                      <ChevronDown className="ml-auto h-4 w-4 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-180" />
+                    <SidebarMenuButton className={isEmployeesActive ? "bg-primary text-white hover:bg-primary hover:text-white" : ""}>
+                      <UserCheck className={cn("h-5 w-5", isEmployeesActive && "text-white")} />
+                      <span className={isEmployeesActive ? "text-white" : ""}>Employees</span>
+                      <ChevronDown className={cn("ml-auto h-4 w-4 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-180", isEmployeesActive && "text-white")} />
                     </SidebarMenuButton>
                   </CollapsibleTrigger>
                   <CollapsibleContent>
                     <SidebarMenuSub>
-                      {employeeItems.map((item) => (
+                      {employeeItems.map((item) => {
+                        const isActive = location.pathname === item.url || location.pathname.startsWith(item.url + "/");
+                        return (
                         <SidebarMenuSubItem key={item.title}>
                           <SidebarMenuSubButton asChild>
                             <NavLink to={item.url} className={getNavClass(item.url)} onClick={handleNavClick}>
-                              <item.icon className="h-4 w-4" />
+                                <item.icon className={cn("h-4 w-4", isActive && "text-white")} />
                               <span>{item.title}</span>
                             </NavLink>
                           </SidebarMenuSubButton>
                         </SidebarMenuSubItem>
-                      ))}
+                        );
+                      })}
                     </SidebarMenuSub>
                   </CollapsibleContent>
                 </SidebarMenuItem>
@@ -189,40 +217,46 @@ export function AppSidebar() {
               <Collapsible open={inventoryOpen} onOpenChange={setInventoryOpen} className="group/collapsible">
                 <SidebarMenuItem>
                   <CollapsibleTrigger asChild>
-                    <SidebarMenuButton className={isInventoryActive ? "bg-primary/10 text-primary" : ""}>
-                      <Package className="h-5 w-5" />
-                      <span>Inventory</span>
-                      <ChevronDown className="ml-auto h-4 w-4 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-180" />
+                    <SidebarMenuButton className={isInventoryActive ? "bg-primary text-white hover:bg-primary hover:text-white" : ""}>
+                      <Package className={cn("h-5 w-5", isInventoryActive && "text-white")} />
+                      <span className={isInventoryActive ? "text-white" : ""}>Inventory</span>
+                      <ChevronDown className={cn("ml-auto h-4 w-4 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-180", isInventoryActive && "text-white")} />
                     </SidebarMenuButton>
                   </CollapsibleTrigger>
                   <CollapsibleContent>
                     <SidebarMenuSub>
-                      {inventoryItems.map((item) => (
+                      {inventoryItems.map((item) => {
+                        const isActive = location.pathname === item.url || location.pathname.startsWith(item.url + "/");
+                        return (
                         <SidebarMenuSubItem key={item.title}>
                           <SidebarMenuSubButton asChild>
                             <NavLink to={item.url} className={getNavClass(item.url)} onClick={handleNavClick}>
-                              <item.icon className="h-4 w-4" />
+                                <item.icon className={cn("h-4 w-4", isActive && "text-white")} />
                               <span>{item.title}</span>
                             </NavLink>
                           </SidebarMenuSubButton>
                         </SidebarMenuSubItem>
-                      ))}
+                        );
+                      })}
                     </SidebarMenuSub>
                   </CollapsibleContent>
                 </SidebarMenuItem>
               </Collapsible>
 
               {/* Remaining Main Items */}
-              {mainItems.map((item) => (
+              {mainItems.map((item) => {
+                const isActive = location.pathname === item.url || location.pathname.startsWith(item.url + "/");
+                return (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <NavLink to={item.url} end className={getNavClass(item.url)} onClick={handleNavClick}>
-                      <item.icon className="h-5 w-5" />
+                        <item.icon className={cn("h-5 w-5", isActive && "text-white")} />
                       <span>{item.title}</span>
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
-              ))}
+                );
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

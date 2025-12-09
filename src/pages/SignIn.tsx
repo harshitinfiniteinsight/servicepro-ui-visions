@@ -54,16 +54,46 @@ const SignIn = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [forgotPasswordOpen, setForgotPasswordOpen] = useState(false);
+  const [loginType, setLoginType] = useState<"merchant" | "employee">("merchant");
+  
+  // Employee login state
+  const [employeeEmail, setEmployeeEmail] = useState("");
+  const [employeePassword, setEmployeePassword] = useState("");
+  const [showEmployeePassword, setShowEmployeePassword] = useState(false);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
-    // Simulate API call
+    // Simulate API call for merchant
     setTimeout(() => {
       localStorage.setItem("isAuthenticated", "true");
       localStorage.removeItem("demoBusinessType"); // Clear demo mode for regular login
+      localStorage.setItem("userType", "merchant");
+      // Extract username from email or use default
+      const userName = email.split("@")[0] || "User";
+      localStorage.setItem("userName", userName);
+      localStorage.setItem("firstName", userName.charAt(0).toUpperCase() + userName.slice(1));
       toast.success("Welcome back!");
+      navigate("/");
+      setLoading(false);
+    }, 1000);
+  };
+
+  const handleEmployeeSignIn = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    // Simulate API call for employee
+    setTimeout(() => {
+      localStorage.setItem("isAuthenticated", "true");
+      localStorage.removeItem("demoBusinessType");
+      localStorage.setItem("userType", "employee");
+      // Extract username from email or use default
+      const userName = employeeEmail.split("@")[0] || "Employee";
+      localStorage.setItem("userName", userName);
+      localStorage.setItem("firstName", userName.charAt(0).toUpperCase() + userName.slice(1));
+      toast.success("Welcome back, Employee!");
       navigate("/");
       setLoading(false);
     }, 1000);
@@ -95,7 +125,16 @@ const SignIn = () => {
               <TabsTrigger value="demo" className="py-2.5 text-sm sm:text-base">Demo Accounts</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="signin">
+            <TabsContent value="signin" className="mt-0">
+              {/* Sub-tabs for Merchant Login / Employee Login */}
+              <Tabs value={loginType} onValueChange={(value) => setLoginType(value as "merchant" | "employee")} className="w-full">
+                <TabsList className="grid w-full grid-cols-2 mb-4 sm:mb-6 h-auto">
+                  <TabsTrigger value="merchant" className="py-2.5 text-sm sm:text-base">Merchant Login</TabsTrigger>
+                  <TabsTrigger value="employee" className="py-2.5 text-sm sm:text-base">Employee Login</TabsTrigger>
+                </TabsList>
+
+                {/* Merchant Login Form */}
+                <TabsContent value="merchant">
               <form onSubmit={handleSignIn} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
@@ -157,6 +196,66 @@ const SignIn = () => {
                   </button>
                 </div>
               </form>
+                </TabsContent>
+
+                {/* Employee Login Form */}
+                <TabsContent value="employee">
+                  <form onSubmit={handleEmployeeSignIn} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="employee-email">Email</Label>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          id="employee-email"
+                          type="email"
+                          placeholder="employee@servicepro911.com"
+                          value={employeeEmail}
+                          onChange={(e) => setEmployeeEmail(e.target.value)}
+                          className="pl-10"
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="employee-password">Password</Label>
+                        <button
+                          type="button"
+                          onClick={() => setForgotPasswordOpen(true)}
+                          className="text-sm text-primary hover:underline font-medium"
+                        >
+                          Forgot Password?
+                        </button>
+                      </div>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          id="employee-password"
+                          type={showEmployeePassword ? "text" : "password"}
+                          placeholder="Enter your password"
+                          value={employeePassword}
+                          onChange={(e) => setEmployeePassword(e.target.value)}
+                          className="pl-10 pr-10"
+                          required
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowEmployeePassword(!showEmployeePassword)}
+                          className="absolute right-3 top-3 text-muted-foreground hover:text-foreground"
+                        >
+                          {showEmployeePassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </button>
+                      </div>
+                    </div>
+                    <Button type="submit" className="w-full gradient-primary touch-target" disabled={loading}>
+                      {loading ? "Signing in..." : "Sign In"}
+                    </Button>
+                    <div className="text-center text-sm">
+                      <span className="text-muted-foreground">Need help? Contact your administrator</span>
+                    </div>
+                  </form>
+                </TabsContent>
+              </Tabs>
             </TabsContent>
 
             <TabsContent value="demo">

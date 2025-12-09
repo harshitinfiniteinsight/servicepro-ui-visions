@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { FileDown, X, CheckCircle, Send, Eye, PenTool, Lock, Camera, User, Upload, Trash2, Mail, MessageSquare, Edit } from "lucide-react";
@@ -216,6 +216,10 @@ export const PreviewAgreementModal = ({ open, onOpenChange, agreement, onPayNow,
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto p-0 bg-white">
+        <DialogHeader className="sr-only">
+          <DialogTitle>Preview Agreement</DialogTitle>
+          <DialogDescription>View and manage agreement details</DialogDescription>
+        </DialogHeader>
         <div className="bg-white">
           {/* Header - Blue Banner */}
           <div className="bg-blue-600 text-white p-6">

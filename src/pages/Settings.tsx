@@ -10,7 +10,8 @@ import {
   HelpCircle, 
   LogOut,
   ChevronRight,
-  CreditCard
+  CreditCard,
+  ScanLine
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -58,6 +59,14 @@ const Settings = () => {
       onClick: () => navigate("/settings/payment-methods"),
       color: "text-warning",
       bg: "bg-warning/10"
+    },
+    {
+      icon: ScanLine,
+      label: "Configure Card Reader",
+      description: "Set up and manage card reader devices",
+      onClick: () => navigate("/settings/card-reader"),
+      color: "text-blue-600",
+      bg: "bg-blue-600/10"
     },
     {
       icon: Languages,

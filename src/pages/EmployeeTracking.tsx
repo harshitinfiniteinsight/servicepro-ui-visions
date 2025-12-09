@@ -15,7 +15,7 @@ const EmployeeTracking = () => {
 
   return (
     <div className="flex-1">
-      <AppHeader searchPlaceholder="Search..." onSearchChange={setSearchQuery} />
+      <AppHeader searchPlaceholder="Search..." onSearchChange={setSearchQuery} title="Job Route" />
 
       <main className="px-4 sm:px-6 py-4 sm:py-6 space-y-6 animate-fade-in">
         {/* Header */}
@@ -25,7 +25,7 @@ const EmployeeTracking = () => {
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div>
                 <h1 className="text-2xl sm:text-3xl font-bold font-display mb-1">
-                  <span className="text-gradient">Employee Tracking</span>
+                  <span className="text-gradient">Job Route</span>
                 </h1>
                 <p className="text-sm text-muted-foreground">Track employee locations and activities in real-time</p>
               </div>
@@ -87,7 +87,7 @@ const EmployeeTracking = () => {
               <MapPin className="h-16 w-16 text-muted-foreground mx-auto mb-4 opacity-50" />
               <h3 className="text-xl font-bold mb-2">Map Integration Coming Soon</h3>
               <p className="text-muted-foreground max-w-md mx-auto">
-                Real-time employee location tracking will be displayed here. Connect your mapping service to enable this feature.
+                Real-time employee job routes will be displayed here. Connect your mapping service to enable this feature.
               </p>
               <div className="mt-6 grid grid-cols-2 gap-4 max-w-md mx-auto">
                 <div className="p-4 bg-card rounded-lg border">

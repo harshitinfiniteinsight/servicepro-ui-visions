@@ -191,6 +191,135 @@ All colors MUST be HSL.
     @apply min-h-[44px] min-w-[44px] flex items-center justify-center;
   }
 
+  /* Tablet optimizations (768px - 1023px) */
+  @media (min-width: 768px) and (max-width: 1023px) {
+    /* Hide desktop header with search bar on tablet - Target any header containing search input */
+    header[data-header-type="desktop"],
+    header:has(input[placeholder*="Search"]),
+    header:has(.relative.group:has(input)),
+    header.sticky.z-30.glass-effect:has(input) {
+      display: none !important;
+      visibility: hidden !important;
+      opacity: 0 !important;
+    }
+    
+    /* Hide SidebarTrigger on tablet */
+    button[data-sidebar="trigger"],
+    [data-sidebar="trigger"] {
+      display: none !important;
+    }
+    
+    /* Ensure mobile/tablet header is visible */
+    header.lg\\:hidden,
+    header[class*="lg:hidden"] {
+      display: block !important;
+    }
+    
+    /* Hide sidebar on tablet - force hide even if component has md:block */
+    [data-sidebar="sidebar"],
+    [data-sidebar="group"],
+    [data-sidebar="menu"],
+    [data-sidebar="menu-item"],
+    [data-sidebar="trigger"],
+    [data-sidebar="rail"],
+    [data-sidebar="group-label"],
+    [data-sidebar="group-content"],
+    [data-sidebar="menu-button"],
+    button[data-sidebar="trigger"],
+    .group[data-sidebar="sidebar"],
+    .group\/sidebar-wrapper > div:first-child,
+    .group\/sidebar-wrapper > div[class*="sidebar"],
+    .group\/sidebar-wrapper > .group,
+    .group\/sidebar-wrapper > .peer,
+    .group\/sidebar-wrapper > div[class*="hidden"][class*="lg:block"],
+    aside[class*="sidebar"],
+    nav[class*="sidebar"],
+    div[class*="sidebar"][class*="group"],
+    div[class*="sidebar"][class*="peer"],
+    /* Target sidebar when parent has data-tablet attribute */
+    [data-tablet="true"] [data-sidebar],
+    [data-tablet="true"] .group[data-sidebar],
+    [data-tablet="true"] .group\/sidebar-wrapper > div:first-child,
+    [data-tablet="true"] .group\/sidebar-wrapper > .group,
+    [data-tablet="true"] .group\/sidebar-wrapper > .peer {
+      display: none !important;
+      visibility: hidden !important;
+      opacity: 0 !important;
+      width: 0 !important;
+      min-width: 0 !important;
+      max-width: 0 !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      position: absolute !important;
+      left: -9999px !important;
+      pointer-events: none !important;
+    }
+    
+    /* Hide sidebar wrapper spacing on tablet */
+    .group\/sidebar-wrapper > div:first-child,
+    .group\/sidebar-wrapper > div:first-of-type,
+    [data-tablet="true"] .group\/sidebar-wrapper > div:first-child {
+      display: none !important;
+      width: 0 !important;
+      min-width: 0 !important;
+      max-width: 0 !important;
+    }
+    
+    /* Ensure no sidebar spacing is reserved */
+    .group\/sidebar-wrapper,
+    [data-tablet="true"] .group\/sidebar-wrapper {
+      gap: 0 !important;
+    }
+    
+    /* Hide any fixed positioned sidebar elements */
+    div[class*="fixed"][class*="sidebar"],
+    div[class*="fixed"][data-sidebar],
+    div[class*="fixed"][class*="lg:flex"][data-sidebar],
+    [data-tablet="true"] div[class*="fixed"][data-sidebar] {
+      display: none !important;
+      width: 0 !important;
+    }
+    
+    /* Ensure main content takes full width */
+    .group\/sidebar-wrapper > div:last-child,
+    .group\/sidebar-wrapper > div[class*="flex-1"],
+    [data-tablet="true"] .group\/sidebar-wrapper > div:last-child {
+      width: 100% !important;
+      max-width: 100% !important;
+    }
+    
+    /* Hide sidebar when no-sidebar class is present */
+    .no-sidebar [data-sidebar],
+    .no-sidebar .group[data-sidebar],
+    .no-sidebar .group\/sidebar-wrapper > div:first-child {
+      display: none !important;
+      width: 0 !important;
+    }
+  }
+  
+  /* Mobile optimizations (< 768px) */
+  @media (max-width: 767px) {
+    /* Hide sidebar on mobile - force hide */
+    [data-sidebar="sidebar"],
+    .group[data-sidebar="sidebar"],
+    [data-sidebar="sidebar"] ~ *,
+    [data-sidebar="trigger"],
+    [data-sidebar="rail"],
+    .group\/sidebar-wrapper > div:first-child,
+    .group\/sidebar-wrapper > div[class*="sidebar"],
+    aside[class*="sidebar"],
+    nav[class*="sidebar"] {
+      display: none !important;
+      visibility: hidden !important;
+      opacity: 0 !important;
+      width: 0 !important;
+      min-width: 0 !important;
+      max-width: 0 !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+  }
+
   /* Tablet portrait optimizations */
   @media (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
     /* Improve spacing for tablet portrait */
@@ -220,11 +349,6 @@ All colors MUST be HSL.
 
     .tablet-grid-3 {
       @apply grid-cols-3;
-    }
-
-    /* Ensure sidebar wrapper doesn't break */
-    .group\/sidebar-wrapper {
-      flex-direction: row !important;
     }
 
     /* Prevent overflow issues */
