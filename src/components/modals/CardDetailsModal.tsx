@@ -5,21 +5,32 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
+import { useNotifications } from "@/contexts/NotificationContext";
 
 interface CardDetailsModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   totalAmount: number;
   onPaymentComplete?: () => void;
+  entityType?: "invoice" | "estimate" | "agreement";
+  entityId?: string;
 }
 
-export const CardDetailsModal = ({ open, onOpenChange, totalAmount, onPaymentComplete }: CardDetailsModalProps) => {
+export const CardDetailsModal = ({ 
+  open, 
+  onOpenChange, 
+  totalAmount, 
+  onPaymentComplete,
+  entityType = "invoice",
+  entityId = "",
+}: CardDetailsModalProps) => {
   const [cardNumber, setCardNumber] = useState("");
   const [cardName, setCardName] = useState("");
   const [validThru, setValidThru] = useState("");
   const [cvv, setCvv] = useState("");
   const [zipCode, setZipCode] = useState("");
   const [authorized, setAuthorized] = useState(false);
+  const { addNotification } = useNotifications();
 
   const handleCardNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value.replace(/\s/g, "");
@@ -48,6 +59,17 @@ export const CardDetailsModal = ({ open, onOpenChange, totalAmount, onPaymentCom
       toast.error("Please fill in all card details");
       return;
     }
+    // Add payment notification
+    if (entityId) {
+      const entityTypeLabel = entityType.charAt(0).toUpperCase() + entityType.slice(1);
+      addNotification({
+        entityType,
+        entityId,
+        message: `Payment received against ${entityTypeLabel}`,
+        action: "convertToJob",
+      });
+    }
+
     toast.success("Payment processed successfully");
     onOpenChange(false);
     onPaymentComplete?.();

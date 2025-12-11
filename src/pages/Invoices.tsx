@@ -12,7 +12,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Plus, Eye, Mail, MessageSquare, Edit, UserCog, FileText, CreditCard, Banknote, MoreVertical, Trash2, Check, X, CheckCircle2, Bell, Settings, FileCheck, RotateCcw } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
+import { Plus, Eye, Mail, MessageSquare, Edit, UserCog, FileText, CreditCard, Banknote, MoreVertical, Trash2, Check, X, CheckCircle2, Bell, RotateCcw, Briefcase, StickyNote, Copy, Search, CalendarRange, FileCheck } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
@@ -24,8 +28,10 @@ const Invoices = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [activeTab, setActiveTab] = useState("single");
-  const [startDate, setStartDate] = useState("2024-08-01");
-  const [endDate, setEndDate] = useState("2024-10-27");
+  const [dateRange, setDateRange] = useState<{ from: Date | undefined; to: Date | undefined }>({
+    from: undefined,
+    to: undefined,
+  });
   const [emailModalOpen, setEmailModalOpen] = useState(false);
   const [smsModalOpen, setSmsModalOpen] = useState(false);
   const [selectedInvoiceForContact, setSelectedInvoiceForContact] = useState<any>(null);
@@ -45,23 +51,18 @@ const Invoices = () => {
       const matchesSearch = invoice.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
         invoice.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
         invoice.orderId.toLowerCase().includes(searchQuery.toLowerCase());
-      
+
+      const invoiceDate = new Date(invoice.issueDate);
+      const matchesDateRange =
+        (!dateRange.from || invoiceDate >= dateRange.from) &&
+        (!dateRange.to || invoiceDate <= dateRange.to);
+
       if (type === "deactivated") {
-        const invoiceDate = new Date(invoice.issueDate);
-        const start = new Date(startDate);
-        const end = new Date(endDate);
-        const matchesDateRange = invoiceDate >= start && invoiceDate <= end;
-        
         return invoice.deactivated && matchesSearch && matchesDateRange;
       }
-      
+
       const matchesStatus = statusFilter === "all" || invoice.status.toLowerCase() === statusFilter.toLowerCase();
-      
-      const invoiceDate = new Date(invoice.issueDate);
-      const start = new Date(startDate);
-      const end = new Date(endDate);
-      const matchesDateRange = invoiceDate >= start && invoiceDate <= end;
-      
+
       return !invoice.deactivated && invoice.invoiceType === type && matchesSearch && matchesStatus && matchesDateRange;
     });
   };
@@ -112,7 +113,7 @@ const Invoices = () => {
     setLinkModalOpen(true);
   };
 
-  const handleDocHistory = (invoice: any) => {
+  const handleCustomerHistory = (invoice: any) => {
     // Navigate to customer details page
     navigate(`/customers/${invoice.customerId}`);
   };
@@ -134,6 +135,15 @@ const Invoices = () => {
     setReassignModalOpen(false);
     setSelectedEmployee("");
     setSelectedInvoiceForReassign(null);
+  };
+
+  const handleConvertToJob = (invoice: any) => {
+    toast.success(`Converting Invoice ${invoice.id} to Job`);
+    navigate("/jobs/new", { state: { invoiceData: invoice } });
+  };
+
+  const handleAddNote = (invoice: any) => {
+    toast.info("Add note feature implemented via modal in future");
   };
 
   const renderSingleInvoiceTable = (invoices: any[]) => (
@@ -202,7 +212,7 @@ const Invoices = () => {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-52">
-                      <DropdownMenuItem 
+                      <DropdownMenuItem
                         className="gap-2"
                         onClick={() => {
                           setSelectedInvoiceForPreview(invoice);
@@ -229,7 +239,7 @@ const Invoices = () => {
                         Link Agreement
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem 
+                      <DropdownMenuItem
                         className="gap-2"
                         disabled={invoice.status === "Paid"}
                         onClick={() => {
@@ -241,7 +251,7 @@ const Invoices = () => {
                         <Edit className="h-4 w-4" />
                         Edit Invoice {invoice.status === "Paid" && "(Disabled)"}
                       </DropdownMenuItem>
-                      <DropdownMenuItem 
+                      <DropdownMenuItem
                         className="gap-2"
                         onClick={() => handleReassignEmployee(invoice)}
                       >
@@ -251,9 +261,31 @@ const Invoices = () => {
                       <DropdownMenuSeparator />
                       {invoice.status === "Open" && (
                         <>
-                          <DropdownMenuItem 
+                          <DropdownMenuItem
                             className="gap-2"
-                            onClick={() => handleDocHistory(invoice)}
+                            onClick={() => {
+                              setSelectedInvoiceForPreview(invoice);
+                              setPreviewModalOpen(true);
+                            }}
+                          >
+                            <Eye className="h-4 w-4" />
+                            Preview
+                          </DropdownMenuItem>
+                          <DropdownMenuItem className="gap-2" onClick={() => handleConvertToJob(invoice)}>
+                            <Briefcase className="h-4 w-4" />
+                            Convert to Job
+                          </DropdownMenuItem>
+                          <DropdownMenuItem className="gap-2" onClick={() => handleSendEmail(invoice)}>
+                            <Mail className="h-4 w-4" />
+                            Send Email
+                          </DropdownMenuItem>
+                          <DropdownMenuItem className="gap-2" onClick={() => handleSendSMS(invoice)}>
+                            <MessageSquare className="h-4 w-4" />
+                            Send SMS
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            className="gap-2"
+                            onClick={() => handleCustomerHistory(invoice)}
                           >
                             <FileText className="h-4 w-4" />
                             Doc History
@@ -267,7 +299,7 @@ const Invoices = () => {
                             Pay Cash
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem 
+                          <DropdownMenuItem
                             className="gap-2 text-destructive focus:text-destructive"
                             onClick={() => handleDeactivate(invoice)}
                           >
@@ -351,7 +383,7 @@ const Invoices = () => {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-52">
-                      <DropdownMenuItem 
+                      <DropdownMenuItem
                         className="gap-2"
                         onClick={() => {
                           setSelectedInvoiceForPreview(invoice);
@@ -378,7 +410,7 @@ const Invoices = () => {
                         Link Agreement
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem 
+                      <DropdownMenuItem
                         className="gap-2"
                         disabled={invoice.status === "Paid"}
                         onClick={() => {
@@ -390,7 +422,7 @@ const Invoices = () => {
                         <Edit className="h-4 w-4" />
                         Edit Invoice {invoice.status === "Paid" && "(Disabled)"}
                       </DropdownMenuItem>
-                      <DropdownMenuItem 
+                      <DropdownMenuItem
                         className="gap-2"
                         onClick={() => handleReassignEmployee(invoice)}
                       >
@@ -400,9 +432,31 @@ const Invoices = () => {
                       <DropdownMenuSeparator />
                       {invoice.status === "Open" && (
                         <>
-                          <DropdownMenuItem 
+                          <DropdownMenuItem
                             className="gap-2"
-                            onClick={() => handleDocHistory(invoice)}
+                            onClick={() => {
+                              setSelectedInvoiceForPreview(invoice);
+                              setPreviewModalOpen(true);
+                            }}
+                          >
+                            <Eye className="h-4 w-4" />
+                            Preview
+                          </DropdownMenuItem>
+                          <DropdownMenuItem className="gap-2" onClick={() => handleConvertToJob(invoice)}>
+                            <Briefcase className="h-4 w-4" />
+                            Convert to Job
+                          </DropdownMenuItem>
+                          <DropdownMenuItem className="gap-2" onClick={() => handleSendEmail(invoice)}>
+                            <Mail className="h-4 w-4" />
+                            Send Email
+                          </DropdownMenuItem>
+                          <DropdownMenuItem className="gap-2" onClick={() => handleSendSMS(invoice)}>
+                            <MessageSquare className="h-4 w-4" />
+                            Send SMS
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            className="gap-2"
+                            onClick={() => handleCustomerHistory(invoice)}
                           >
                             <FileText className="h-4 w-4" />
                             Doc History
@@ -415,8 +469,46 @@ const Invoices = () => {
                             <Banknote className="h-4 w-4" />
                             Pay Cash
                           </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem 
+                          <DropdownMenuItem className="gap-2" onClick={() => handleConvertToJob(invoice)}>
+                            <Briefcase className="h-4 w-4" />
+                            Convert to Job
+                          </DropdownMenuItem>
+                          <DropdownMenuItem className="gap-2" onClick={() => handleSendEmail(invoice)}>
+                            <Mail className="h-4 w-4" />
+                            Send Email
+                          </DropdownMenuItem>
+                          <DropdownMenuItem className="gap-2" onClick={() => handleSendSMS(invoice)}>
+                            <MessageSquare className="h-4 w-4" />
+                            Send SMS
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            className="gap-2"
+                            onClick={() => {
+                              navigate(`/invoices/${invoice.id}/edit`);
+                            }}
+                          >
+                            <Edit className="h-4 w-4" />
+                            Edit Invoice
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            className="gap-2"
+                            onClick={() => handleCustomerHistory(invoice)}
+                          >
+                            <FileText className="h-4 w-4" />
+                            Customer History
+                          </DropdownMenuItem>
+                          <DropdownMenuItem className="gap-2" onClick={() => handleAddNote(invoice)}>
+                            <StickyNote className="h-4 w-4" />
+                            Add Note
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            className="gap-2"
+                            onClick={() => handleReassignEmployee(invoice)}
+                          >
+                            <UserCog className="h-4 w-4" />
+                            Reassign Employee
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
                             className="gap-2 text-destructive focus:text-destructive"
                             onClick={() => handleDeactivate(invoice)}
                           >
@@ -424,6 +516,12 @@ const Invoices = () => {
                             Deactivate
                           </DropdownMenuItem>
                         </>
+                      )}
+                      {invoice.status === "Paid" && (
+                        <DropdownMenuItem className="gap-2 text-warning focus:text-warning">
+                          <RotateCcw className="h-4 w-4" />
+                          Refund
+                        </DropdownMenuItem>
                       )}
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -494,7 +592,7 @@ const Invoices = () => {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-52">
-                      <DropdownMenuItem 
+                      <DropdownMenuItem
                         className="gap-2"
                         onClick={() => {
                           setSelectedInvoiceForPreview(invoice);
@@ -513,7 +611,7 @@ const Invoices = () => {
                         Link Agreement
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem 
+                      <DropdownMenuItem
                         className="gap-2 text-success focus:text-success"
                         onClick={() => handleActivate(invoice)}
                       >
@@ -537,14 +635,88 @@ const Invoices = () => {
 
       <main className="px-4 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6 animate-fade-in">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Service Pro911 - Invoices</h1>
-            <p className="text-sm sm:text-base text-muted-foreground">Manage billing and payments</p>
+          <div className="relative flex-1 w-full sm:max-w-md">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder="Search invoices..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 w-full touch-target"
+            />
           </div>
           <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
-            <Button 
-              variant="outline" 
-              onClick={() => navigate("/invoices/due-alert")} 
+            {activeTab !== "deactivated" && (
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-full sm:w-[140px] touch-target">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem value="paid">Paid</SelectItem>
+                  <SelectItem value="open">Open</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className="gap-2 touch-target w-full sm:w-auto">
+                  <CalendarRange className="h-4 w-4" />
+                  <span className="hidden sm:inline">
+                    {dateRange.from ? (
+                      dateRange.to ? (
+                        <>
+                          {format(dateRange.from, "MMM dd")} - {format(dateRange.to, "MMM dd")}
+                        </>
+                      ) : (
+                        format(dateRange.from, "MMM dd, yyyy")
+                      )
+                    ) : (
+                      "Date Range"
+                    )}
+                  </span>
+                  <span className="sm:hidden">
+                    {dateRange.from ? format(dateRange.from, "MMM dd") : "Date"}
+                  </span>
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <div className="p-3 space-y-3">
+                  <div>
+                    <p className="text-sm font-medium mb-2">From Date</p>
+                    <Calendar
+                      mode="single"
+                      selected={dateRange.from}
+                      onSelect={(date) => setDateRange({ ...dateRange, from: date })}
+                      className="pointer-events-auto"
+                    />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium mb-2">To Date</p>
+                    <Calendar
+                      mode="single"
+                      selected={dateRange.to}
+                      onSelect={(date) => setDateRange({ ...dateRange, to: date })}
+                      disabled={(date) => dateRange.from ? date < dateRange.from : false}
+                      className="pointer-events-auto"
+                    />
+                  </div>
+                  {(dateRange.from || dateRange.to) && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full touch-target"
+                      onClick={() => setDateRange({ from: undefined, to: undefined })}
+                    >
+                      Clear Filter
+                    </Button>
+                  )}
+                </div>
+              </PopoverContent>
+            </Popover>
+            <Button
+              variant="outline"
+              onClick={() => navigate("/invoices/due-alert")}
               className="gap-2 touch-target w-full sm:w-auto"
             >
               <Bell className="h-4 w-4 sm:h-5 sm:w-5" />
@@ -558,41 +730,6 @@ const Invoices = () => {
           </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-end">
-          <div className="flex-1 w-full">
-            <label className="text-sm font-medium mb-2 block">Date Range</label>
-            <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
-              <Input
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                className="w-full sm:max-w-[180px] touch-target"
-              />
-              <span className="text-muted-foreground text-center sm:text-left hidden sm:inline">TO</span>
-              <Input
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                className="w-full sm:max-w-[180px] touch-target"
-              />
-            </div>
-          </div>
-          {activeTab !== "deactivated" && (
-            <div className="w-full sm:w-auto">
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-full sm:w-[180px] touch-target">
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All</SelectItem>
-                  <SelectItem value="paid">Paid</SelectItem>
-                  <SelectItem value="open">Open</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          )}
-        </div>
-
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 sm:space-y-6">
           <TabsList className="grid w-full max-w-full sm:max-w-md grid-cols-3 h-auto">
             <TabsTrigger value="single" className="text-xs sm:text-sm py-2 px-2 sm:px-4">Single</TabsTrigger>
@@ -602,91 +739,100 @@ const Invoices = () => {
 
           <TabsContent value="recurring" className="space-y-4">
             <div className="text-sm text-muted-foreground mb-4">
-              Date: {new Date(startDate).toLocaleDateString()} TO {new Date(endDate).toLocaleDateString()}
+              Date: {dateRange.from && dateRange.to ? `${format(dateRange.from, "MMM dd")} - ${format(dateRange.to, "MMM dd")}` : "All dates"}
             </div>
             {renderRecurringInvoiceTable(filterInvoices("recurring"))}
           </TabsContent>
 
           <TabsContent value="single" className="space-y-4">
             <div className="text-sm text-muted-foreground mb-4">
-              Date: {new Date(startDate).toLocaleDateString()} TO {new Date(endDate).toLocaleDateString()}
+              Date: {dateRange.from && dateRange.to ? `${format(dateRange.from, "MMM dd")} - ${format(dateRange.to, "MMM dd")}` : "All dates"}
             </div>
             {renderSingleInvoiceTable(filterInvoices("single"))}
           </TabsContent>
 
           <TabsContent value="deactivated" className="space-y-4">
             <div className="text-sm text-muted-foreground mb-4">
-              Date: {new Date(startDate).toLocaleDateString()} TO {new Date(endDate).toLocaleDateString()}
+              Date: {dateRange.from && dateRange.to ? `${format(dateRange.from, "MMM dd")} - ${format(dateRange.to, "MMM dd")}` : "All dates"}
             </div>
             {renderDeactivatedInvoiceTable(filterInvoices("deactivated"))}
           </TabsContent>
         </Tabs>
-
-        <SendEmailModal
-          open={emailModalOpen}
-          onOpenChange={setEmailModalOpen}
-          customerEmail=""
-        />
-
-        <SendSMSModal
-          open={smsModalOpen}
-          onOpenChange={setSmsModalOpen}
-          customerName={selectedInvoiceForContact?.customerName || ""}
-          phoneNumber=""
-        />
-
-        <InvoicePaymentModal
-          open={paymentModalOpen}
-          onOpenChange={setPaymentModalOpen}
-          invoice={selectedInvoiceForPayment}
-        />
-
-        <PreviewInvoiceModal
-          open={previewModalOpen}
-          onOpenChange={(open) => {
-            setPreviewModalOpen(open);
-            if (!open) setSelectedInvoiceForPreview(null);
-          }}
-          invoice={selectedInvoiceForPreview}
-        />
-
-        <Dialog open={reassignModalOpen} onOpenChange={setReassignModalOpen}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Reassign Employee</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label>Select New Employee</Label>
-                <Select value={selectedEmployee} onValueChange={setSelectedEmployee}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Choose employee" />
-                  </SelectTrigger>
-                  <SelectContent className="z-50 bg-popover">
-                    {mockEmployees
-                      .filter((emp) => emp.status === "Active")
-                      .map((employee) => (
-                        <SelectItem key={employee.id} value={employee.id}>
-                          {employee.name} - {employee.role}
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => {
-                setReassignModalOpen(false);
-                setSelectedEmployee("");
-                setSelectedInvoiceForReassign(null);
-              }}>
-                Cancel
-              </Button>
-              <Button onClick={handleReassignSubmit}>Reassign</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
       </main>
+
+      <SendEmailModal
+        open={emailModalOpen}
+        onOpenChange={setEmailModalOpen}
+        customerEmail={selectedInvoiceForContact?.customerEmail || ""}
+      />
+
+      <SendSMSModal
+        open={smsModalOpen}
+        onOpenChange={setSmsModalOpen}
+        customerName={selectedInvoiceForContact?.customerName || ""}
+        phoneNumber={selectedInvoiceForContact?.customerPhone || ""}
+      />
+
+      <InvoicePaymentModal
+        open={paymentModalOpen}
+        onOpenChange={setPaymentModalOpen}
+        invoice={selectedInvoiceForPayment}
+      />
+
+      <LinkModulesModal
+        open={linkModalOpen}
+        onOpenChange={setLinkModalOpen}
+        sourceModule="invoice"
+        sourceId={selectedInvoiceForLink?.id || ""}
+        sourceName={selectedInvoiceForLink?.orderId || ""}
+        targetModule={linkTargetModule}
+      />
+
+      <PreviewInvoiceModal
+        open={previewModalOpen}
+        onOpenChange={setPreviewModalOpen}
+        invoice={selectedInvoiceForPreview}
+        onEdit={(invoice) => {
+          navigate(`/invoices/${invoice.id}/edit`);
+        }}
+        onPayNow={(invoice) => {
+          setSelectedInvoiceForPayment(invoice);
+          setPaymentModalOpen(true);
+        }}
+      />
+
+      <Dialog open={reassignModalOpen} onOpenChange={setReassignModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Reassign Employee</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Select New Employee</Label>
+              <Select value={selectedEmployee} onValueChange={setSelectedEmployee}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Choose employee" />
+                </SelectTrigger>
+                <SelectContent>
+                  {mockEmployees
+                    .filter((emp) => emp.status === "Active")
+                    .map((employee) => (
+                      <SelectItem key={employee.id} value={employee.id}>
+                        {employee.name} - {employee.role}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setReassignModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleReassignSubmit}>Reassign</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

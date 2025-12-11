@@ -4,7 +4,7 @@ import { AppHeader } from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Eye, Mail, MessageSquare, DollarSign, Banknote, MapPin, UserCog, FileText, XCircle, MoreVertical, RotateCcw, Edit, History, CalendarRange, RefreshCw } from "lucide-react";
+import { Plus, Eye, Mail, MessageSquare, DollarSign, Banknote, MapPin, UserCog, FileText, XCircle, MoreVertical, RotateCcw, Edit, History, CalendarRange, RefreshCw, Search, StickyNote, Briefcase } from "lucide-react";
 import { mockEstimates, mockEmployees } from "@/data/mockData";
 import { SendEmailModal } from "@/components/modals/SendEmailModal";
 import { SendSMSModal } from "@/components/modals/SendSMSModal";
@@ -12,7 +12,9 @@ import { ShareAddressModal } from "@/components/modals/ShareAddressModal";
 import { PayCashModal } from "@/components/modals/PayCashModal";
 import { InvoicePaymentModal } from "@/components/modals/InvoicePaymentModal";
 import { PreviewEstimateModal } from "@/components/modals/PreviewEstimateModal";
+import { AddNoteModal } from "@/components/modals/AddNoteModal";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -24,6 +26,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -58,30 +68,31 @@ const Estimates = () => {
   const [selectedEstimateForPayment, setSelectedEstimateForPayment] = useState<any>(null);
   const [previewModalOpen, setPreviewModalOpen] = useState(false);
   const [selectedEstimateForPreview, setSelectedEstimateForPreview] = useState<any>(null);
+  const [addNoteModalOpen, setAddNoteModalOpen] = useState(false);
   const { toast } = useToast();
 
   const filteredEstimates = mockEstimates.filter((estimate) => {
-    const matchesActive = activeTab === "active" 
-      ? estimate.isActive 
+    const matchesActive = activeTab === "active"
+      ? estimate.isActive
       : !estimate.isActive;
-    
-    const matchesSearch = 
+
+    const matchesSearch =
       estimate.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
       estimate.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       estimate.employeeName.toLowerCase().includes(searchQuery.toLowerCase());
-    
+
     // Don't apply status filter for deactivated tab
-    const matchesStatus = activeTab === "deactivated" 
+    const matchesStatus = activeTab === "deactivated"
       ? true
-      : (statusFilter === "all" || 
-         (statusFilter === "paid" && estimate.status === "Paid") ||
-         (statusFilter === "open" && estimate.status === "Open"));
-    
+      : (statusFilter === "all" ||
+        (statusFilter === "paid" && estimate.status === "Paid") ||
+        (statusFilter === "open" && estimate.status === "Open"));
+
     const estimateDate = new Date(estimate.createdDate);
-    const matchesDateRange = 
+    const matchesDateRange =
       (!dateRange.from || estimateDate >= dateRange.from) &&
       (!dateRange.to || estimateDate <= dateRange.to);
-    
+
     return matchesActive && matchesSearch && matchesStatus && matchesDateRange;
   });
 
@@ -173,7 +184,34 @@ const Estimates = () => {
     });
   };
 
-  const handleDocHistory = (estimate: any) => {
+  const handleConvertToInvoice = (estimate: any) => {
+    toast({
+      title: "Converting to Invoice",
+      description: `Converting estimate ${estimate.id} to an invoice...`,
+    });
+    navigate("/invoices/new", { state: { estimateData: estimate } });
+  };
+
+  const handleConvertToJob = (estimate: any) => {
+    toast({
+      title: "Converting to Job",
+      description: `Converting estimate ${estimate.id} to a job...`,
+    });
+    // Navigate to job creation with estimate data
+    navigate("/jobs/new", { state: { estimateData: estimate } });
+  };
+
+  const handleAddNote = (estimate: any) => {
+    setSelectedEstimate(estimate);
+    setAddNoteModalOpen(true);
+  };
+
+  const handleCreateNewEstimate = (estimate: any) => {
+    // Navigate to create new estimate, optionally pre-fill with customer data
+    navigate("/estimates/new", { state: { customerData: estimate } });
+  };
+
+  const handleCustomerHistory = (estimate: any) => {
     // Navigate to customer details page
     navigate(`/customers/${estimate.customerId || '1'}`);
   };
@@ -184,9 +222,15 @@ const Estimates = () => {
 
       <main className="px-4 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6 animate-fade-in">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Estimates</h1>
-            <p className="text-sm sm:text-base text-muted-foreground">Manage service estimates and proposals</p>
+          <div className="relative flex-1 w-full sm:max-w-md">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder="Search estimates..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 w-full touch-target"
+            />
           </div>
           <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
             {activeTab !== "deactivated" && (
@@ -264,88 +308,51 @@ const Estimates = () => {
           </div>
         </div>
 
-        <div className="grid gap-4 grid-cols-1 md:grid-cols-3">
-          <Card>
-            <CardHeader>
-              <CardTitle>Total Estimates</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {mockEstimates.length}
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Active Estimates</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-green-500">
-                {mockEstimates.filter((estimate) => estimate.isActive).length}
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Pending Estimates</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-orange-500">
-                {mockEstimates.filter((estimate) => estimate.status === "Open").length}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
           <TabsList>
             <TabsTrigger value="active">Active</TabsTrigger>
             <TabsTrigger value="deactivated">Deactivated</TabsTrigger>
           </TabsList>
-          
+
           <TabsContent value="active" className="space-y-4">
             {filteredEstimates.length === 0 ? (
               <Card className="p-8 text-center">
                 <p className="text-muted-foreground">No active estimates found</p>
               </Card>
             ) : (
-              <div className="space-y-4">
-                {filteredEstimates.map((estimate) => (
-                  <Card key={estimate.id} className="shadow-sm hover:shadow-md transition-shadow">
-                    <CardContent className="p-6">
-                      <div className="grid grid-cols-1 md:grid-cols-7 gap-4 items-center">
-                        <div>
-                          <p className="text-sm text-muted-foreground">Created Date</p>
-                          <p className="font-medium">{estimate.createdDate}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-muted-foreground">Job ID</p>
-                          <p className="font-medium">{estimate.id}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-muted-foreground">Customer Name</p>
-                          <p className="font-medium">{estimate.customerName}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-muted-foreground">Employee Name</p>
-                          <p className="font-medium">{estimate.employeeName}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-muted-foreground">Amount</p>
-                          <p className="font-medium text-lg">${estimate.amount.toLocaleString()}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-muted-foreground">Sync</p>
+              <div className="rounded-md border bg-white">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Created Date</TableHead>
+                      <TableHead>Job ID</TableHead>
+                      <TableHead>Customer Name</TableHead>
+                      <TableHead>Employee Name</TableHead>
+                      <TableHead>Amount</TableHead>
+                      <TableHead>Sync</TableHead>
+                      <TableHead className="text-right">Status</TableHead>
+                      <TableHead className="w-[50px]"></TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredEstimates.map((estimate) => (
+                      <TableRow key={estimate.id} className="hover:bg-muted/50">
+                        <TableCell className="font-medium">{estimate.createdDate}</TableCell>
+                        <TableCell className="font-medium">{estimate.id}</TableCell>
+                        <TableCell className="font-medium">{estimate.customerName}</TableCell>
+                        <TableCell className="font-medium">{estimate.employeeName}</TableCell>
+                        <TableCell className="font-medium text-lg">${estimate.amount.toLocaleString()}</TableCell>
+                        <TableCell>
                           <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
                             <RefreshCw className="h-4 w-4" />
                           </Button>
-                        </div>
-                        <div className="flex items-center justify-between gap-2">
+                        </TableCell>
+                        <TableCell className="text-right">
                           <Badge className={getStatusColor(estimate.status)} variant="outline">
                             {estimate.status.toUpperCase()}
                           </Badge>
+                        </TableCell>
+                        <TableCell>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                               <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -357,9 +364,17 @@ const Estimates = () => {
                                 <Eye className="mr-2 h-4 w-4" />
                                 Preview Estimate
                               </DropdownMenuItem>
-                              
+
                               {estimate.status === "Open" && (
                                 <>
+                                  <DropdownMenuItem onClick={() => handlePayEstimate(estimate)}>
+                                    <DollarSign className="mr-2 h-4 w-4" />
+                                    Pay Now
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => handlePayCash(estimate)}>
+                                    <Banknote className="mr-2 h-4 w-4" />
+                                    Pay Cash
+                                  </DropdownMenuItem>
                                   <DropdownMenuItem onClick={() => handleSendEmail(estimate)}>
                                     <Mail className="mr-2 h-4 w-4" />
                                     Send Email
@@ -372,14 +387,6 @@ const Estimates = () => {
                                     <Edit className="mr-2 h-4 w-4" />
                                     Edit Estimate
                                   </DropdownMenuItem>
-                                  <DropdownMenuItem onClick={() => handlePayEstimate(estimate)}>
-                                    <DollarSign className="mr-2 h-4 w-4" />
-                                    Pay Estimate
-                                  </DropdownMenuItem>
-                                  <DropdownMenuItem onClick={() => handlePayCash(estimate)}>
-                                    <Banknote className="mr-2 h-4 w-4" />
-                                    Pay Cash
-                                  </DropdownMenuItem>
                                   <DropdownMenuItem onClick={() => handleShareAddress(estimate)}>
                                     <MapPin className="mr-2 h-4 w-4" />
                                     Share Job Address
@@ -388,9 +395,13 @@ const Estimates = () => {
                                     <UserCog className="mr-2 h-4 w-4" />
                                     Reassign Employee
                                   </DropdownMenuItem>
-                                  <DropdownMenuItem onClick={() => handleDocHistory(estimate)}>
+                                  <DropdownMenuItem onClick={() => handleCustomerHistory(estimate)}>
                                     <History className="mr-2 h-4 w-4" />
-                                    Doc History
+                                    Customer History
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => handleConvertToInvoice(estimate)}>
+                                    <FileText className="mr-2 h-4 w-4" />
+                                    Convert to Invoice
                                   </DropdownMenuItem>
                                   <DropdownMenuItem onClick={() => handleDeactivate(estimate)}>
                                     <XCircle className="mr-2 h-4 w-4" />
@@ -398,62 +409,83 @@ const Estimates = () => {
                                   </DropdownMenuItem>
                                 </>
                               )}
-                              
+
                               {estimate.status === "Paid" && (
-                                <DropdownMenuItem onClick={() => handleRefund(estimate)}>
-                                  <RotateCcw className="mr-2 h-4 w-4" />
-                                  Refund
-                                </DropdownMenuItem>
+                                <>
+                                  <DropdownMenuItem onClick={() => handleConvertToJob(estimate)}>
+                                    <Briefcase className="mr-2 h-4 w-4" />
+                                    Convert to Job
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => handleSendEmail(estimate)}>
+                                    <Mail className="mr-2 h-4 w-4" />
+                                    Send Email
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => handleSendSMS(estimate)}>
+                                    <MessageSquare className="mr-2 h-4 w-4" />
+                                    Send SMS
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => handleAddNote(estimate)}>
+                                    <StickyNote className="mr-2 h-4 w-4" />
+                                    Add Note
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => handleReassign(estimate)}>
+                                    <UserCog className="mr-2 h-4 w-4" />
+                                    Reassign Employee
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => handleRefund(estimate)}>
+                                    <RotateCcw className="mr-2 h-4 w-4" />
+                                    Refund
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => handleCreateNewEstimate(estimate)}>
+                                    <FileText className="mr-2 h-4 w-4" />
+                                    Create New Estimate
+                                  </DropdownMenuItem>
+                                </>
                               )}
                             </DropdownMenuContent>
                           </DropdownMenu>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
               </div>
             )}
           </TabsContent>
-          
+
           <TabsContent value="deactivated" className="space-y-4">
             {filteredEstimates.length === 0 ? (
               <Card className="p-8 text-center">
                 <p className="text-muted-foreground">No deactivated estimates found</p>
               </Card>
             ) : (
-              <div className="space-y-4">
-                {filteredEstimates.map((estimate) => (
-                  <Card key={estimate.id} className="shadow-sm hover:shadow-md transition-shadow opacity-75">
-                    <CardContent className="p-6">
-                      <div className="grid grid-cols-1 md:grid-cols-7 gap-4 items-center">
-                        <div>
-                          <p className="text-sm text-muted-foreground">Created Date</p>
-                          <p className="font-medium">{estimate.createdDate}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-muted-foreground">Job ID</p>
-                          <p className="font-medium">{estimate.id}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-muted-foreground">Customer Name</p>
-                          <p className="font-medium">{estimate.customerName}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-muted-foreground">Employee Name</p>
-                          <p className="font-medium">{estimate.employeeName}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-muted-foreground">Amount</p>
-                          <p className="font-medium text-lg">${estimate.amount.toLocaleString()}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-muted-foreground">Sync</p>
+              <div className="rounded-md border bg-white">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Created Date</TableHead>
+                      <TableHead>Job ID</TableHead>
+                      <TableHead>Customer Name</TableHead>
+                      <TableHead>Employee Name</TableHead>
+                      <TableHead>Amount</TableHead>
+                      <TableHead>Sync</TableHead>
+                      <TableHead className="text-right">Action</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredEstimates.map((estimate) => (
+                      <TableRow key={estimate.id} className="hover:bg-muted/50 opacity-75">
+                        <TableCell className="font-medium">{estimate.createdDate}</TableCell>
+                        <TableCell className="font-medium">{estimate.id}</TableCell>
+                        <TableCell className="font-medium">{estimate.customerName}</TableCell>
+                        <TableCell className="font-medium">{estimate.employeeName}</TableCell>
+                        <TableCell className="font-medium text-lg">${estimate.amount.toLocaleString()}</TableCell>
+                        <TableCell>
                           <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
                             <RefreshCw className="h-4 w-4" />
                           </Button>
-                        </div>
-                        <div className="flex items-center justify-end gap-2">
+                        </TableCell>
+                        <TableCell className="text-right">
                           <Button
                             variant="outline"
                             size="sm"
@@ -461,11 +493,11 @@ const Estimates = () => {
                           >
                             Activate
                           </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
               </div>
             )}
           </TabsContent>
@@ -497,6 +529,7 @@ const Estimates = () => {
         onOpenChange={setPayCashModalOpen}
         orderAmount={selectedEstimate?.amount || 0}
         orderId={selectedEstimate?.id || ""}
+        entityType="estimate"
       />
 
 
@@ -504,6 +537,13 @@ const Estimates = () => {
         open={paymentModalOpen}
         onOpenChange={setPaymentModalOpen}
         invoice={selectedEstimateForPayment}
+        source="estimate"
+      />
+
+      <AddNoteModal
+        open={addNoteModalOpen}
+        onOpenChange={setAddNoteModalOpen}
+        appointmentId={selectedEstimate?.id || ""}
       />
 
       <PreviewEstimateModal

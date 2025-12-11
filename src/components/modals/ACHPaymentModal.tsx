@@ -5,19 +5,30 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
+import { useNotifications } from "@/contexts/NotificationContext";
 
 interface ACHPaymentModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   totalAmount: number;
   onPaymentComplete?: () => void;
+  entityType?: "invoice" | "estimate" | "agreement";
+  entityId?: string;
 }
 
-export const ACHPaymentModal = ({ open, onOpenChange, totalAmount, onPaymentComplete }: ACHPaymentModalProps) => {
+export const ACHPaymentModal = ({ 
+  open, 
+  onOpenChange, 
+  totalAmount, 
+  onPaymentComplete,
+  entityType = "invoice",
+  entityId = "",
+}: ACHPaymentModalProps) => {
   const [routingNumber, setRoutingNumber] = useState("");
   const [accountNumber, setAccountNumber] = useState("");
   const [nameOnCheck, setNameOnCheck] = useState("");
   const [authorized, setAuthorized] = useState(false);
+  const { addNotification } = useNotifications();
 
   const handlePayNow = () => {
     if (!authorized) {
@@ -28,6 +39,17 @@ export const ACHPaymentModal = ({ open, onOpenChange, totalAmount, onPaymentComp
       toast.error("Please fill in all account details");
       return;
     }
+    // Add payment notification
+    if (entityId) {
+      const entityTypeLabel = entityType.charAt(0).toUpperCase() + entityType.slice(1);
+      addNotification({
+        entityType,
+        entityId,
+        message: `Payment received against ${entityTypeLabel}`,
+        action: "convertToJob",
+      });
+    }
+
     toast.success("ACH payment processed successfully");
     onOpenChange(false);
     onPaymentComplete?.();

@@ -45,18 +45,49 @@ import SignUp from "./pages/SignUp";
 import Walkthrough from "./pages/Walkthrough";
 import NotFound from "./pages/NotFound";
 import { AIChatWidget } from "./components/AIChatWidget";
+<<<<<<< HEAD
+=======
+
+import { useIsTablet } from "./hooks/use-tablet";
+import { useIsMobile } from "./hooks/use-mobile";
+>>>>>>> 364b4fc (feat: Refactor navigation to sidebar, implement table view for estimates, and add convert to invoice option)
 
 const queryClient = new QueryClient();
 
 const AppContent = () => {
   const location = useLocation();
   const isAuthPage = ['/signin', '/signup', '/walkthrough'].includes(location.pathname);
+<<<<<<< HEAD
 
   return (
     <div className="flex min-h-screen w-full bg-muted/30">
       {!isAuthPage && <AppSidebar />}
       <div className="flex-1 min-w-0 overflow-hidden">
         {!isAuthPage && <AIChatWidget />}
+=======
+  // Always show bottom navigation, hide sidebar completely
+  const showBottomNav = false;
+  // Sidebar is now disabled - using bottom navigation instead
+  const showSidebar = !isAuthPage;
+  // Only show AI Chat Widget on desktop (when not mobile/tablet)
+  const isTablet = useIsTablet();
+  const isMobile = useIsMobile();
+  const showAIChatWidget = !isAuthPage && !isMobile && !isTablet;
+
+  return (
+    <div
+      className="flex min-h-screen w-full bg-muted/30"
+      data-tablet={isTablet}
+      data-mobile={isMobile}
+    >
+      {/* Sidebar: Disabled - Using bottom navigation instead */}
+      {showSidebar && <AppSidebar />}
+      <div className={cn(
+        "flex-1 min-w-0 overflow-hidden",
+        showBottomNav && "pb-16"
+      )}>
+        {showAIChatWidget && <AIChatWidget />}
+>>>>>>> 364b4fc (feat: Refactor navigation to sidebar, implement table view for estimates, and add convert to invoice option)
         <Routes>
           <Route path="/signin" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
@@ -103,6 +134,10 @@ const AppContent = () => {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
+<<<<<<< HEAD
+=======
+
+>>>>>>> 364b4fc (feat: Refactor navigation to sidebar, implement table view for estimates, and add convert to invoice option)
     </div>
   );
 };

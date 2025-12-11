@@ -2,12 +2,13 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AppHeader } from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { Plus, FileText, Calendar as CalendarIcon, Eye, Mail, MessageSquare, Edit, DollarSign, Wallet, CalendarRange, Percent } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Plus, PlusCircle, FileText, Calendar as CalendarIcon, Eye, Mail, MessageSquare, Edit, DollarSign, Wallet, CalendarRange, Percent, Search, MoreVertical, Briefcase } from "lucide-react";
 import { mockAgreements } from "@/data/mockData";
 import { SendEmailModal } from "@/components/modals/SendEmailModal";
 import { SendSMSModal } from "@/components/modals/SendSMSModal";
@@ -23,7 +24,6 @@ import { cn } from "@/lib/utils";
 const Agreements = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeTab, setActiveTab] = useState("all");
   const [dateRange, setDateRange] = useState<{ from: Date | undefined; to: Date | undefined }>({
     from: undefined,
     to: undefined,
@@ -48,14 +48,12 @@ const Agreements = () => {
       agreement.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       agreement.title.toLowerCase().includes(searchQuery.toLowerCase());
     
-    const matchesTab = activeTab === "all" || agreement.status === activeTab;
-    
     const agreementDate = new Date(agreement.startDate);
     const matchesDateRange = 
       (!dateRange.from || agreementDate >= dateRange.from) &&
       (!dateRange.to || agreementDate <= dateRange.to);
     
-    return matchesSearch && matchesTab && matchesDateRange;
+    return matchesSearch && matchesDateRange;
   });
 
   const getStatusColor = (status: string) => {
@@ -106,6 +104,14 @@ const Agreements = () => {
     setLinkModalOpen(true);
   };
 
+  const handleConvertToJob = (agreement: any) => {
+    navigate("/jobs/new", { state: { agreementData: agreement } });
+  };
+
+  const handleCreateNewAgreement = () => {
+    navigate("/agreements/new");
+  };
+
   const handlePayNow = (agreement: any) => {
     setSelectedAgreementForSign(agreement);
     setSelectedAgreementForPayment(agreement);
@@ -121,15 +127,21 @@ const Agreements = () => {
       <AppHeader searchPlaceholder="Search agreements..." onSearchChange={setSearchQuery} />
 
       <main className="px-6 py-6 space-y-6 animate-fade-in">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">Agreements</h1>
-            <p className="text-muted-foreground">Manage service contracts and agreements</p>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="relative flex-1 w-full sm:max-w-md">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder="Search agreements..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 w-full touch-target"
+            />
           </div>
-          <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="outline" className="gap-2">
+                <Button variant="outline" className="gap-2 w-full sm:w-auto">
                   <CalendarRange className="h-4 w-4" />
                   {dateRange.from ? (
                     dateRange.to ? (
@@ -181,162 +193,171 @@ const Agreements = () => {
             <Button 
               variant="outline" 
               onClick={() => navigate("/agreements/minimum-deposit")} 
-              className="gap-2"
+              className="gap-2 w-full sm:w-auto"
             >
               <Percent className="h-5 w-5" />
               Minimum Deposit
             </Button>
-            <Button className="gap-2" onClick={() => navigate("/agreements/new")}>
+            <Button className="gap-2 w-full sm:w-auto" onClick={() => navigate("/agreements/new")}>
               <Plus className="h-5 w-5" />
               New Agreement
             </Button>
           </div>
         </div>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList>
-            <TabsTrigger value="all">All</TabsTrigger>
-            <TabsTrigger value="Paid">Paid</TabsTrigger>
-            <TabsTrigger value="Open">Open</TabsTrigger>
-          </TabsList>
+        <div className="space-y-4">
+          {filteredAgreements.map((agreement) => (
+            <Card
+              key={agreement.id}
+              className="border rounded-lg shadow-sm hover:shadow-md transition cursor-pointer"
+              onClick={() => navigate(`/agreements/${agreement.id}`)}
+            >
+              <div className="flex items-start justify-between gap-4 p-4">
+                {/* Left block */}
+                <div className="flex-1 min-w-0 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <p className="text-base font-semibold text-foreground truncate">{agreement.title}</p>
+                    <Badge className={getStatusColor(agreement.status)} variant="outline">
+                      {agreement.status}
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-muted-foreground truncate">{agreement.customerName}</p>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <CalendarIcon className="h-4 w-4" />
+                    <span>
+                      {new Date(agreement.startDate).toLocaleDateString()} – {new Date(agreement.endDate).toLocaleDateString()}
+                    </span>
+                  </div>
+                </div>
 
-          <TabsContent value={activeTab} className="mt-6">
+                {/* Right block */}
+                <div className="flex items-center gap-3 flex-shrink-0">
+                  <div className="text-right">
+                    <p className="text-lg font-semibold text-foreground">
+                      ${agreement.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </p>
+                    <p className="text-xs text-muted-foreground">per month</p>
+                  </div>
 
-            <div className="grid gap-4">
-              {filteredAgreements.map((agreement) => (
-                <Card key={agreement.id} className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-                  <CardHeader className="pb-4 bg-gradient-to-r from-card to-success/5">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <CardTitle className="text-xl mb-1">{agreement.title}</CardTitle>
-                        <p className="text-sm text-muted-foreground">
-                          {agreement.id} • {agreement.customerName}
-                        </p>
-                      </div>
-                      <div className="flex gap-2">
-                        <Badge variant="outline" className="border-border">{agreement.type}</Badge>
-                        <Badge className={getStatusColor(agreement.status)} variant="outline">{agreement.status}</Badge>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-4 pt-4">
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
-                      <div className="bg-muted/30 p-3 rounded-lg">
-                        <p className="text-muted-foreground text-xs flex items-center gap-1">
-                          <CalendarIcon className="h-3 w-3" />
-                          Start Date
-                        </p>
-                        <p className="font-medium mt-1">{new Date(agreement.startDate).toLocaleDateString()}</p>
-                      </div>
-                      <div className="bg-muted/30 p-3 rounded-lg">
-                        <p className="text-muted-foreground text-xs flex items-center gap-1">
-                          <CalendarIcon className="h-3 w-3" />
-                          End Date
-                        </p>
-                        <p className="font-medium mt-1">{new Date(agreement.endDate).toLocaleDateString()}</p>
-                      </div>
-                      <div className="bg-primary/5 p-3 rounded-lg border border-primary/20">
-                        <p className="text-primary text-xs">Annual Value</p>
-                        <p className="text-2xl font-bold text-primary">${agreement.amount.toLocaleString()}</p>
-                      </div>
-                    </div>
+                  {agreement.status === "Open" && (
+                    <Button
+                      className="h-9 px-3 bg-[#F97316] hover:bg-[#F97316]/90 text-white text-sm font-medium rounded-full"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handlePayNow(agreement);
+                      }}
+                    >
+                      Pay
+                    </Button>
+                  )}
 
-                    <div className="border-t pt-4 bg-muted/10 -mx-6 px-6 py-3 rounded-b-lg">
-                      <p className="text-sm font-medium mb-2 flex items-center gap-2">
-                        <FileText className="h-4 w-4" />
-                        Notes:
-                      </p>
-                      <div className="bg-card p-4 rounded-lg border border-border/50 text-sm">
-                        {agreement.terms}
-                      </div>
-                    </div>
-
-                    <div className="flex flex-wrap gap-2 pt-2">
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="gap-2 hover:bg-primary/5 hover:text-primary hover:border-primary"
-                        onClick={() => {
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-9 w-9">
+                        <MoreVertical className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-52 bg-popover">
+                      {/* Shared: Preview */}
+                      <DropdownMenuItem
+                        onClick={(e) => {
+                          e.stopPropagation();
                           setSelectedAgreementForPreview(agreement);
                           setPreviewModalOpen(true);
                         }}
                       >
-                        <Eye className="h-4 w-4" />
-                        Preview Agreement
-                      </Button>
-                      
-                      {agreement.status === "Open" && (
+                        <Eye className="mr-2 h-4 w-4" />
+                        Preview
+                      </DropdownMenuItem>
+
+                      {agreement.status === "Paid" && (
                         <>
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            className="gap-2"
-                            onClick={() => handleSendEmail(agreement)}
+                          <DropdownMenuItem
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleConvertToJob(agreement);
+                            }}
                           >
-                            <Mail className="h-4 w-4" />
-                            Send Email
-                          </Button>
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            className="gap-2"
-                            onClick={() => handleSendSMS(agreement)}
+                            <Briefcase className="mr-2 h-4 w-4" />
+                            Convert to Job
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleCreateNewAgreement();
+                            }}
                           >
-                            <MessageSquare className="h-4 w-4" />
-                            Send SMS
-                          </Button>
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            className="gap-2"
-                            onClick={() => handleUpdateAgreement(agreement)}
-                          >
-                            <Edit className="h-4 w-4" />
-                            Update Agreement
-                          </Button>
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            className="gap-2"
-                            onClick={() => handleLinkModule(agreement, "estimate")}
-                          >
-                            <FileText className="h-4 w-4" />
-                            Link Estimate
-                          </Button>
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            className="gap-2"
-                            onClick={() => handleLinkModule(agreement, "invoice")}
-                          >
-                            <DollarSign className="h-4 w-4" />
-                            Link Invoice
-                          </Button>
-                          <Button 
-                            size="sm" 
-                            className="gap-2"
-                            onClick={() => handlePayNow(agreement)}
-                          >
-                            <DollarSign className="h-4 w-4" />
-                            Pay Now
-                          </Button>
-                          <Button 
-                            size="sm" 
-                            className="gap-2"
-                            onClick={() => handlePayCash(agreement)}
-                          >
-                            <Wallet className="h-4 w-4" />
-                            Pay Cash
-                          </Button>
+                            <PlusCircle className="mr-2 h-4 w-4" />
+                            Create New Agreement
+                          </DropdownMenuItem>
                         </>
                       )}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </TabsContent>
-        </Tabs>
+
+                      {agreement.status === "Open" && (
+                        <>
+                          <DropdownMenuItem
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleConvertToJob(agreement);
+                            }}
+                          >
+                            <Briefcase className="mr-2 h-4 w-4" />
+                            Convert to Job
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handlePayNow(agreement);
+                            }}
+                          >
+                            <DollarSign className="mr-2 h-4 w-4" />
+                            Pay Now
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handlePayCash(agreement);
+                            }}
+                          >
+                            <Wallet className="mr-2 h-4 w-4" />
+                            Pay Cash
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleSendEmail(agreement);
+                            }}
+                          >
+                            <Mail className="mr-2 h-4 w-4" />
+                            Send Email
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleSendSMS(agreement);
+                            }}
+                          >
+                            <MessageSquare className="mr-2 h-4 w-4" />
+                            Send SMS
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleUpdateAgreement(agreement);
+                            }}
+                          >
+                            <Edit className="mr-2 h-4 w-4" />
+                            Edit Agreement
+                          </DropdownMenuItem>
+                        </>
+                      )}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
       </main>
 
       <SendEmailModal
@@ -355,6 +376,7 @@ const Agreements = () => {
         onOpenChange={setPayCashOpen}
         orderAmount={selectedAgreement?.amount || 0}
         orderId={selectedAgreement?.id || ""}
+        entityType="agreement"
         onPaymentComplete={handlePaymentComplete}
       />
       <LinkModulesModal

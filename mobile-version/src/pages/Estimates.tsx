@@ -65,8 +65,8 @@ const Estimates = () => {
       case "reassign":
         toast.success("Employee reassigned");
         break;
-      case "doc-history":
-        toast.success("Opening document history...");
+      case "customer-history":
+        toast.success("Opening customer history...");
         break;
       case "deactivate":
         toast.success("Estimate deactivated");
@@ -168,9 +168,9 @@ const Estimates = () => {
                               <UserCog className="h-4 w-4 mr-2" />
                               Reassign employee
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleMenuAction("doc-history", estimate.id)}>
+                            <DropdownMenuItem onClick={() => handleMenuAction("customer-history", estimate.id)}>
                               <History className="h-4 w-4 mr-2" />
-                              Doc history
+                              Customer history
                             </DropdownMenuItem>
                             <DropdownMenuItem 
                               onClick={() => handleMenuAction("deactivate", estimate.id)}
