@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -109,26 +109,11 @@ export function InventoryFormModal({ open, onOpenChange, mode, inventory, onInve
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto p-0 rounded-xl overflow-hidden">
-        <DialogHeader className="bg-[#F46A1F] text-white p-6 pb-4">
-          <DialogDescription className="sr-only">
-            {mode === "create" ? "Add a new inventory item" : "Update inventory item"}
-          </DialogDescription>
-          <div className="flex items-center justify-between">
-            <DialogTitle className="text-xl md:text-2xl font-bold text-white">
-              {mode === "create" ? "Add Inventory" : "Update Inventory"}
-            </DialogTitle>
-            <button
-              onClick={() => onOpenChange(false)}
-              className="h-10 w-10 flex items-center justify-center rounded-full hover:bg-orange-600 transition-colors"
-              aria-label="Close"
-            >
-              <X className="h-5 w-5 text-white" />
-            </button>
-          </div>
+      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="text-2xl font-bold">{mode === "create" ? "Add Inventory" : "Update Inventory"}</DialogTitle>
         </DialogHeader>
-        <div className="p-6">
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 py-4">
           <div>
             <Label htmlFor="name">Inventory Name *</Label>
             <Input
@@ -259,12 +244,11 @@ export function InventoryFormModal({ open, onOpenChange, mode, inventory, onInve
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="flex-1 touch-target">
               Cancel
             </Button>
-            <Button type="submit" className="flex-1 touch-target bg-[#F46A1F] hover:bg-[#F46A1F]/90 text-white">
+            <Button type="submit" className="flex-1 touch-target">
               Save
             </Button>
           </div>
         </form>
-        </div>
       </DialogContent>
     </Dialog>
   );

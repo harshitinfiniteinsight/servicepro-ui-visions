@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowLeft, Zap, Wifi, MoreVertical, CreditCard, DollarSign, RefreshCw, Building2, X } from "lucide-react";
@@ -44,10 +44,6 @@ export const AgreementPaymentModal = ({ open, onOpenChange, agreement }: Agreeme
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md p-0 max-h-[90vh] overflow-y-auto">
-        <DialogHeader className="sr-only">
-          <DialogTitle>Service Pro911 - Payment</DialogTitle>
-          <DialogDescription>Process payment for agreement</DialogDescription>
-        </DialogHeader>
         {/* Header */}
         <div className="bg-orange-500 text-white px-4 py-4 flex items-center gap-3">
           <Button

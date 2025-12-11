@@ -118,7 +118,7 @@ const Agreements = () => {
 
   return (
     <div className="flex-1">
-      <AppHeader searchPlaceholder="Search agreements..." onSearchChange={setSearchQuery} title="Agreements" />
+      <AppHeader searchPlaceholder="Search agreements..." onSearchChange={setSearchQuery} />
 
       <main className="px-6 py-6 space-y-6 animate-fade-in">
         <div className="flex items-center justify-between">

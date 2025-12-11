@@ -1,9 +1,9 @@
 import { useState, useRef } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Upload, X } from "lucide-react";
+import { Upload, Camera, X, DollarSign } from "lucide-react";
 import { toast } from "sonner";
 
 interface AddCustomItemModalProps {
@@ -13,33 +13,29 @@ interface AddCustomItemModalProps {
 }
 
 export function AddCustomItemModal({ open, onOpenChange, onAddItem }: AddCustomItemModalProps) {
-  const [itemName, setItemName] = useState("");
+  const [customItemName, setCustomItemName] = useState("");
   const [price, setPrice] = useState("");
   const [image, setImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>("");
+  const [validationErrors, setValidationErrors] = useState({
+    name: "",
+    price: "",
+  });
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // Validate file type
-      if (!file.type.match(/^image\/(png|jpeg|jpg)$/i)) {
-        toast.error("Please select a PNG or JPG image file");
-        return;
+      if (file.type.startsWith("image/")) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setImage(file);
+          setImagePreview(reader.result as string);
+        };
+        reader.readAsDataURL(file);
+      } else {
+        toast.error("Please select a valid image file");
       }
-      
-      // Validate file size (10MB)
-      if (file.size > 10 * 1024 * 1024) {
-        toast.error("Image size must be less than 10MB");
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImage(file);
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
     }
   };
 
@@ -51,35 +47,38 @@ export function AddCustomItemModal({ open, onOpenChange, onAddItem }: AddCustomI
     }
   };
 
-  const generateUUID = () => {
-    return `custom-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-  };
+  const handleCreate = () => {
+    // Reset validation errors
+    setValidationErrors({ name: "", price: "" });
 
-  const handleAddItem = () => {
     // Validation
-    if (!itemName.trim()) {
-      toast.error("Item Name is required");
-      return;
+    let hasErrors = false;
+
+    if (!customItemName.trim()) {
+      setValidationErrors((prev) => ({ ...prev, name: "Custom Item Name is required" }));
+      hasErrors = true;
     }
 
-    const priceValue = parseFloat(price);
+    const priceValue = parseFloat(price.replace(/[^0-9.]/g, ""));
     if (!price || isNaN(priceValue) || priceValue <= 0) {
-      toast.error("Price must be a positive number");
+      setValidationErrors((prev) => ({ ...prev, price: "Price must be a positive number" }));
+      hasErrors = true;
+    }
+
+    if (hasErrors) {
       return;
     }
 
-    // Create custom item object
-    const customItem = {
-      id: generateUUID(),
-      name: itemName.trim(),
-      rate: priceValue,
-      type: "F" as const, // Custom items default to Fixed
+    // Add custom item to invoice
+    onAddItem({
+      description: customItemName.trim(),
       quantity: 1,
-      imageUrl: imagePreview || undefined,
-    };
-
-    // Add to selectedItems in Step 2
-    onAddItem(customItem);
+      rate: priceValue,
+      amount: priceValue,
+      type: "custom",
+      image: image,
+      imagePreview: imagePreview,
+    });
 
     // Show success toast
     toast.success("Custom item added successfully!");
@@ -89,49 +88,87 @@ export function AddCustomItemModal({ open, onOpenChange, onAddItem }: AddCustomI
   };
 
   const handleClose = () => {
-    setItemName("");
+    setCustomItemName("");
     setPrice("");
     setImage(null);
     setImagePreview("");
+    setValidationErrors({ name: "", price: "" });
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
     onOpenChange(false);
   };
 
-  const isFormValid = itemName.trim() !== "" && price !== "" && parseFloat(price) > 0;
-
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-full sm:max-w-[600px] md:max-w-[650px] lg:max-w-[700px] max-h-[90vh] overflow-hidden flex flex-col p-0 rounded-xl border shadow-lg">
-        {/* Modal Header */}
-        <DialogHeader className="bg-[#F46A1F] text-white px-6 md:px-8 pt-6 pb-5">
-          <DialogDescription className="sr-only">
-            Create a custom item to add to the invoice
-          </DialogDescription>
-          <div className="flex items-center justify-between">
-            <DialogTitle className="text-xl md:text-2xl font-bold text-white flex-1">
-              Add Custom Item
-            </DialogTitle>
-            <button
-              onClick={handleClose}
-              className="ml-4 h-10 w-10 md:h-11 md:w-11 flex items-center justify-center rounded-full hover:bg-orange-600 transition-colors"
-              aria-label="Close"
-            >
-              <X className="h-5 w-5 md:h-6 md:w-6 text-white" />
-            </button>
-          </div>
+      <DialogContent className="sm:max-w-[600px] md:max-w-[700px] max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="text-2xl md:text-3xl font-bold">Add Custom Item</DialogTitle>
         </DialogHeader>
 
-        {/* Modal Body - Scrollable */}
-        <div className="flex-1 overflow-y-auto px-6 md:px-8 py-6 md:py-8 space-y-6">
-          {/* Item Image (Optional) */}
-          <div className="space-y-2">
-            <Label className="text-sm md:text-[15px] font-medium text-gray-900">
-              Item Image (Optional)
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleCreate();
+          }}
+          className="space-y-6 md:space-y-8 py-4 md:py-6"
+        >
+          {/* Custom Item Name */}
+          <div className="space-y-2 md:space-y-3">
+            <Label htmlFor="customItemName" className="text-sm md:text-base font-semibold">
+              Custom Item Name *
             </Label>
+            <Input
+              id="customItemName"
+              value={customItemName}
+              onChange={(e) => {
+                setCustomItemName(e.target.value);
+                if (validationErrors.name) {
+                  setValidationErrors((prev) => ({ ...prev, name: "" }));
+                }
+              }}
+              placeholder="Enter item name"
+              className={`touch-target text-base md:text-lg h-12 md:h-14 ${validationErrors.name ? "border-destructive" : ""}`}
+              required
+            />
+            {validationErrors.name && (
+              <p className="text-sm md:text-base text-destructive">{validationErrors.name}</p>
+            )}
+          </div>
+
+          {/* Price */}
+          <div className="space-y-2 md:space-y-3">
+            <Label htmlFor="price" className="text-sm md:text-base font-semibold">
+              Price *
+            </Label>
+            <div className="relative">
+              <DollarSign className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 h-5 w-5 md:h-6 md:w-6 text-muted-foreground font-medium" />
+              <Input
+                id="price"
+                type="text"
+                value={price}
+                onChange={(e) => {
+                  const value = e.target.value.replace(/[^0-9.]/g, "");
+                  setPrice(value);
+                  if (validationErrors.price) {
+                    setValidationErrors((prev) => ({ ...prev, price: "" }));
+                  }
+                }}
+                placeholder="0.00"
+                className={`pl-10 md:pl-12 touch-target text-base md:text-lg h-12 md:h-14 ${validationErrors.price ? "border-destructive" : ""}`}
+                required
+              />
+            </div>
+            {validationErrors.price && (
+              <p className="text-sm md:text-base text-destructive">{validationErrors.price}</p>
+            )}
+          </div>
+
+          {/* Upload Image */}
+          <div className="space-y-2 md:space-y-3">
+            <Label className="text-sm md:text-base font-semibold">Upload Image</Label>
             <div
-              className="border-2 border-dashed border-[#D8D8D8] rounded-xl p-6 flex flex-col items-center justify-center bg-white hover:border-primary/50 transition-colors cursor-pointer min-h-[160px] md:min-h-[180px]"
+              className="border-2 border-dashed border-muted rounded-lg p-6 md:p-8 flex flex-col items-center justify-center bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer min-h-[200px] md:min-h-[250px]"
               onClick={() => fileInputRef.current?.click()}
             >
               {imagePreview ? (
@@ -139,94 +176,67 @@ export function AddCustomItemModal({ open, onOpenChange, onAddItem }: AddCustomI
                   <img
                     src={imagePreview}
                     alt="Preview"
-                    className="max-h-[160px] md:max-h-[180px] mx-auto object-contain rounded-lg"
+                    className="max-h-[180px] mx-auto object-contain rounded-lg"
                   />
                   <Button
                     type="button"
-                    variant="ghost"
+                    variant="destructive"
                     size="icon"
-                    className="absolute top-2 right-2 h-8 w-8 bg-white hover:bg-gray-100 rounded-full shadow-sm"
+                    className="absolute top-2 right-2 h-8 w-8"
                     onClick={(e) => {
                       e.stopPropagation();
                       handleRemoveImage();
                     }}
                   >
-                    <X className="h-4 w-4 text-gray-600" />
+                    <X className="h-4 w-4" />
                   </Button>
                 </div>
               ) : (
-                <div className="flex flex-col items-center gap-2">
-                  <Upload className="h-8 w-8 md:h-10 md:w-10 text-gray-400" />
-                  <p className="text-sm md:text-base text-gray-600 font-medium">
-                    Click to upload image
+                <>
+                  <div className="relative mb-4">
+                    <Camera className="h-16 w-16 text-muted-foreground" />
+                    <div className="absolute -top-2 -right-2 bg-primary rounded-full p-2">
+                      <Upload className="h-5 w-5 text-primary-foreground" />
+                    </div>
+                  </div>
+                  <p className="text-sm text-muted-foreground text-center">
+                    Click to upload or drag and drop
                   </p>
-                  <p className="text-xs md:text-sm text-gray-500">
+                  <p className="text-xs text-muted-foreground mt-1">
                     PNG, JPG up to 10MB
                   </p>
-                </div>
+                </>
               )}
             </div>
             <input
               ref={fileInputRef}
               type="file"
-              accept="image/png,image/jpeg,image/jpg"
+              accept="image/*"
               onChange={handleImageChange}
               className="hidden"
             />
           </div>
 
-          {/* Item Name */}
-          <div className="space-y-2">
-            <Label htmlFor="itemName" className="text-sm md:text-[15px] font-medium text-gray-900">
-              Item Name
-            </Label>
-            <Input
-              id="itemName"
-              value={itemName}
-              onChange={(e) => setItemName(e.target.value)}
-              placeholder="Enter item name"
-              className="h-11 md:h-12 rounded-xl border-2 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-sm md:text-[15px]"
-              required
-            />
+          {/* Action Buttons */}
+          <div className="flex justify-end gap-3 md:gap-4 pt-4 md:pt-6">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleClose}
+              className="touch-target min-w-[100px] md:min-w-[120px] h-12 md:h-14 text-base md:text-lg"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              className="touch-target min-w-[100px] md:min-w-[120px] h-12 md:h-14 text-base md:text-lg"
+            >
+              Add
+            </Button>
           </div>
-
-          {/* Price */}
-          <div className="space-y-2">
-            <Label htmlFor="price" className="text-sm md:text-[15px] font-medium text-gray-900">
-              Price
-            </Label>
-            <Input
-              id="price"
-              type="number"
-              value={price}
-              onChange={(e) => {
-                const value = e.target.value;
-                // Only allow positive numbers
-                if (value === "" || (parseFloat(value) >= 0 && !isNaN(parseFloat(value)))) {
-                  setPrice(value);
-                }
-              }}
-              placeholder="0.00"
-              min="0"
-              step="0.01"
-              className="h-11 md:h-12 rounded-xl border-2 border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-sm md:text-[15px]"
-              required
-            />
-          </div>
-        </div>
-
-        {/* Footer - Add Item Button */}
-        <div className="px-6 md:px-8 pb-6 md:pb-8 pt-4 border-t">
-          <Button
-            type="button"
-            onClick={handleAddItem}
-            disabled={!isFormValid}
-            className="w-full h-[52px] md:h-[56px] rounded-xl bg-primary hover:bg-primary/90 text-white font-semibold text-base md:text-[16px] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-          >
-            Add Item
-          </Button>
-        </div>
+        </form>
       </DialogContent>
     </Dialog>
   );
 }
+

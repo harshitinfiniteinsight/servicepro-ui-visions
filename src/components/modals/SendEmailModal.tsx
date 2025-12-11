@@ -4,12 +4,10 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { X } from "lucide-react";
 
 interface SendEmailModalProps {
   open: boolean;
@@ -38,21 +36,19 @@ export const SendEmailModal = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] p-0 bg-white rounded-xl overflow-hidden">
-        {/* Header with orange background */}
-        <DialogHeader className="bg-[#F46A1F] text-white p-6 pb-4">
-          <DialogDescription className="sr-only">
-            Send email to customer
-          </DialogDescription>
+      <DialogContent className="sm:max-w-[500px] p-0 bg-white">
+        {/* Header with teal background */}
+        <DialogHeader className="bg-teal-600 text-white p-6 pb-4">
           <div className="flex items-center justify-between">
             <DialogTitle className="text-2xl font-bold text-white">Send email</DialogTitle>
-            <button
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={() => onOpenChange(false)}
-              className="h-10 w-10 flex items-center justify-center rounded-full hover:bg-orange-600 transition-colors"
-              aria-label="Close"
+              className="text-white hover:bg-teal-700 h-10 w-auto px-4 rounded-md"
             >
-              <X className="h-5 w-5 text-white" />
-            </button>
+              <span className="text-lg font-semibold">Close</span>
+            </Button>
           </div>
         </DialogHeader>
 
@@ -65,13 +61,13 @@ export const SendEmailModal = ({
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="customer@example.com"
-              className="border-0 border-b-2 border-gray-300 rounded-none px-0 focus-visible:ring-0 focus-visible:border-[#F46A1F] text-gray-900 font-medium"
+              className="border-0 border-b-2 border-gray-300 rounded-none px-0 focus-visible:ring-0 focus-visible:border-teal-600 text-teal-600 font-medium"
             />
           </div>
 
           <Button 
             onClick={handleSend} 
-            className="w-full bg-[#F46A1F] hover:bg-[#F46A1F]/90 text-white font-semibold py-2 rounded-xl"
+            className="w-full border-2 border-teal-600 text-teal-600 bg-white hover:bg-teal-50 font-semibold py-2"
           >
             SEND
           </Button>

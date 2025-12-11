@@ -4,17 +4,15 @@ import { AppHeader } from "@/components/AppHeader";
 import { SendEmailModal } from "@/components/modals/SendEmailModal";
 import { SendSMSModal } from "@/components/modals/SendSMSModal";
 import { InvoicePaymentModal } from "@/components/modals/InvoicePaymentModal";
-import { PayCashModal } from "@/components/modals/PayCashModal";
+import { LinkModulesModal } from "@/components/modals/LinkModulesModal";
 import { PreviewInvoiceModal } from "@/components/modals/PreviewInvoiceModal";
-import { InvoiceDueAlertModal } from "@/components/modals/InvoiceDueAlertModal";
-import { AddNoteModal } from "@/components/modals/AddNoteModal";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Plus, Eye, Mail, MessageSquare, Edit, UserCog, FileText, CreditCard, Banknote, MoreVertical, Trash2, Check, X, CheckCircle2, Bell, RotateCcw, Briefcase, StickyNote, Copy } from "lucide-react";
+import { Plus, Eye, Mail, MessageSquare, Edit, UserCog, FileText, CreditCard, Banknote, MoreVertical, Trash2, Check, X, CheckCircle2, Bell, Settings, FileCheck, RotateCcw } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
@@ -33,16 +31,14 @@ const Invoices = () => {
   const [selectedInvoiceForContact, setSelectedInvoiceForContact] = useState<any>(null);
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const [selectedInvoiceForPayment, setSelectedInvoiceForPayment] = useState<any>(null);
-  const [payCashModalOpen, setPayCashModalOpen] = useState(false);
-  const [selectedInvoiceForPayCash, setSelectedInvoiceForPayCash] = useState<any>(null);
+  const [linkModalOpen, setLinkModalOpen] = useState(false);
+  const [linkTargetModule, setLinkTargetModule] = useState<"estimate" | "agreement">("estimate");
+  const [selectedInvoiceForLink, setSelectedInvoiceForLink] = useState<any>(null);
   const [previewModalOpen, setPreviewModalOpen] = useState(false);
   const [selectedInvoiceForPreview, setSelectedInvoiceForPreview] = useState<any>(null);
   const [reassignModalOpen, setReassignModalOpen] = useState(false);
   const [selectedInvoiceForReassign, setSelectedInvoiceForReassign] = useState<any>(null);
   const [selectedEmployee, setSelectedEmployee] = useState("");
-  const [dueAlertModalOpen, setDueAlertModalOpen] = useState(false);
-  const [noteModalOpen, setNoteModalOpen] = useState(false);
-  const [selectedInvoiceForNote, setSelectedInvoiceForNote] = useState<any>(null);
 
   const filterInvoices = (type: "single" | "recurring" | "deactivated") => {
     return mockInvoices.filter((invoice) => {
@@ -110,6 +106,11 @@ const Invoices = () => {
     setPaymentModalOpen(true);
   };
 
+  const handleLinkModule = (invoice: any, targetModule: "estimate" | "agreement") => {
+    setSelectedInvoiceForLink(invoice);
+    setLinkTargetModule(targetModule);
+    setLinkModalOpen(true);
+  };
 
   const handleDocHistory = (invoice: any) => {
     // Navigate to customer details page
@@ -133,31 +134,6 @@ const Invoices = () => {
     setReassignModalOpen(false);
     setSelectedEmployee("");
     setSelectedInvoiceForReassign(null);
-  };
-
-  const handlePayCash = (invoice: any) => {
-    setSelectedInvoiceForPayCash(invoice);
-    setPayCashModalOpen(true);
-  };
-
-  const handleConvertToJob = (invoice: any) => {
-    toast.success(`Invoice ${invoice.id} converted to job successfully`);
-    navigate("/jobs", { state: { fromInvoice: invoice.id } });
-  };
-
-  const handleAddNote = (invoice: any) => {
-    setSelectedInvoiceForNote(invoice);
-    setNoteModalOpen(true);
-  };
-
-  const handleRefund = (invoice: any) => {
-    toast.success(`Refund process initiated for invoice ${invoice.id}`);
-    // Navigate to refund page or open refund modal
-    navigate(`/inventory/refunds`, { state: { invoiceId: invoice.id } });
-  };
-
-  const handleCreateNewInvoice = (invoice: any) => {
-    navigate("/invoices/new", { state: { basedOn: invoice.id, customerId: invoice.customerId } });
   };
 
   const renderSingleInvoiceTable = (invoices: any[]) => (
@@ -226,118 +202,71 @@ const Invoices = () => {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-52">
-                      {invoice.status === "Paid" ? (
-                        // PAID INVOICE MENU
+                      <DropdownMenuItem 
+                        className="gap-2"
+                        onClick={() => {
+                          setSelectedInvoiceForPreview(invoice);
+                          setPreviewModalOpen(true);
+                        }}
+                      >
+                        <Eye className="h-4 w-4" />
+                        Preview invoice
+                      </DropdownMenuItem>
+                      <DropdownMenuItem className="gap-2" onClick={() => handleSendEmail(invoice)}>
+                        <Mail className="h-4 w-4" />
+                        Send email
+                      </DropdownMenuItem>
+                      <DropdownMenuItem className="gap-2" onClick={() => handleSendSMS(invoice)}>
+                        <MessageSquare className="h-4 w-4" />
+                        Send sms
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleLinkModule(invoice, "estimate")} className="gap-2">
+                        <FileText className="h-4 w-4" />
+                        Link Estimate
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleLinkModule(invoice, "agreement")} className="gap-2">
+                        <FileCheck className="h-4 w-4" />
+                        Link Agreement
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem 
+                        className="gap-2"
+                        disabled={invoice.status === "Paid"}
+                        onClick={() => {
+                          if (invoice.status !== "Paid") {
+                            navigate(`/invoices/${invoice.id}/edit`);
+                          }
+                        }}
+                      >
+                        <Edit className="h-4 w-4" />
+                        Edit Invoice {invoice.status === "Paid" && "(Disabled)"}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        className="gap-2"
+                        onClick={() => handleReassignEmployee(invoice)}
+                      >
+                        <UserCog className="h-4 w-4" />
+                        Reassign Employee
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      {invoice.status === "Open" && (
                         <>
-                          <DropdownMenuItem 
-                            className="gap-2"
-                            onClick={() => {
-                              setSelectedInvoiceForPreview(invoice);
-                              setPreviewModalOpen(true);
-                            }}
-                          >
-                            <Eye className="h-4 w-4" />
-                            Preview
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="gap-2" onClick={() => handleConvertToJob(invoice)}>
-                            <Briefcase className="h-4 w-4" />
-                            Convert to Job
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="gap-2" onClick={() => handleSendEmail(invoice)}>
-                            <Mail className="h-4 w-4" />
-                            Send Email
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="gap-2" onClick={() => handleSendSMS(invoice)}>
-                            <MessageSquare className="h-4 w-4" />
-                            Send SMS
-                          </DropdownMenuItem>
                           <DropdownMenuItem 
                             className="gap-2"
                             onClick={() => handleDocHistory(invoice)}
                           >
                             <FileText className="h-4 w-4" />
-                            Customer History
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="gap-2" onClick={() => handleAddNote(invoice)}>
-                            <StickyNote className="h-4 w-4" />
-                            Add Note
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="gap-2 text-warning focus:text-warning" onClick={() => handleRefund(invoice)}>
-                            <RotateCcw className="h-4 w-4" />
-                            Refund
-                          </DropdownMenuItem>
-                          <DropdownMenuItem 
-                            className="gap-2"
-                            onClick={() => handleReassignEmployee(invoice)}
-                          >
-                            <UserCog className="h-4 w-4" />
-                            Reassign Employee
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="gap-2" onClick={() => handleCreateNewInvoice(invoice)}>
-                            <Copy className="h-4 w-4" />
-                            Create new Invoice
-                          </DropdownMenuItem>
-                        </>
-                      ) : (
-                        // UNPAID INVOICE MENU (Open or Overdue)
-                        <>
-                          <DropdownMenuItem 
-                            className="gap-2"
-                            onClick={() => {
-                              setSelectedInvoiceForPreview(invoice);
-                              setPreviewModalOpen(true);
-                            }}
-                          >
-                            <Eye className="h-4 w-4" />
-                            Preview
+                            Doc History
                           </DropdownMenuItem>
                           <DropdownMenuItem className="gap-2" onClick={() => handlePayNow(invoice)}>
                             <CreditCard className="h-4 w-4" />
                             Pay Now
                           </DropdownMenuItem>
-                          <DropdownMenuItem className="gap-2" onClick={() => handlePayCash(invoice)}>
+                          <DropdownMenuItem className="gap-2">
                             <Banknote className="h-4 w-4" />
                             Pay Cash
                           </DropdownMenuItem>
-                          <DropdownMenuItem className="gap-2" onClick={() => handleConvertToJob(invoice)}>
-                            <Briefcase className="h-4 w-4" />
-                            Convert to Job
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="gap-2" onClick={() => handleSendEmail(invoice)}>
-                            <Mail className="h-4 w-4" />
-                            Send Email
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="gap-2" onClick={() => handleSendSMS(invoice)}>
-                            <MessageSquare className="h-4 w-4" />
-                            Send SMS
-                          </DropdownMenuItem>
-                          <DropdownMenuItem 
-                            className="gap-2"
-                            onClick={() => {
-                              navigate(`/invoices/${invoice.id}/edit`);
-                            }}
-                          >
-                            <Edit className="h-4 w-4" />
-                            Edit Invoice
-                          </DropdownMenuItem>
-                          <DropdownMenuItem 
-                            className="gap-2"
-                            onClick={() => handleDocHistory(invoice)}
-                          >
-                            <FileText className="h-4 w-4" />
-                            Customer History
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="gap-2" onClick={() => handleAddNote(invoice)}>
-                            <StickyNote className="h-4 w-4" />
-                            Add Note
-                          </DropdownMenuItem>
-                          <DropdownMenuItem 
-                            className="gap-2"
-                            onClick={() => handleReassignEmployee(invoice)}
-                          >
-                            <UserCog className="h-4 w-4" />
-                            Reassign Employee
-                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
                           <DropdownMenuItem 
                             className="gap-2 text-destructive focus:text-destructive"
                             onClick={() => handleDeactivate(invoice)}
@@ -346,6 +275,12 @@ const Invoices = () => {
                             Deactivate
                           </DropdownMenuItem>
                         </>
+                      )}
+                      {invoice.status === "Paid" && (
+                        <DropdownMenuItem className="gap-2 text-warning focus:text-warning">
+                          <RotateCcw className="h-4 w-4" />
+                          Refund
+                        </DropdownMenuItem>
                       )}
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -416,118 +351,71 @@ const Invoices = () => {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-52">
-                      {invoice.status === "Paid" ? (
-                        // PAID INVOICE MENU
+                      <DropdownMenuItem 
+                        className="gap-2"
+                        onClick={() => {
+                          setSelectedInvoiceForPreview(invoice);
+                          setPreviewModalOpen(true);
+                        }}
+                      >
+                        <Eye className="h-4 w-4" />
+                        Preview invoice
+                      </DropdownMenuItem>
+                      <DropdownMenuItem className="gap-2" onClick={() => handleSendEmail(invoice)}>
+                        <Mail className="h-4 w-4" />
+                        Send email
+                      </DropdownMenuItem>
+                      <DropdownMenuItem className="gap-2" onClick={() => handleSendSMS(invoice)}>
+                        <MessageSquare className="h-4 w-4" />
+                        Send sms
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleLinkModule(invoice, "estimate")} className="gap-2">
+                        <FileText className="h-4 w-4" />
+                        Link Estimate
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleLinkModule(invoice, "agreement")} className="gap-2">
+                        <FileCheck className="h-4 w-4" />
+                        Link Agreement
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem 
+                        className="gap-2"
+                        disabled={invoice.status === "Paid"}
+                        onClick={() => {
+                          if (invoice.status !== "Paid") {
+                            navigate(`/invoices/${invoice.id}/edit`);
+                          }
+                        }}
+                      >
+                        <Edit className="h-4 w-4" />
+                        Edit Invoice {invoice.status === "Paid" && "(Disabled)"}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        className="gap-2"
+                        onClick={() => handleReassignEmployee(invoice)}
+                      >
+                        <UserCog className="h-4 w-4" />
+                        Reassign Employee
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      {invoice.status === "Open" && (
                         <>
-                          <DropdownMenuItem 
-                            className="gap-2"
-                            onClick={() => {
-                              setSelectedInvoiceForPreview(invoice);
-                              setPreviewModalOpen(true);
-                            }}
-                          >
-                            <Eye className="h-4 w-4" />
-                            Preview
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="gap-2" onClick={() => handleConvertToJob(invoice)}>
-                            <Briefcase className="h-4 w-4" />
-                            Convert to Job
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="gap-2" onClick={() => handleSendEmail(invoice)}>
-                            <Mail className="h-4 w-4" />
-                            Send Email
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="gap-2" onClick={() => handleSendSMS(invoice)}>
-                            <MessageSquare className="h-4 w-4" />
-                            Send SMS
-                          </DropdownMenuItem>
                           <DropdownMenuItem 
                             className="gap-2"
                             onClick={() => handleDocHistory(invoice)}
                           >
                             <FileText className="h-4 w-4" />
-                            Customer History
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="gap-2" onClick={() => handleAddNote(invoice)}>
-                            <StickyNote className="h-4 w-4" />
-                            Add Note
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="gap-2 text-warning focus:text-warning" onClick={() => handleRefund(invoice)}>
-                            <RotateCcw className="h-4 w-4" />
-                            Refund
-                          </DropdownMenuItem>
-                          <DropdownMenuItem 
-                            className="gap-2"
-                            onClick={() => handleReassignEmployee(invoice)}
-                          >
-                            <UserCog className="h-4 w-4" />
-                            Reassign Employee
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="gap-2" onClick={() => handleCreateNewInvoice(invoice)}>
-                            <Copy className="h-4 w-4" />
-                            Create new Invoice
-                          </DropdownMenuItem>
-                        </>
-                      ) : (
-                        // UNPAID INVOICE MENU (Open or Overdue)
-                        <>
-                          <DropdownMenuItem 
-                            className="gap-2"
-                            onClick={() => {
-                              setSelectedInvoiceForPreview(invoice);
-                              setPreviewModalOpen(true);
-                            }}
-                          >
-                            <Eye className="h-4 w-4" />
-                            Preview
+                            Doc History
                           </DropdownMenuItem>
                           <DropdownMenuItem className="gap-2" onClick={() => handlePayNow(invoice)}>
                             <CreditCard className="h-4 w-4" />
                             Pay Now
                           </DropdownMenuItem>
-                          <DropdownMenuItem className="gap-2" onClick={() => handlePayCash(invoice)}>
+                          <DropdownMenuItem className="gap-2">
                             <Banknote className="h-4 w-4" />
                             Pay Cash
                           </DropdownMenuItem>
-                          <DropdownMenuItem className="gap-2" onClick={() => handleConvertToJob(invoice)}>
-                            <Briefcase className="h-4 w-4" />
-                            Convert to Job
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="gap-2" onClick={() => handleSendEmail(invoice)}>
-                            <Mail className="h-4 w-4" />
-                            Send Email
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="gap-2" onClick={() => handleSendSMS(invoice)}>
-                            <MessageSquare className="h-4 w-4" />
-                            Send SMS
-                          </DropdownMenuItem>
-                          <DropdownMenuItem 
-                            className="gap-2"
-                            onClick={() => {
-                              navigate(`/invoices/${invoice.id}/edit`);
-                            }}
-                          >
-                            <Edit className="h-4 w-4" />
-                            Edit Invoice
-                          </DropdownMenuItem>
-                          <DropdownMenuItem 
-                            className="gap-2"
-                            onClick={() => handleDocHistory(invoice)}
-                          >
-                            <FileText className="h-4 w-4" />
-                            Customer History
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="gap-2" onClick={() => handleAddNote(invoice)}>
-                            <StickyNote className="h-4 w-4" />
-                            Add Note
-                          </DropdownMenuItem>
-                          <DropdownMenuItem 
-                            className="gap-2"
-                            onClick={() => handleReassignEmployee(invoice)}
-                          >
-                            <UserCog className="h-4 w-4" />
-                            Reassign Employee
-                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
                           <DropdownMenuItem 
                             className="gap-2 text-destructive focus:text-destructive"
                             onClick={() => handleDeactivate(invoice)}
@@ -614,8 +502,17 @@ const Invoices = () => {
                         }}
                       >
                         <Eye className="h-4 w-4" />
-                        Preview
+                        Preview invoice
                       </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleLinkModule(invoice, "estimate")} className="gap-2">
+                        <FileText className="h-4 w-4" />
+                        Link Estimate
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleLinkModule(invoice, "agreement")} className="gap-2">
+                        <FileCheck className="h-4 w-4" />
+                        Link Agreement
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
                       <DropdownMenuItem 
                         className="gap-2 text-success focus:text-success"
                         onClick={() => handleActivate(invoice)}
@@ -636,7 +533,7 @@ const Invoices = () => {
 
   return (
     <div className="flex-1">
-      <AppHeader searchPlaceholder="Search invoices..." onSearchChange={setSearchQuery} title="Invoices" />
+      <AppHeader searchPlaceholder="Search invoices..." onSearchChange={setSearchQuery} />
 
       <main className="px-4 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6 animate-fade-in">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -647,7 +544,7 @@ const Invoices = () => {
           <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
             <Button 
               variant="outline" 
-              onClick={() => setDueAlertModalOpen(true)} 
+              onClick={() => navigate("/invoices/due-alert")} 
               className="gap-2 touch-target w-full sm:w-auto"
             >
               <Bell className="h-4 w-4 sm:h-5 sm:w-5" />
@@ -744,20 +641,6 @@ const Invoices = () => {
           invoice={selectedInvoiceForPayment}
         />
 
-        <PayCashModal
-          open={payCashModalOpen}
-          onOpenChange={setPayCashModalOpen}
-          orderAmount={selectedInvoiceForPayCash?.amount || 0}
-          orderId={selectedInvoiceForPayCash?.id || selectedInvoiceForPayCash?.orderId || ""}
-          onPaymentComplete={() => {
-            // Update invoice status to paid
-            toast.success(`Invoice ${selectedInvoiceForPayCash?.id || selectedInvoiceForPayCash?.orderId} marked as paid`);
-            setPayCashModalOpen(false);
-            setSelectedInvoiceForPayCash(null);
-            // Refresh invoice list or update state
-          }}
-        />
-
         <PreviewInvoiceModal
           open={previewModalOpen}
           onOpenChange={(open) => {
@@ -765,17 +648,6 @@ const Invoices = () => {
             if (!open) setSelectedInvoiceForPreview(null);
           }}
           invoice={selectedInvoiceForPreview}
-        />
-
-        <InvoiceDueAlertModal
-          open={dueAlertModalOpen}
-          onOpenChange={setDueAlertModalOpen}
-        />
-
-        <AddNoteModal
-          open={noteModalOpen}
-          onOpenChange={setNoteModalOpen}
-          appointmentId={selectedInvoiceForNote?.id || ""}
         />
 
         <Dialog open={reassignModalOpen} onOpenChange={setReassignModalOpen}>

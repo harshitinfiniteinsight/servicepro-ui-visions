@@ -46,7 +46,7 @@ const Inventory = () => {
 
   return (
     <div className="flex-1">
-      <AppHeader searchPlaceholder="Search inventory, equipment..." title="Inventory" />
+      <AppHeader searchPlaceholder="Search inventory, equipment..." />
 
       <main className="px-4 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6 animate-fade-in">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">

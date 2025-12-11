@@ -5,7 +5,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
-import { cn } from "@/lib/utils";
 import Index from "./pages/Index";
 import Customers from "./pages/Customers";
 import CustomerDetails from "./pages/CustomerDetails";
@@ -17,8 +16,6 @@ import Estimates from "./pages/Estimates";
 import AddEstimate from "./pages/AddEstimate";
 import Agreements from "./pages/Agreements";
 import AddAgreement from "./pages/AddAgreement";
-import SellProducts from "./pages/SellProducts";
-import ProductOrders from "./pages/ProductOrders";
 import MinimumDepositPercentage from "./pages/MinimumDepositPercentage";
 import Employees from "./pages/Employees";
 import EmployeeSchedule from "./pages/EmployeeSchedule";
@@ -43,42 +40,23 @@ import TermsConditions from "./pages/TermsConditions";
 import ReturnPolicy from "./pages/ReturnPolicy";
 import BusinessPolicies from "./pages/BusinessPolicies";
 import PaymentMethods from "./pages/PaymentMethods";
-import CardReader from "./pages/CardReader";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import Walkthrough from "./pages/Walkthrough";
 import NotFound from "./pages/NotFound";
 import { AIChatWidget } from "./components/AIChatWidget";
-import { BottomNav } from "./components/BottomNav";
-import { useIsTablet } from "./hooks/use-tablet";
-import { useIsMobile } from "./hooks/use-mobile";
 
 const queryClient = new QueryClient();
 
 const AppContent = () => {
   const location = useLocation();
   const isAuthPage = ['/signin', '/signup', '/walkthrough'].includes(location.pathname);
-  // Always show bottom navigation, hide sidebar completely
-  const showBottomNav = !isAuthPage;
-  // Sidebar is now disabled - using bottom navigation instead
-  const showSidebar = false;
-  // Only show AI Chat Widget on desktop (when not mobile/tablet)
-  const isTablet = useIsTablet();
-  const isMobile = useIsMobile();
-  const showAIChatWidget = !isAuthPage && !isMobile && !isTablet;
 
   return (
-    <div 
-      className="flex min-h-screen w-full bg-muted/30 no-sidebar"
-      data-tablet={isTablet}
-      data-mobile={isMobile}
-    >
-      {/* Sidebar: Disabled - Using bottom navigation instead */}
-      <div className={cn(
-        "flex-1 min-w-0 overflow-hidden",
-        showBottomNav && "pb-16"
-      )}>
-        {showAIChatWidget && <AIChatWidget />}
+    <div className="flex min-h-screen w-full bg-muted/30">
+      {!isAuthPage && <AppSidebar />}
+      <div className="flex-1 min-w-0 overflow-hidden">
+        {!isAuthPage && <AIChatWidget />}
         <Routes>
           <Route path="/signin" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
@@ -101,11 +79,9 @@ const AppContent = () => {
           <Route path="/agreements/new" element={<AddAgreement />} />
           <Route path="/agreements/:id/edit" element={<AddAgreement />} />
           <Route path="/agreements/minimum-deposit" element={<MinimumDepositPercentage />} />
-          <Route path="/sales/sell-products" element={<SellProducts />} />
-          <Route path="/sales/product-orders" element={<ProductOrders />} />
           <Route path="/employees" element={<Employees />} />
           <Route path="/employees/schedule" element={<EmployeeSchedule />} />
-          <Route path="/employees/job-route" element={<EmployeeTracking />} />
+          <Route path="/employees/tracking" element={<EmployeeTracking />} />
           <Route path="/inventory" element={<Inventory />} />
           <Route path="/inventory/alert-settings" element={<LowInventoryAlertSettings />} />
           <Route path="/inventory/stock-in-out" element={<InventoryStockInOut />} />
@@ -122,13 +98,11 @@ const AppContent = () => {
           <Route path="/settings/return-policy" element={<ReturnPolicy />} />
           <Route path="/settings/business-policies" element={<BusinessPolicies />} />
           <Route path="/settings/payment-methods" element={<PaymentMethods />} />
-          <Route path="/settings/card-reader" element={<CardReader />} />
           <Route path="/settings/language" element={<ChangeLanguage />} />
           <Route path="/settings/help" element={<Help />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
-      {showBottomNav && <BottomNav />}
     </div>
   );
 };
@@ -138,7 +112,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter future={{ v7_relativeSplatPath: true, v7_startTransition: true }}>
+      <BrowserRouter>
         <SidebarProvider defaultOpen>
           <AppContent />
         </SidebarProvider>

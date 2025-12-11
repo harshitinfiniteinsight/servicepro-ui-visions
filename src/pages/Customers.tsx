@@ -29,7 +29,7 @@ const Customers = () => {
 
   return (
     <div className="flex-1">
-      <AppHeader searchPlaceholder="Search customers..." onSearchChange={setSearchQuery} title="Customers" />
+      <AppHeader searchPlaceholder="Search customers..." onSearchChange={setSearchQuery} />
 
       <main className="px-4 sm:px-6 py-4 sm:py-6 space-y-6 animate-fade-in">
         <div className="app-card p-6 bg-gradient-to-br from-primary/5 via-accent/5 to-transparent relative overflow-hidden">

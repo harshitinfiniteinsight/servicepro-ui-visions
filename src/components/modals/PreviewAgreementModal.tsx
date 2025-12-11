@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { FileDown, X, CheckCircle, Send, Eye, PenTool, Lock, Camera, User, Upload, Trash2, Mail, MessageSquare, Edit } from "lucide-react";
@@ -216,18 +216,14 @@ export const PreviewAgreementModal = ({ open, onOpenChange, agreement, onPayNow,
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto p-0 bg-white">
-        <DialogHeader className="sr-only">
-          <DialogTitle>Preview Agreement</DialogTitle>
-          <DialogDescription>View and manage agreement details</DialogDescription>
-        </DialogHeader>
         <div className="bg-white">
-          {/* Header - Orange Banner */}
-          <div className="bg-[#F46A1F] text-white p-6">
+          {/* Header - Blue Banner */}
+          <div className="bg-blue-600 text-white p-6">
             <div className="flex items-start justify-between">
               <div className="flex items-start gap-4">
                 {/* Logo */}
                 <div className="h-16 w-16 bg-white rounded-lg flex items-center justify-center">
-                  <span className="text-[#F46A1F] text-3xl font-bold">U</span>
+                  <span className="text-blue-600 text-3xl font-bold">U</span>
                 </div>
                 <div>
                   <h1 className="text-3xl font-bold mb-2">UNIVERSELL Store</h1>
@@ -242,7 +238,7 @@ export const PreviewAgreementModal = ({ open, onOpenChange, agreement, onPayNow,
                 variant="ghost"
                 size="icon"
                 onClick={() => onOpenChange(false)}
-                className="text-white hover:bg-orange-600 h-10 w-10 rounded-full"
+                className="text-white hover:bg-blue-700 h-10 w-10 rounded-full"
               >
                 <X className="h-5 w-5" />
               </Button>
@@ -258,8 +254,8 @@ export const PreviewAgreementModal = ({ open, onOpenChange, agreement, onPayNow,
             </div>
 
             {/* Service Work Order Section */}
-            <div className="bg-orange-50 p-4 rounded-lg">
-              <h2 className="text-xl font-semibold text-orange-900 mb-4">Service Work Order</h2>
+            <div className="bg-blue-100 p-4 rounded-lg">
+              <h2 className="text-xl font-semibold text-blue-900 mb-4">Service Work Order</h2>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
                 <div>
                   <p className="text-gray-600 mb-1">Customer Name</p>
@@ -301,7 +297,7 @@ export const PreviewAgreementModal = ({ open, onOpenChange, agreement, onPayNow,
               <div className="flex-1">
                 <div className="border border-gray-200 rounded-lg overflow-hidden">
                   <table className="w-full">
-                    <thead className="bg-[#F46A1F] text-white">
+                    <thead className="bg-blue-600 text-white">
                       <tr>
                         <th className="px-4 py-3 text-left text-sm font-semibold">Service</th>
                         <th className="px-4 py-3 text-right text-sm font-semibold">Amount</th>
@@ -326,7 +322,7 @@ export const PreviewAgreementModal = ({ open, onOpenChange, agreement, onPayNow,
                 <div className="flex flex-col gap-2">
                   <Button
                     onClick={handleDownloadPDF}
-                    className="bg-[#F46A1F] hover:bg-[#F46A1F]/90 text-white min-w-[180px]"
+                    className="bg-blue-600 hover:bg-blue-700 text-white min-w-[180px]"
                   >
                     <FileDown className="h-4 w-4 mr-2" />
                     PDF DOWNLOAD
@@ -342,7 +338,7 @@ export const PreviewAgreementModal = ({ open, onOpenChange, agreement, onPayNow,
                     onClick={() => {
                       setShowSignModal(true);
                     }}
-                    className="bg-[#F46A1F] hover:bg-[#F46A1F]/90 text-white min-w-[180px]"
+                    className="bg-blue-600 hover:bg-blue-700 text-white min-w-[180px]"
                   >
                     PAY NOW
                   </Button>
@@ -489,7 +485,7 @@ export const PreviewAgreementModal = ({ open, onOpenChange, agreement, onPayNow,
                         <tr key={index} className="border-b border-gray-100">
                           <td className="px-4 py-3">
                             <div className="flex items-center gap-2">
-                              <Icon className="h-4 w-4 text-[#F46A1F]" />
+                              <Icon className="h-4 w-4 text-blue-600" />
                               <span className="text-sm text-gray-900">{item.trail}</span>
                             </div>
                           </td>
@@ -514,14 +510,14 @@ export const PreviewAgreementModal = ({ open, onOpenChange, agreement, onPayNow,
                   <>
                     <Button
                       onClick={() => setShowEmailModal(true)}
-                      className="bg-[#F46A1F] hover:bg-[#F46A1F]/90 text-white"
+                      className="bg-blue-600 hover:bg-blue-700 text-white"
                     >
                       <Mail className="h-4 w-4 mr-2" />
                       Send Email
                     </Button>
                     <Button
                       onClick={() => setShowSMSModal(true)}
-                      className="bg-[#F46A1F] hover:bg-[#F46A1F]/90 text-white"
+                      className="bg-blue-600 hover:bg-blue-700 text-white"
                     >
                       <MessageSquare className="h-4 w-4 mr-2" />
                       Send via SMS
@@ -531,14 +527,14 @@ export const PreviewAgreementModal = ({ open, onOpenChange, agreement, onPayNow,
                   <>
                     <Button
                       onClick={() => setShowEmailModal(true)}
-                      className="bg-[#F46A1F] hover:bg-[#F46A1F]/90 text-white"
+                      className="bg-blue-600 hover:bg-blue-700 text-white"
                     >
                       <Mail className="h-4 w-4 mr-2" />
                       Send Email
                     </Button>
                     <Button
                       onClick={() => setShowSMSModal(true)}
-                      className="bg-[#F46A1F] hover:bg-[#F46A1F]/90 text-white"
+                      className="bg-blue-600 hover:bg-blue-700 text-white"
                     >
                       <MessageSquare className="h-4 w-4 mr-2" />
                       Send via SMS
@@ -551,7 +547,7 @@ export const PreviewAgreementModal = ({ open, onOpenChange, agreement, onPayNow,
                             onOpenChange(false);
                           }
                         }}
-                        className="bg-[#F46A1F] hover:bg-[#F46A1F]/90 text-white"
+                        className="bg-blue-600 hover:bg-blue-700 text-white"
                       >
                         <Edit className="h-4 w-4 mr-2" />
                         Update Agreement
@@ -569,7 +565,7 @@ export const PreviewAgreementModal = ({ open, onOpenChange, agreement, onPayNow,
             </div>
 
             {/* Footer */}
-            <div className="bg-[#F46A1F] text-white p-4 rounded-lg">
+            <div className="bg-blue-600 text-white p-4 rounded-lg">
               <div className="flex items-center justify-center gap-2">
                 <div className="h-8 w-8 bg-white rounded flex items-center justify-center">
                   <span className="text-blue-600 text-lg font-bold">U</span>

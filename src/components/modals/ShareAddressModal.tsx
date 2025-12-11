@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -45,9 +45,6 @@ export const ShareAddressModal = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="w-[95vw] max-w-[600px] p-0 mx-auto overflow-hidden sm:rounded-lg [&>button]:hidden">
         <DialogHeader className="bg-primary text-primary-foreground p-4 sm:p-6 rounded-t-lg sm:rounded-t-lg">
-          <DialogDescription className="sr-only">
-            Share job address with employees or via phone number
-          </DialogDescription>
           <div className="flex items-center justify-between gap-2">
             <DialogTitle className="text-xl sm:text-2xl font-bold text-white">Share Address</DialogTitle>
             <Button

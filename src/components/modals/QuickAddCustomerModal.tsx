@@ -1,10 +1,9 @@
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { X } from "lucide-react";
 
 interface QuickAddCustomerModalProps {
   open: boolean;
@@ -32,23 +31,10 @@ export function QuickAddCustomerModal({ open, onOpenChange }: QuickAddCustomerMo
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[450px] p-0 rounded-xl overflow-hidden">
-        <DialogHeader className="bg-[#F46A1F] text-white p-6 pb-4">
-          <DialogDescription className="sr-only">
-            Quickly add a new customer
-          </DialogDescription>
-          <div className="flex items-center justify-between">
-            <DialogTitle className="text-xl md:text-2xl font-bold text-white">Quick Add Customer</DialogTitle>
-            <button
-              onClick={() => onOpenChange(false)}
-              className="h-10 w-10 flex items-center justify-center rounded-full hover:bg-orange-600 transition-colors"
-              aria-label="Close"
-            >
-              <X className="h-5 w-5 text-white" />
-            </button>
-          </div>
+      <DialogContent className="sm:max-w-[450px]">
+        <DialogHeader>
+          <DialogTitle>Quick Add Customer</DialogTitle>
         </DialogHeader>
-        <div className="p-6">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <Label htmlFor="firstName">First Name *</Label>
@@ -100,12 +86,11 @@ export function QuickAddCustomerModal({ open, onOpenChange }: QuickAddCustomerMo
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="flex-1">
               Cancel
             </Button>
-            <Button type="submit" className="flex-1 bg-[#F46A1F] hover:bg-[#F46A1F]/90 text-white">
+            <Button type="submit" className="flex-1">
               Quick Add
             </Button>
           </div>
         </form>
-        </div>
       </DialogContent>
     </Dialog>
   );
