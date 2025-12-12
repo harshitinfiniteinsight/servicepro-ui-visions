@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowLeft, Zap, Wifi, MoreVertical, CreditCard, DollarSign, Building2, X } from "lucide-react";
+import { ArrowLeft, Zap, CreditCard, DollarSign, Building2, X } from "lucide-react";
 import { toast } from "sonner";
 import { CardDetailsModal } from "./CardDetailsModal";
 import { ACHPaymentModal } from "./ACHPaymentModal";
@@ -37,7 +37,6 @@ export const InvoicePaymentModal = ({ open, onOpenChange, invoice, source = "inv
     } else if (method === "card") {
       setShowCardDetailsModal(true);
     } else if (method === "tap") {
-      // Simulate tap to pay success and add notification
       const entityTypeLabel = entityType.charAt(0).toUpperCase() + entityType.slice(1);
       addNotification({
         entityType,
@@ -58,15 +57,7 @@ export const InvoicePaymentModal = ({ open, onOpenChange, invoice, source = "inv
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-<<<<<<< HEAD
       <DialogContent className="max-w-md p-0 max-h-[90vh] overflow-y-auto">
-=======
-      <DialogContent className="max-w-md p-0 max-h-[95vh] overflow-hidden flex flex-col">
-        <DialogHeader className="sr-only">
-          <DialogTitle>Service Pro911 - Payment</DialogTitle>
-          <DialogDescription>Process payment for {source === "estimate" ? "estimate" : "invoice"}</DialogDescription>
-        </DialogHeader>
->>>>>>> 364b4fc (feat: Refactor navigation to sidebar, implement table view for estimates, and add convert to invoice option)
         {/* Header */}
         <div className="bg-orange-500 text-white px-3 sm:px-4 py-2 sm:py-3 flex items-center gap-2 sm:gap-3 flex-shrink-0">
           <Button
